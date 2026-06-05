@@ -399,11 +399,13 @@ button { cursor: pointer; background: transparent; }
     color: var(--text-gray);
 }
 #auth-view .input-group label {
-    display: none; /* Hide labels to save space! We will rely on placeholders! */
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #334155;
 }
-#auth-view .input-group:last-of-type label {
-    display: block; /* Show label for "I want to be a:" */
-    margin-bottom: 4px;
+[data-theme="dark"] #auth-view .input-group label {
+    color: rgba(255, 255, 255, 0.8);
 }
 input, textarea, select {
     width: 100%;
@@ -627,8 +629,8 @@ input:focus, textarea:focus, select:focus {
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
 }
 
-.auth-header h1 { color: #064e3b !important; text-shadow: none; }
-.auth-header p { color: #374151 !important; font-weight: 500; }
+.auth-header h1 { color: #0f172a !important; text-shadow: none; font-weight: 700; }
+.auth-header p { color: #334155 !important; font-weight: 600; }
 [data-theme="dark"] .auth-header h1 { color: white !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 [data-theme="dark"] .auth-header p { color: rgba(255,255,255,0.7) !important; }
 
@@ -655,8 +657,8 @@ input:focus, textarea:focus, select:focus {
     transition: all 0.2s;
     font-weight: 600;
 }
-.auth-tab:hover { color: #064e3b; }
-.auth-tab.active { background: rgba(255, 255, 255, 0.65); color: #064e3b; border-bottom: 2px solid var(--primary); border-radius: 6px 6px 0 0; }
+.auth-tab:hover { color: var(--primary); }
+.auth-tab.active { background: rgba(255, 255, 255, 0.65); color: #0f172a; border-bottom: 2px solid var(--primary); border-radius: 6px 6px 0 0; }
 
 [data-theme="dark"] .auth-tab { color: rgba(255,255,255,0.6); font-weight: 500; }
 [data-theme="dark"] .auth-tab:hover { color: white; }
@@ -734,7 +736,12 @@ input:focus, textarea:focus, select:focus {
 }
 
 #auth-view .forgot-link {
+    color: #10b981;
+    font-weight: 600;
+}
+#auth-view .forgot-link:hover {
     color: #047857;
+    text-decoration: underline;
 }
 [data-theme="dark"] #auth-view .forgot-link {
     color: var(--primary);
