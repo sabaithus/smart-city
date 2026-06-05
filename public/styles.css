@@ -518,18 +518,6 @@ input:focus, textarea:focus, select:focus {
 [data-theme="dark"] #auth-view::before {
     background: linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 25%, transparent 60%);
 }
-#auth-view::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 150px;
-    background: linear-gradient(0deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.3) 40%, transparent 100%);
-    z-index: 0;
-    pointer-events: none;
-}
-[data-theme="dark"] #auth-view::after {
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.3) 40%, transparent 100%);
-}
 
 /* Auth Layout (Absolute Positioning) */
 .auth-layout {
@@ -596,15 +584,23 @@ input:focus, textarea:focus, select:focus {
     justify-content: space-between;
     align-items: center;
     font-size: 0.875rem; 
-    color: #0f172a;
-    font-weight: 500;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.6);
 }
-[data-theme="dark"] .hero-footer { color: #94a3b8; font-weight: 400; }
+[data-theme="dark"] .hero-footer { color: #ffffff !important; font-weight: 500; }
 
-.footer-links a { color: #0f172a; text-decoration: none; margin-left: 24px; transition: color 0.2s; font-weight: 500; }
-.footer-links a:hover { color: var(--primary); }
-[data-theme="dark"] .footer-links a { color: #94a3b8; font-weight: 400; }
-[data-theme="dark"] .footer-links a:hover { color: white; }
+.footer-links a { 
+    color: rgba(255, 255, 255, 0.9) !important; 
+    text-decoration: none; 
+    margin-left: 24px; 
+    transition: color 0.2s; 
+    font-weight: 600; 
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.footer-links a:hover { color: var(--primary) !important; text-shadow: none; }
+[data-theme="dark"] .footer-links a { color: rgba(255, 255, 255, 0.8) !important; font-weight: 500; }
+[data-theme="dark"] .footer-links a:hover { color: white !important; }
 
 .auth-center-box {
     position: relative;
