@@ -736,12 +736,12 @@ input:focus, textarea:focus, select:focus {
 }
 
 #auth-view .forgot-link {
-    color: #1d4ed8;
+    color: #065f46; /* Saturated Emerald 800 for high contrast */
     font-weight: 600;
     transition: color 0.2s;
 }
 #auth-view .forgot-link:hover {
-    color: #1e40af;
+    color: #047857; /* Emerald 700 on hover */
     text-decoration: underline;
 }
 [data-theme="dark"] #auth-view .forgot-link {
