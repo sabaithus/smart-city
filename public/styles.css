@@ -736,11 +736,12 @@ input:focus, textarea:focus, select:focus {
 }
 
 #auth-view .forgot-link {
-    color: #10b981;
+    color: #1d4ed8;
     font-weight: 600;
+    transition: color 0.2s;
 }
 #auth-view .forgot-link:hover {
-    color: #047857;
+    color: #1e40af;
     text-decoration: underline;
 }
 [data-theme="dark"] #auth-view .forgot-link {
