@@ -628,7 +628,34 @@ const app = {
         el.classList.add('active');
     },
 
-    // ==================== NEW: TASK TABS ====================
+    // ==================== NEW: TASK TABS & DETAILS ====================
+
+    openTaskDetail: function(index) {
+        if (!window.SmartCityMap || !SmartCityMap.demoData[index]) return;
+        const task = SmartCityMap.demoData[index];
+        
+        document.getElementById('td-title').textContent = task.title;
+        document.getElementById('td-location').textContent = task.location;
+        document.getElementById('td-time').textContent = task.time;
+        document.getElementById('td-desc').textContent = task.description;
+        
+        const badge = document.getElementById('td-badge');
+        badge.textContent = task.severity || 'Normal';
+        badge.className = `badge ${task.severity === 'HIGH' ? 'high' : task.severity === 'MED' ? 'medium' : 'low'}`;
+        
+        const img = document.getElementById('td-image');
+        const pin = document.getElementById('td-pin');
+        if (task.photo) {
+            img.src = task.photo;
+            img.style.display = 'block';
+            pin.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            pin.style.display = 'flex';
+        }
+        
+        this.navigateLayout('task-detail-view');
+    },
 
     switchTaskTab: function(btn, tabName) {
         // Update active tab button

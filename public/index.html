@@ -257,10 +257,7 @@
                         <i data-lucide="bell"></i> Alerts
                     </a>
                 </nav>
-                <div class="sidebar-qr" style="padding: 15px; text-align: center; border-top: 1px solid var(--border); margin-top: auto;">
-                    <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 8px;">Scan to open on mobile</p>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=http://10.60.98.21:3000" alt="QR Code" style="border-radius: 8px; width: 120px; height: 120px; background: white; padding: 4px;">
-                </div>
+
                 <div class="sidebar-footer">
                     <button class="theme-toggle-btn" onclick="app.toggleTheme()">
                         <i data-lucide="moon"></i> <span>Dark Mode</span>
@@ -502,6 +499,42 @@
                             </div>
                             <div class="map-panel-list" id="map-panel-list">
                                 <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Custom Detail Card Overlay -->
+                        <div id="map-detail-card" class="map-detail-card" style="display:none;">
+                            <div class="mdc-backdrop" onclick="SmartCityMap.closeDetailCard()"></div>
+                            <div class="mdc-card">
+                                <button class="mdc-close" onclick="SmartCityMap.closeDetailCard()">
+                                    <i data-lucide="x"></i>
+                                </button>
+                                <div class="mdc-photo-wrap">
+                                    <img id="mdc-photo" src="" alt="Detail photo">
+                                    <div class="mdc-photo-overlay"></div>
+                                    <div class="mdc-type-badge" id="mdc-type-badge"></div>
+                                </div>
+                                <div class="mdc-body">
+                                    <div class="mdc-header">
+                                        <h3 id="mdc-title"></h3>
+                                        <span class="mdc-severity" id="mdc-severity"></span>
+                                    </div>
+                                    <div class="mdc-location" id="mdc-location">
+                                        <i data-lucide="map-pin"></i>
+                                        <span></span>
+                                    </div>
+                                    <p class="mdc-description" id="mdc-description"></p>
+                                    <div class="mdc-meta" id="mdc-meta">
+                                        <div class="mdc-meta-item" id="mdc-time-item">
+                                            <i data-lucide="clock"></i>
+                                            <span id="mdc-time"></span>
+                                        </div>
+                                        <div class="mdc-meta-item mdc-rating" id="mdc-rating-item" style="display:none;">
+                                            <i data-lucide="star"></i>
+                                            <span id="mdc-rating"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -767,33 +800,8 @@
                         <button class="tab" onclick="app.switchTaskTab(this, 'completed')">Completed</button>
                     </div>
                     <div class="content-padded">
-                        <div class="task-card" data-tab="upcoming" onclick="app.navigateLayout('task-detail-view')">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box teal-light"><i class="teal" data-lucide="heart-handshake"></i></div>
-                                    <div><h4>Elderly Needs Help</h4><p class="text-sm text-gray">Koramangala 4th Block</p></div>
-                                </div>
-                                <span class="badge medium">Medium</span>
-                            </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 1.2 km away</span>
-                                <span class="eta">ETA: 10-15 min</span>
-                            </div>
-                        </div>
-                        <div class="task-card" data-tab="upcoming">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box orange-light"><i class="orange" data-lucide="package"></i></div>
-                                    <div><h4>Relief Material Sorting</h4><p class="text-sm text-gray">HSR Layout</p></div>
-                                </div>
-                                <span class="badge medium">Medium</span>
-                            </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 2.5 km away</span>
-                                <span class="eta">ETA: 15-20 min</span>
-                            </div>
-                        </div>
-                        <div class="task-card" data-tab="in-progress" onclick="app.navigateLayout('task-detail-view')" style="display: none;">
+                        <!-- 1. Flooding -->
+                        <div class="task-card" data-tab="in-progress" onclick="app.openTaskDetail(0)" style="display: none;">
                             <div class="task-header">
                                 <div class="task-title-area">
                                     <div class="icon-box red-light"><i class="red" data-lucide="droplets"></i></div>
@@ -806,7 +814,9 @@
                                 <span class="eta" style="color: var(--primary);"><span class="pulse-dot"></span> In Progress</span>
                             </div>
                         </div>
-                        <div class="task-card" data-tab="upcoming" onclick="app.navigateLayout('task-detail-view')">
+
+                        <!-- 2. Fallen Tree -->
+                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(1)">
                             <div class="task-header">
                                 <div class="task-title-area">
                                     <div class="icon-box orange-light"><i class="orange" data-lucide="tree-pine"></i></div>
@@ -819,17 +829,64 @@
                                 <span class="eta">ETA: 20 min</span>
                             </div>
                         </div>
-                        <div class="task-card" data-tab="completed" onclick="app.navigateLayout('task-detail-view')" style="display: none;">
+
+                        <!-- 3. Gas Leak -->
+                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(2)">
                             <div class="task-header">
                                 <div class="task-title-area">
-                                    <div class="icon-box green-light"><i class="green" data-lucide="traffic-cone"></i></div>
-                                    <div><h4>Pothole on 5th Cross</h4><p class="text-sm text-gray">Jayanagar 4th Block</p></div>
+                                    <div class="icon-box red-light"><i class="red" data-lucide="alert-triangle"></i></div>
+                                    <div><h4>Gas Leak Reported</h4><p class="text-sm text-gray">Jayanagar 5th Block</p></div>
+                                </div>
+                                <span class="badge high">High</span>
+                            </div>
+                            <div class="task-footer">
+                                <span class="distance"><i data-lucide="map-pin"></i> 3.2 km away</span>
+                                <span class="eta">ETA: 10 min</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. Pothole -->
+                        <div class="task-card" data-tab="completed" onclick="app.openTaskDetail(3)" style="display: none;">
+                            <div class="task-header">
+                                <div class="task-title-area">
+                                    <div class="icon-box green-light"><i class="green" data-lucide="alert-circle"></i></div>
+                                    <div><h4>Pothole on Highway</h4><p class="text-sm text-gray">Bellary Road</p></div>
                                 </div>
                                 <span class="badge resolved">Done</span>
                             </div>
                             <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 3.5 km away</span>
+                                <span class="distance"><i data-lucide="map-pin"></i> 5.0 km away</span>
                                 <span class="eta" style="color: var(--green);"><i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Resolved</span>
+                            </div>
+                        </div>
+
+                        <!-- 5. Stray Dogs (Turkestan) -->
+                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(4)">
+                            <div class="task-header">
+                                <div class="task-title-area">
+                                    <div class="icon-box blue-light"><i class="blue" data-lucide="alert-circle"></i></div>
+                                    <div><h4>Stray Dogs near school</h4><p class="text-sm text-gray">Abay St, Turkestan</p></div>
+                                </div>
+                                <span class="badge low">Low</span>
+                            </div>
+                            <div class="task-footer">
+                                <span class="distance"><i data-lucide="map-pin"></i> 1.5 km away</span>
+                                <span class="eta">ETA: 45 min</span>
+                            </div>
+                        </div>
+
+                        <!-- 6. Broken Streetlight (Turkestan) -->
+                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(5)">
+                            <div class="task-header">
+                                <div class="task-title-area">
+                                    <div class="icon-box blue-light"><i class="blue" data-lucide="zap-off"></i></div>
+                                    <div><h4>Broken Streetlight</h4><p class="text-sm text-gray">Esim Khan Square, Turkestan</p></div>
+                                </div>
+                                <span class="badge low">Low</span>
+                            </div>
+                            <div class="task-footer">
+                                <span class="distance"><i data-lucide="map-pin"></i> 0.5 km away</span>
+                                <span class="eta">Scheduled: Tomorrow</span>
                             </div>
                         </div>
                     </div>
@@ -916,22 +973,22 @@
                     </header>
                     <div class="content-padded">
                         <div class="flex-between mb-2">
-                            <span class="badge medium">Medium</span>
-                            <span class="text-sm text-gray">2 min ago</span>
+                            <span id="td-badge" class="badge medium">Medium</span>
+                            <span id="td-time" class="text-sm text-gray">2 min ago</span>
                         </div>
-                        <h3>Elderly Needs Help</h3>
-                        <p class="text-sm text-gray mb-3">Koramangala 4th Block, Bengaluru, Karnataka</p>
-                        <div class="map-snippet small mb-4">
-                            <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" alt="Map snippet" class="map-bg">
-                            <div class="map-pin teal" style="top:50%; left:50%"><i data-lucide="user"></i></div>
+                        <h3 id="td-title">Elderly Needs Help</h3>
+                        <p id="td-location" class="text-sm text-gray mb-3">Koramangala 4th Block, Bengaluru, Karnataka</p>
+                        <div class="map-snippet small mb-4" style="height: 200px;">
+                            <img id="td-image" src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" alt="Map snippet" class="map-bg" style="object-fit: cover;">
+                            <div id="td-pin" class="map-pin teal" style="top:50%; left:50%; display: none;"><i data-lucide="user"></i></div>
                         </div>
                         <h4>Description</h4>
-                        <p class="text-body mb-4">An elderly person needs assistance with getting medicine from a nearby pharmacy.</p>
+                        <p id="td-desc" class="text-body mb-4">An elderly person needs assistance with getting medicine from a nearby pharmacy.</p>
                         <h4>What You Need To Do</h4>
                         <ul class="todo-list mb-4">
                             <li>Visit the location</li>
-                            <li>Help in getting medicine</li>
-                            <li>Hand over and confirm</li>
+                            <li>Assess the situation</li>
+                            <li>Provide necessary assistance</li>
                         </ul>
                         <div class="action-buttons-row">
                             <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Reject</button>

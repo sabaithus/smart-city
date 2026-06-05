@@ -10,19 +10,124 @@ const SmartCityMap = {
     markerData: [],
     currentFilter: 'all',
     youMarker: null,
-    infoWindow: null,
+    detailCardOpen: false,
 
     demoData: [
-        { type: 'incidents', lat: 12.9750, lng: 77.5890, title: 'Flooding near Main St.', location: 'MG Road, Central Mall', severity: 'HIGH', icon: 'droplets', time: '10 min ago' },
-        { type: 'incidents', lat: 12.9620, lng: 77.6010, title: 'Fallen Tree Blocking Road', location: 'Indiranagar Park', severity: 'MED', icon: 'tree-pine', time: '45 min ago' },
-        { type: 'incidents', lat: 12.9510, lng: 77.5760, title: 'Gas Leak Reported', location: 'Jayanagar 5th Block', severity: 'HIGH', icon: 'alert-triangle', time: '5 min ago' },
-        { type: 'incidents', lat: 12.9830, lng: 77.5950, title: 'Pothole on Highway', location: 'Bellary Road', severity: 'LOW', icon: 'alert-circle', time: '2 hrs ago' },
-        { type: 'volunteers', lat: 12.9710, lng: 77.5960, title: 'Amit K.', location: 'Available • 1.2 km', severity: null, icon: 'user-check', time: 'Online' },
-        { type: 'volunteers', lat: 12.9680, lng: 77.5830, title: 'Priya M.', location: 'Available • 0.8 km', severity: null, icon: 'user', time: 'Online' },
-        { type: 'volunteers', lat: 12.9560, lng: 77.5910, title: 'Raj S.', location: 'On Task • 2.5 km', severity: null, icon: 'person-standing', time: 'Busy' },
-        { type: 'services', lat: 12.9790, lng: 77.5720, title: 'Fire Station #12', location: 'Rajajinagar', severity: null, icon: 'flame', time: '24/7' },
-        { type: 'services', lat: 12.9600, lng: 77.6100, title: 'Police Station - HAL', location: 'HAL Airport Road', severity: null, icon: 'shield', time: '24/7' },
-        { type: 'services', lat: 12.9550, lng: 77.5680, title: 'City Hospital', location: 'BSK 2nd Stage', severity: null, icon: 'cross', time: 'Open' },
+        {
+            type: 'incidents', lat: 12.9750, lng: 77.5890,
+            title: 'Flooding near Main St.',
+            location: 'MG Road, Central Mall',
+            severity: 'HIGH', icon: 'droplets', time: '10 min ago',
+            photo: 'images/map/flooding.png',
+            description: 'Heavy rainfall has caused significant flooding on MG Road near Central Mall. Water level has risen to approximately 30cm, submerging parts of the sidewalk and lower sections of the road. Traffic is heavily disrupted and pedestrians are advised to avoid the area. Municipal pumps have been deployed.'
+        },
+        {
+            type: 'incidents', lat: 12.9620, lng: 77.6010,
+            title: 'Fallen Tree Blocking Road',
+            location: 'Indiranagar Park',
+            severity: 'MED', icon: 'tree-pine', time: '45 min ago',
+            photo: 'images/map/fallen_tree.png',
+            description: 'A large banyan tree has fallen across the road near Indiranagar Park, completely blocking both lanes. Branches are scattered across a 20-meter stretch. No injuries reported. Road clearance crew has been dispatched and expected to arrive within 30 minutes.'
+        },
+        {
+            type: 'incidents', lat: 12.9510, lng: 77.5760,
+            title: 'Gas Leak Reported',
+            location: 'Jayanagar 5th Block',
+            severity: 'HIGH', icon: 'alert-triangle', time: '5 min ago',
+            photo: 'images/map/gas_leak.png',
+            description: 'Residents reported a strong gas smell emanating from underground pipelines in Jayanagar 5th Block. The area has been cordoned off within a 100-meter radius. Gas utility emergency team is on site performing leak detection. Residents in nearby buildings have been advised to evacuate as a precaution.'
+        },
+        {
+            type: 'incidents', lat: 12.9830, lng: 77.5950,
+            title: 'Pothole on Highway',
+            location: 'Bellary Road',
+            severity: 'LOW', icon: 'alert-circle', time: '2 hrs ago',
+            photo: 'images/map/pothole.png',
+            description: 'A large pothole approximately 60cm wide and 15cm deep has formed on the outer lane of Bellary Road near the flyover entrance. Multiple vehicles have reported tire damage. Temporary warning signs have been placed. Road repair is scheduled for tonight to minimize traffic disruption.'
+        },
+        {
+            type: 'incidents', lat: 43.3000, lng: 68.2500,
+            title: 'Stray Dogs near school',
+            location: 'Abay St, Turkestan',
+            severity: 'LOW', icon: 'alert-circle', time: '1 hr ago',
+            photo: 'images/map/stray_dogs.png',
+            description: 'A pack of stray dogs has been spotted resting near the elementary school entrance. No aggressive behavior reported, but parents are concerned. Animal control has been notified to safely relocate them.'
+        },
+        {
+            type: 'incidents', lat: 43.2950, lng: 68.2550,
+            title: 'Broken Streetlight',
+            location: 'Esim Khan Square, Turkestan',
+            severity: 'LOW', icon: 'zap-off', time: '5 hrs ago',
+            photo: 'images/map/broken_streetlight.png',
+            description: 'A main streetlight pole on the east side of the square is broken and unlit, causing poor visibility at night. Maintenance crew has been scheduled for tomorrow morning.'
+        },
+        {
+            type: 'volunteers', lat: 12.9710, lng: 77.5960,
+            title: 'Amit K.',
+            location: 'Available • 1.2 km',
+            severity: null, icon: 'user-check', time: 'Online',
+            photo: 'images/map/volunteer_amit.png',
+            description: 'Certified first-aid responder and community volunteer with 3 years of experience in disaster relief coordination. Specializes in flood rescue operations and evacuation assistance.',
+            rating: 4.8,
+            slogan: '"Ready to serve, anytime, anywhere"'
+        },
+        {
+            type: 'volunteers', lat: 12.9680, lng: 77.5830,
+            title: 'Priya M.',
+            location: 'Available • 0.8 km',
+            severity: null, icon: 'user', time: 'Online',
+            photo: 'images/map/volunteer_priya.png',
+            description: 'Environmental activist and trained community health worker. Experienced in organizing neighborhood clean-up drives, first-aid support, and elderly assistance programs.',
+            rating: 4.9,
+            slogan: '"Building stronger communities, one step at a time"'
+        },
+        {
+            type: 'volunteers', lat: 12.9560, lng: 77.5910,
+            title: 'Raj S.',
+            location: 'On Task • 2.5 km',
+            severity: null, icon: 'person-standing', time: 'Busy',
+            photo: 'images/map/volunteer_raj.png',
+            description: 'Construction safety specialist and emergency response volunteer. Currently assisting with fallen tree clearance near Indiranagar. Skilled in operating heavy equipment and structural damage assessment.',
+            rating: 4.6,
+            slogan: '"No task too big when lives are at stake"'
+        },
+        {
+            type: 'services', lat: 12.9790, lng: 77.5720,
+            title: 'Fire Station #12',
+            location: 'Rajajinagar',
+            severity: null, icon: 'flame', time: '24/7',
+            photo: 'images/map/fire_station.png',
+            description: 'Rajajinagar Fire Station serves a 15km radius covering central and west Bengaluru. Equipped with 4 fire engines, 2 ladder trucks, and a hazmat response unit. Average response time: 8 minutes. Handles fire emergencies, gas leaks, building collapses, and rescue operations.'
+        },
+        {
+            type: 'services', lat: 12.9600, lng: 77.6100,
+            title: 'Police Station - HAL',
+            location: 'HAL Airport Road',
+            severity: null, icon: 'shield', time: '24/7',
+            photo: 'images/map/police_station.png',
+            description: 'HAL Airport Road Police Station covers the eastern corridor of the city including Indiranagar, HAL, and Domlur areas. Staffed with 45 officers including a rapid response unit. Handles law enforcement, traffic management, and community safety programs. Emergency dial: 100.'
+        },
+        {
+            type: 'services', lat: 12.9550, lng: 77.5680,
+            title: 'City Hospital',
+            location: 'BSK 2nd Stage',
+            severity: null, icon: 'cross', time: 'Open',
+            photo: 'images/map/city_hospital.png',
+            description: 'BSK City Hospital is a 350-bed multi-specialty facility with a Level-2 trauma center. Services include 24/7 emergency care, ICU, surgery, orthopedics, and pediatrics. Ambulance fleet of 6 vehicles. Average ER wait time: 12 minutes.'
+        },
+    ],
+
+    // Light theme: clean, minimal, hides all POI noise
+    lightTheme: [
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "poi.park", stylers: [{ visibility: "simplified" }] },
+        { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9e8f7" }] },
+        { featureType: "road.highway", elementType: "geometry.fill", stylers: [{ color: "#e8e8e8" }] },
+        { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#d4d4d4" }] },
+        { featureType: "landscape.man_made", elementType: "geometry.fill", stylers: [{ color: "#f5f5f5" }] },
     ],
 
     darkTheme: [
@@ -30,17 +135,21 @@ const SmartCityMap = {
         { elementType: "labels.text.stroke", stylers: [{ color: "#111827" }] },
         { elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
         { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d1d5db" }] },
-        { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#6b7280" }] },
+        // Hide all POI noise
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "poi.park", stylers: [{ visibility: "simplified" }] },
+        { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] },
         { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#064e3b" }] },
-        { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#34d399" }] },
+        // Hide transit
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        // Road styling
         { featureType: "road", elementType: "geometry", stylers: [{ color: "#1f2937" }] },
         { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#374151" }] },
         { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+        { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
         { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#374151" }] },
         { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#4b5563" }] },
         { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#d1d5db" }] },
-        { featureType: "transit", elementType: "geometry", stylers: [{ color: "#1f2937" }] },
-        { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
         { featureType: "water", elementType: "geometry", stylers: [{ color: "#030712" }] },
         { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4b5563" }] },
         { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#030712" }] }
@@ -61,30 +170,45 @@ const SmartCityMap = {
             center: { lat: 12.9716, lng: 77.5946 },
             zoom: 13,
             disableDefaultUI: true,
-            styles: isDark ? this.darkTheme : []
+            styles: isDark ? this.darkTheme : this.lightTheme
         });
 
-        this.infoWindow = new google.maps.InfoWindow();
+        // "You are here" marker - only show if permission is granted
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    this.youMarker = new google.maps.Marker({
+                        position: pos,
+                        map: this.map,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            fillColor: '#8b5cf6',
+                            fillOpacity: 1,
+                            strokeWeight: 2,
+                            strokeColor: 'white',
+                            scale: 8
+                        },
+                        title: 'You are here'
+                    });
 
-        // "You are here" marker
-        this.youMarker = new google.maps.Marker({
-            position: { lat: 12.9716, lng: 77.5946 },
-            map: this.map,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                fillColor: '#8b5cf6',
-                fillOpacity: 1,
-                strokeWeight: 2,
-                strokeColor: 'white',
-                scale: 8
-            },
-            title: 'You are here'
-        });
-
-        this.youMarker.addListener('click', () => {
-            this.infoWindow.setContent('<div class="custom-popup" style="color:black;padding:5px;"><h4>📍 You are here</h4><p>Bengaluru, Karnataka</p></div>');
-            this.infoWindow.open(this.map, this.youMarker);
-        });
+                    this.youMarker.addListener('click', () => {
+                        this.showLocationTooltip('📍 You are here', 'Your current location');
+                    });
+                    
+                    // Optionally center map on user
+                    this.map.setCenter(pos);
+                },
+                (error) => {
+                    console.log('Geolocation permission denied or failed:', error.message);
+                    // Do not create the marker
+                }
+            );
+        }
 
         this.loadAllMarkers();
 
@@ -120,7 +244,9 @@ const SmartCityMap = {
                         title: r.title || r.category, location: r.location || 'Reported location',
                         severity: r.severity === 'high' ? 'HIGH' : r.severity === 'medium' ? 'MED' : 'LOW',
                         icon: iconMap[r.category] || 'alert-circle', time: SmartCityMap.formatTime(r.created_at),
-                        fromDB: true
+                        fromDB: true,
+                        photo: '', // DB reports may not have a photo
+                        description: r.description || 'Report submitted by a community member. Details are being verified by the response team.'
                     });
                 });
             }
@@ -135,7 +261,6 @@ const SmartCityMap = {
         
         this.markers.forEach(m => m.setMap(null));
         this.markers = [];
-        if (this.infoWindow) this.infoWindow.close();
 
         const colorMap = { incidents: '#ef4444', volunteers: '#10b981', services: '#3b82f6' };
 
@@ -201,29 +326,126 @@ const SmartCityMap = {
         if (d && this.map) {
             this.map.setCenter({ lat: d.lat, lng: d.lng });
             this.map.setZoom(16);
-            
-            const severityHtml = d.severity ? `<span style="background:${d.severity === 'HIGH' ? '#ef4444' : d.severity === 'MED' ? '#f97316' : '#22c55e'};color:white;padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:700;">${d.severity}</span>` : '';
-            const popupHtml = `<div class="custom-popup" style="color:black;padding:5px;min-width:180px;">
-                <h4 style="margin:0 0 5px;font-size:0.95rem;">${d.title}</h4>
-                <p style="margin:0 0 8px;font-size:0.8rem;color:#6b7280;">${d.location}</p>
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:0.75rem;color:#9ca3af;">${d.time}</span>
-                    ${severityHtml}
-                </div>
-            </div>`;
 
-            // Find the specific marker
+            // Highlight the clicked marker with a bounce
             const marker = this.markers.find(m => m._dataIndex === index);
             if (marker) {
-                this.infoWindow.setContent(popupHtml);
-                this.infoWindow.open(this.map, marker);
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(() => marker.setAnimation(null), 1500);
             }
+
+            // Show the beautiful detail card
+            this.showDetailCard(d);
 
             if (window.innerWidth < 1024) {
                 const panel = document.getElementById('map-incident-panel');
                 if (panel) panel.classList.add('collapsed');
             }
         }
+    },
+
+    showDetailCard: function(d) {
+        const card = document.getElementById('map-detail-card');
+        if (!card) return;
+
+        // Set photo
+        const photoEl = document.getElementById('mdc-photo');
+        if (d.photo) {
+            photoEl.src = d.photo;
+            photoEl.style.display = 'block';
+            document.querySelector('.mdc-photo-wrap').style.display = 'block';
+        } else {
+            document.querySelector('.mdc-photo-wrap').style.display = 'none';
+        }
+
+        // Set type badge
+        const typeBadge = document.getElementById('mdc-type-badge');
+        const typeLabels = { incidents: 'Incident', volunteers: 'Volunteer', services: 'Service' };
+        const typeIcons = { incidents: 'alert-triangle', volunteers: 'heart-handshake', services: 'building-2' };
+        typeBadge.innerHTML = `<i data-lucide="${typeIcons[d.type] || 'info'}"></i> ${typeLabels[d.type] || 'Info'}`;
+        typeBadge.className = `mdc-type-badge mdc-type-${d.type}`;
+
+        // Set title
+        document.getElementById('mdc-title').textContent = d.title;
+
+        // Set severity
+        const sevEl = document.getElementById('mdc-severity');
+        if (d.severity) {
+            sevEl.textContent = d.severity;
+            sevEl.className = `mdc-severity mdc-sev-${d.severity.toLowerCase()}`;
+            sevEl.style.display = 'inline-flex';
+        } else {
+            sevEl.style.display = 'none';
+        }
+
+        // Set location
+        const locEl = document.getElementById('mdc-location');
+        locEl.querySelector('span').textContent = d.location;
+
+        // Set description
+        const descEl = document.getElementById('mdc-description');
+        let descText = d.description || '';
+        if (d.slogan) {
+            descText = d.slogan + '\n\n' + descText;
+        }
+        descEl.textContent = descText;
+
+        // Set time
+        document.getElementById('mdc-time').textContent = d.time;
+
+        // Set rating (for volunteers)
+        const ratingItem = document.getElementById('mdc-rating-item');
+        if (d.rating) {
+            ratingItem.style.display = 'flex';
+            document.getElementById('mdc-rating').textContent = `${d.rating} / 5.0`;
+        } else {
+            ratingItem.style.display = 'none';
+        }
+
+        // Show card with animation
+        card.style.display = 'flex';
+        requestAnimationFrame(() => {
+            card.classList.add('active');
+        });
+        this.detailCardOpen = true;
+
+        // Re-render lucide icons inside the card
+        if (window.lucide) lucide.createIcons();
+    },
+
+    closeDetailCard: function() {
+        const card = document.getElementById('map-detail-card');
+        if (!card) return;
+        card.classList.remove('active');
+        setTimeout(() => {
+            card.style.display = 'none';
+        }, 350);
+        this.detailCardOpen = false;
+    },
+
+    showLocationTooltip: function(title, subtitle) {
+        // Simple non-intrusive tooltip for "you are here" etc.
+        const card = document.getElementById('map-detail-card');
+        if (!card) return;
+
+        document.querySelector('.mdc-photo-wrap').style.display = 'none';
+        document.getElementById('mdc-title').textContent = title;
+        document.getElementById('mdc-severity').style.display = 'none';
+        document.getElementById('mdc-location').querySelector('span').textContent = subtitle;
+        document.getElementById('mdc-description').textContent = '';
+        document.getElementById('mdc-time').textContent = 'Now';
+        document.getElementById('mdc-rating-item').style.display = 'none';
+        
+        const typeBadge = document.getElementById('mdc-type-badge');
+        typeBadge.innerHTML = '<i data-lucide="navigation"></i> Location';
+        typeBadge.className = 'mdc-type-badge mdc-type-services';
+
+        card.style.display = 'flex';
+        requestAnimationFrame(() => {
+            card.classList.add('active');
+        });
+        this.detailCardOpen = true;
+        if (window.lucide) lucide.createIcons();
     },
 
     togglePanel: function() {
@@ -253,12 +475,6 @@ const SmartCityMap = {
                 this.map.setCenter(loc);
                 this.map.setZoom(14);
                 
-                if (this.youMarker) {
-                    this.youMarker.setPosition(loc);
-                    this.infoWindow.setContent('<div class="custom-popup" style="color:black;padding:5px;"><h4>📍 Searched Location</h4><p style="font-size:11px;">' + data[0].display_name + '</p></div>');
-                    this.infoWindow.open(this.map, this.youMarker);
-                }
-
                 // Update demo markers to reflect the new city
                 this.markerData.forEach(d => {
                     if (!d.fromDB) {
@@ -290,7 +506,7 @@ const SmartCityMap = {
     updateTheme: function() {
         if (this.map) {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            this.map.setOptions({ styles: isDark ? this.darkTheme : [] });
+            this.map.setOptions({ styles: isDark ? this.darkTheme : this.lightTheme });
         }
     },
 
@@ -302,7 +518,9 @@ const SmartCityMap = {
             title: reportData.title || reportData.category || 'New Report',
             location: reportData.address || 'Reported location',
             severity: reportData.severity === 'high' ? 'HIGH' : reportData.severity === 'medium' ? 'MED' : 'LOW',
-            icon: iconMap[reportData.category] || 'alert-circle', time: 'Just now', fromDB: true
+            icon: iconMap[reportData.category] || 'alert-circle', time: 'Just now', fromDB: true,
+            photo: '',
+            description: reportData.description || 'New incident report submitted by a community member.'
         });
         if (this.map) {
             this.addMarkers();

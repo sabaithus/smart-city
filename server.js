@@ -49,13 +49,17 @@ app.get('/{*path}', (req, res) => {
 
 // ==================== START SERVER ====================
 
-app.listen(PORT, () => {
-    console.log('');
-    console.log('  ╔══════════════════════════════════════════════╗');
-    console.log('  ║                                              ║');
-    console.log('  ║   🏙️  Smart City Server is running!          ║');
-    console.log(`  ║   🌐  Open: http://localhost:${PORT}             ║`);
-    console.log('  ║                                              ║');
-    console.log('  ╚══════════════════════════════════════════════╝');
-    console.log('');
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log('');
+        console.log('  ╔══════════════════════════════════════════════╗');
+        console.log('  ║                                              ║');
+        console.log('  ║   🏙️  Smart City Server is running!          ║');
+        console.log(`  ║   🌐  Open: http://localhost:${PORT}             ║`);
+        console.log('  ║                                              ║');
+        console.log('  ╚══════════════════════════════════════════════╝');
+        console.log('');
+    });
+}
+
+module.exports = app;

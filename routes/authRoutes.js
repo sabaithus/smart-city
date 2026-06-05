@@ -6,6 +6,34 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
 
+// Diagnostic route
+router.get('/db-test', async (req, res) => {
+    const connStr = process.env.POSTGRES_URL || '';
+    let parsed = {};
+    try {
+        if (connStr) {
+            const url = new URL(connStr);
+            parsed = { host: url.hostname, port: url.port, user: url.username, db: url.pathname };
+        }
+    } catch(e) { parsed = { error: e.message }; }
+    
+    let dbResult = null;
+    try {
+        const r = await db.query('SELECT current_user, inet_server_addr() as host');
+        dbResult = r.rows[0];
+    } catch(e) { dbResult = { error: e.message }; }
+
+    res.json({
+        hasPostgresUrl: !!process.env.POSTGRES_URL,
+        urlPreview: connStr ? connStr.substring(0, 30) + '...' : 'NOT SET',
+        parsed,
+        poolUser: db.options?.user,
+        poolHost: db.options?.host,
+        poolPort: db.options?.port,
+        dbResult
+    });
+});
+
 // ==================== REGISTER ====================
 router.post('/register', async (req, res) => {
     try {
@@ -53,8 +81,9 @@ router.post('/register', async (req, res) => {
             user: { id: newUserId, fullName, phone: fullPhone, role: userRole }
         });
     } catch (err) {
-        console.error('Register error:', err);
-        res.status(500).json({ error: 'Server error during registration.' });
+        console.error('Register error:', err.message);
+        console.error('Register error stack:', err.stack);
+        res.status(500).json({ error: 'Server error during registration.', detail: err.message });
     }
 });
 
