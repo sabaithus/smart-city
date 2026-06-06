@@ -14,55 +14,7 @@ const SmartCityMap = {
 
     demoData: [
         {
-            type: 'incidents', lat: 12.9750, lng: 77.5890,
-            title: 'Flooding near Main St.',
-            location: 'MG Road, Central Mall',
-            severity: 'HIGH', icon: 'droplets', time: '10 min ago',
-            photo: 'images/map/flooding.png',
-            description: 'Heavy rainfall has caused significant flooding on MG Road near Central Mall. Water level has risen to approximately 30cm, submerging parts of the sidewalk and lower sections of the road. Traffic is heavily disrupted and pedestrians are advised to avoid the area. Municipal pumps have been deployed.'
-        },
-        {
-            type: 'incidents', lat: 12.9620, lng: 77.6010,
-            title: 'Fallen Tree Blocking Road',
-            location: 'Indiranagar Park',
-            severity: 'MED', icon: 'tree-pine', time: '45 min ago',
-            photo: 'images/map/fallen_tree.png',
-            description: 'A large banyan tree has fallen across the road near Indiranagar Park, completely blocking both lanes. Branches are scattered across a 20-meter stretch. No injuries reported. Road clearance crew has been dispatched and expected to arrive within 30 minutes.'
-        },
-        {
-            type: 'incidents', lat: 12.9510, lng: 77.5760,
-            title: 'Gas Leak Reported',
-            location: 'Jayanagar 5th Block',
-            severity: 'HIGH', icon: 'alert-triangle', time: '5 min ago',
-            photo: 'images/map/gas_leak.png',
-            description: 'Residents reported a strong gas smell emanating from underground pipelines in Jayanagar 5th Block. The area has been cordoned off within a 100-meter radius. Gas utility emergency team is on site performing leak detection. Residents in nearby buildings have been advised to evacuate as a precaution.'
-        },
-        {
-            type: 'incidents', lat: 12.9830, lng: 77.5950,
-            title: 'Pothole on Highway',
-            location: 'Bellary Road',
-            severity: 'LOW', icon: 'alert-circle', time: '2 hrs ago',
-            photo: 'images/map/pothole.png',
-            description: 'A large pothole approximately 60cm wide and 15cm deep has formed on the outer lane of Bellary Road near the flyover entrance. Multiple vehicles have reported tire damage. Temporary warning signs have been placed. Road repair is scheduled for tonight to minimize traffic disruption.'
-        },
-        {
-            type: 'incidents', lat: 43.3000, lng: 68.2500,
-            title: 'Stray Dogs near school',
-            location: 'Abay St, Turkestan',
-            severity: 'LOW', icon: 'alert-circle', time: '1 hr ago',
-            photo: 'images/map/stray_dogs.png',
-            description: 'A pack of stray dogs has been spotted resting near the elementary school entrance. No aggressive behavior reported, but parents are concerned. Animal control has been notified to safely relocate them.'
-        },
-        {
-            type: 'incidents', lat: 43.2950, lng: 68.2550,
-            title: 'Broken Streetlight',
-            location: 'Esim Khan Square, Turkestan',
-            severity: 'LOW', icon: 'zap-off', time: '5 hrs ago',
-            photo: 'images/map/broken_streetlight.png',
-            description: 'A main streetlight pole on the east side of the square is broken and unlit, causing poor visibility at night. Maintenance crew has been scheduled for tomorrow morning.'
-        },
-        {
-            type: 'volunteers', lat: 12.9710, lng: 77.5960,
+            type: 'volunteers', lat: 43.3020, lng: 68.2520,
             title: 'Amit K.',
             location: 'Available • 1.2 km',
             severity: null, icon: 'user-check', time: 'Online',
@@ -72,7 +24,7 @@ const SmartCityMap = {
             slogan: '"Ready to serve, anytime, anywhere"'
         },
         {
-            type: 'volunteers', lat: 12.9680, lng: 77.5830,
+            type: 'volunteers', lat: 43.2980, lng: 68.2460,
             title: 'Priya M.',
             location: 'Available • 0.8 km',
             severity: null, icon: 'user', time: 'Online',
@@ -82,38 +34,38 @@ const SmartCityMap = {
             slogan: '"Building stronger communities, one step at a time"'
         },
         {
-            type: 'volunteers', lat: 12.9560, lng: 77.5910,
+            type: 'volunteers', lat: 43.3060, lng: 68.2580,
             title: 'Raj S.',
             location: 'On Task • 2.5 km',
             severity: null, icon: 'person-standing', time: 'Busy',
             photo: 'images/map/volunteer_raj.png',
-            description: 'Construction safety specialist and emergency response volunteer. Currently assisting with fallen tree clearance near Indiranagar. Skilled in operating heavy equipment and structural damage assessment.',
+            description: 'Construction safety specialist and emergency response volunteer. Currently assisting with fallen tree clearance. Skilled in operating heavy equipment and structural damage assessment.',
             rating: 4.6,
             slogan: '"No task too big when lives are at stake"'
         },
         {
-            type: 'services', lat: 12.9790, lng: 77.5720,
+            type: 'services', lat: 43.3080, lng: 68.2420,
             title: 'Fire Station #12',
-            location: 'Rajajinagar',
+            location: 'Turkestan Central',
             severity: null, icon: 'flame', time: '24/7',
             photo: 'images/map/fire_station.png',
-            description: 'Rajajinagar Fire Station serves a 15km radius covering central and west Bengaluru. Equipped with 4 fire engines, 2 ladder trucks, and a hazmat response unit. Average response time: 8 minutes. Handles fire emergencies, gas leaks, building collapses, and rescue operations.'
+            description: 'Turkestan Central Fire Station serves the entire metropolitan area. Equipped with 4 fire engines, 2 ladder trucks, and a hazmat response unit. Average response time: 6 minutes. Handles fire emergencies, gas leaks, building collapses, and rescue operations.'
         },
         {
-            type: 'services', lat: 12.9600, lng: 77.6100,
-            title: 'Police Station - HAL',
-            location: 'HAL Airport Road',
+            type: 'services', lat: 43.2940, lng: 68.2620,
+            title: 'Police Station - Central',
+            location: 'Esim Khan Ave, Turkestan',
             severity: null, icon: 'shield', time: '24/7',
             photo: 'images/map/police_station.png',
-            description: 'HAL Airport Road Police Station covers the eastern corridor of the city including Indiranagar, HAL, and Domlur areas. Staffed with 45 officers including a rapid response unit. Handles law enforcement, traffic management, and community safety programs. Emergency dial: 100.'
+            description: 'Central Police Station covers Turkestan city districts. Staffed with rapid response units. Handles law enforcement, traffic management, and community safety programs. Emergency dial: 102.'
         },
         {
-            type: 'services', lat: 12.9550, lng: 77.5680,
+            type: 'services', lat: 43.3010, lng: 68.2380,
             title: 'City Hospital',
-            location: 'BSK 2nd Stage',
+            location: 'Tauke Khan Ave, Turkestan',
             severity: null, icon: 'cross', time: 'Open',
             photo: 'images/map/city_hospital.png',
-            description: 'BSK City Hospital is a 350-bed multi-specialty facility with a Level-2 trauma center. Services include 24/7 emergency care, ICU, surgery, orthopedics, and pediatrics. Ambulance fleet of 6 vehicles. Average ER wait time: 12 minutes.'
+            description: 'Turkestan City Hospital is a multi-specialty facility with a Level-2 trauma center. Services include 24/7 emergency care, ICU, surgery, orthopedics, and pediatrics. Ambulance fleet of 6 vehicles.'
         },
     ],
 
@@ -167,7 +119,7 @@ const SmartCityMap = {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         
         this.map = new google.maps.Map(mapEl, {
-            center: { lat: 12.9716, lng: 77.5946 },
+            center: { lat: 43.3000, lng: 68.2500 },
             zoom: 13,
             disableDefaultUI: true,
             styles: isDark ? this.darkTheme : this.lightTheme
@@ -221,7 +173,7 @@ const SmartCityMap = {
         } else {
             setTimeout(() => {
                 google.maps.event.trigger(this.map, 'resize');
-                this.map.setCenter({ lat: 12.9716, lng: 77.5946 });
+                this.map.setCenter({ lat: 43.3000, lng: 68.2500 });
                 this.map.setZoom(13);
             }, 100);
         }
@@ -245,7 +197,7 @@ const SmartCityMap = {
                         severity: r.severity === 'high' ? 'HIGH' : r.severity === 'medium' ? 'MED' : 'LOW',
                         icon: iconMap[r.category] || 'alert-circle', time: SmartCityMap.formatTime(r.created_at),
                         fromDB: true,
-                        photo: '', // DB reports may not have a photo
+                        photo: r.image_url || '',
                         description: r.description || 'Report submitted by a community member. Details are being verified by the response team.'
                     });
                 });

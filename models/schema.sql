@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(255) NOT NULL,
     phone VARCHAR(30) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('user', 'volunteer', 'admin')),
+    role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('user', 'volunteer', 'responder', 'admin')),
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS reports (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     category VARCHAR(50) NOT NULL,
     title VARCHAR(255),
     description TEXT,
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS reports (
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'resolved', 'invalid')),
+    image_url VARCHAR(512),
     created_at TIMESTAMP DEFAULT NOW()
 );
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,21 +8,29 @@
     <meta name="description" content="Report incidents, volunteer for your community, and make your city smarter.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Syne:wght@600;700&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ4qk1r-GZoostyDi0Kj11uHzkC0Ty6kk&libraries=places"></script>
-    <link rel="stylesheet" href="styles.css?v=16">
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ4qk1r-GZoostyDi0Kj11uHzkC0Ty6kk&libraries=places"></script>
+    <link rel="stylesheet" href="styles.css?v=22">
+    <link rel="stylesheet" href="dashboard.css?v=2">
 </head>
+
 <body>
     <div id="app">
 
         <!-- ===================== AUTH VIEW ===================== -->
         <div id="auth-view" class="view active">
-            
+
             <div class="auth-layout">
                 <div class="auth-top-header">
                     <div class="hero-logo">
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M4 10v10M8 14v6M12 6v14M16 10v10M20 14v6"></path></svg>
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--primary)"
+                            stroke-width="2">
+                            <path d="M4 10v10M8 14v6M12 6v14M16 10v10M20 14v6"></path>
+                        </svg>
                         <span>Smart City</span>
                     </div>
                     <div class="top-header-right">
@@ -42,10 +51,11 @@
                     <div class="hero-content">
                         <h4 class="hero-subtitle">CITY SAFETY PLATFORM</h4>
                         <h1 class="hero-title">A smarter way to<br>manage city safety</h1>
-                        <p class="hero-desc">Real-time reports, live coordination,<br>and faster response — all in one<br>secure platform.</p>
+                        <p class="hero-desc">Real-time reports, live coordination,<br>and faster response — all in
+                            one<br>secure platform.</p>
                     </div>
                 </div>
-                
+
                 <div class="auth-center-box">
                     <div class="auth-container">
                         <div class="auth-header">
@@ -56,404 +66,383 @@
                             <p>Safer City, Better Tomorrow</p>
                         </div>
 
-                <!-- LOGIN FORM -->
-                <form class="auth-form" id="login-form">
-                    <div class="auth-tabs">
-                        <button type="button" class="auth-tab active" onclick="app.switchAuthTab('login')">Login</button>
-                        <button type="button" class="auth-tab" onclick="app.switchAuthTab('register')">Register</button>
-                    </div>
-
-                    <div id="login-fields">
-                        <div class="input-group">
-                            <label>Phone Number</label>
-                            <div class="phone-input">
-                                <select id="login-country-code" class="country-code-select">
-                                    <option value="+1">US +1</option>
-                                    <option value="+7" selected>RU +7</option>
-                                    <option value="+7">KZ +7</option>
-                                    <option value="+44">GB +44</option>
-                                    <option value="+49">DE +49</option>
-                                    <option value="+33">FR +33</option>
-                                    <option value="+34">ES +34</option>
-                                    <option value="+39">IT +39</option>
-                                    <option value="+81">JP +81</option>
-                                    <option value="+82">KR +82</option>
-                                    <option value="+86">CN +86</option>
-                                    <option value="+91">IN +91</option>
-                                    <option value="+90">TR +90</option>
-                                    <option value="+55">BR +55</option>
-                                    <option value="+52">MX +52</option>
-                                    <option value="+61">AU +61</option>
-                                    <option value="+64">NZ +64</option>
-                                    <option value="+971">AE +971</option>
-                                    <option value="+966">SA +966</option>
-                                    <option value="+380">UA +380</option>
-                                    <option value="+375">BY +375</option>
-                                    <option value="+48">PL +48</option>
-                                    <option value="+420">CZ +420</option>
-                                    <option value="+46">SE +46</option>
-                                    <option value="+47">NO +47</option>
-                                    <option value="+358">FI +358</option>
-                                    <option value="+31">NL +31</option>
-                                    <option value="+32">BE +32</option>
-                                    <option value="+41">CH +41</option>
-                                    <option value="+43">AT +43</option>
-                                    <option value="+351">PT +351</option>
-                                    <option value="+30">GR +30</option>
-                                    <option value="+972">IL +972</option>
-                                    <option value="+20">EG +20</option>
-                                    <option value="+27">ZA +27</option>
-                                    <option value="+234">NG +234</option>
-                                    <option value="+254">KE +254</option>
-                                    <option value="+63">PH +63</option>
-                                    <option value="+66">TH +66</option>
-                                    <option value="+84">VN +84</option>
-                                    <option value="+62">ID +62</option>
-                                    <option value="+60">MY +60</option>
-                                    <option value="+65">SG +65</option>
-                                    <option value="+92">PK +92</option>
-                                    <option value="+880">BD +880</option>
-                                    <option value="+998">UZ +998</option>
-                                    <option value="+995">GE +995</option>
-                                    <option value="+374">AM +374</option>
-                                    <option value="+994">AZ +994</option>
-                                    <option value="+996">KG +996</option>
-                                    <option value="+993">TM +993</option>
-                                    <option value="+992">TJ +992</option>
-                                    <option value="+373">MD +373</option>
-                                    <option value="+370">LT +370</option>
-                                    <option value="+371">LV +371</option>
-                                    <option value="+372">EE +372</option>
-                                </select>
-                                <input type="tel" id="login-phone" placeholder="Phone number" required>
+                        <!-- LOGIN FORM -->
+                        <form class="auth-form" id="login-form">
+                            <div class="auth-tabs">
+                                <button type="button" class="auth-tab active"
+                                    onclick="app.switchAuthTab('login')">Login</button>
+                                <button type="button" class="auth-tab"
+                                    onclick="app.switchAuthTab('register')">Register</button>
                             </div>
-                        </div>
-                        
-                        <div class="input-group">
-                            <label>Password</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="login-password" placeholder="Password" required>
-                                <button type="button" class="toggle-password" onclick="app.togglePassword('login-password', this)">
-                                    <i data-lucide="eye"></i>
-                                </button>
+
+                            <div id="login-fields">
+                                <div class="input-group">
+                                    <label>Phone Number</label>
+                                    <div class="phone-input">
+                                        <select id="login-country-code" class="country-code-select">
+                                            <option value="+1">US +1</option>
+                                            <option value="+7" selected>RU +7</option>
+                                            <option value="+7">KZ +7</option>
+                                            <option value="+44">GB +44</option>
+                                            <option value="+49">DE +49</option>
+                                            <option value="+33">FR +33</option>
+                                            <option value="+34">ES +34</option>
+                                            <option value="+39">IT +39</option>
+                                            <option value="+81">JP +81</option>
+                                            <option value="+82">KR +82</option>
+                                            <option value="+86">CN +86</option>
+                                            <option value="+91">IN +91</option>
+                                            <option value="+90">TR +90</option>
+                                            <option value="+55">BR +55</option>
+                                            <option value="+52">MX +52</option>
+                                            <option value="+61">AU +61</option>
+                                            <option value="+64">NZ +64</option>
+                                            <option value="+971">AE +971</option>
+                                            <option value="+966">SA +966</option>
+                                            <option value="+380">UA +380</option>
+                                            <option value="+375">BY +375</option>
+                                            <option value="+48">PL +48</option>
+                                            <option value="+420">CZ +420</option>
+                                            <option value="+46">SE +46</option>
+                                            <option value="+47">NO +47</option>
+                                            <option value="+358">FI +358</option>
+                                            <option value="+31">NL +31</option>
+                                            <option value="+32">BE +32</option>
+                                            <option value="+41">CH +41</option>
+                                            <option value="+43">AT +43</option>
+                                            <option value="+351">PT +351</option>
+                                            <option value="+30">GR +30</option>
+                                            <option value="+972">IL +972</option>
+                                            <option value="+20">EG +20</option>
+                                            <option value="+27">ZA +27</option>
+                                            <option value="+234">NG +234</option>
+                                            <option value="+254">KE +254</option>
+                                            <option value="+63">PH +63</option>
+                                            <option value="+66">TH +66</option>
+                                            <option value="+84">VN +84</option>
+                                            <option value="+62">ID +62</option>
+                                            <option value="+60">MY +60</option>
+                                            <option value="+65">SG +65</option>
+                                            <option value="+92">PK +92</option>
+                                            <option value="+880">BD +880</option>
+                                            <option value="+998">UZ +998</option>
+                                            <option value="+995">GE +995</option>
+                                            <option value="+374">AM +374</option>
+                                            <option value="+994">AZ +994</option>
+                                            <option value="+996">KG +996</option>
+                                            <option value="+993">TM +993</option>
+                                            <option value="+992">TJ +992</option>
+                                            <option value="+373">MD +373</option>
+                                            <option value="+370">LT +370</option>
+                                            <option value="+371">LV +371</option>
+                                            <option value="+372">EE +372</option>
+                                        </select>
+                                        <input type="tel" id="login-phone" placeholder="Phone number" required>
+                                    </div>
+                                </div>
+
+                                <div class="input-group">
+                                    <label>Password</label>
+                                    <div class="password-wrapper">
+                                        <input type="password" id="login-password" placeholder="Password" required>
+                                        <button type="button" class="toggle-password"
+                                            onclick="app.togglePassword('login-password', this)">
+                                            <i data-lucide="eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <a href="#" class="forgot-link" onclick="app.showForgotPassword(); return false;">Forgot
+                                    Password?</a>
                             </div>
-                        </div>
-                        
-                        <a href="#" class="forgot-link" onclick="app.showForgotPassword(); return false;">Forgot Password?</a>
-                    </div>
 
-                    <!-- Error / Success Messages -->
-                    <div id="auth-message" class="auth-message" style="display:none;"></div>
+                            <!-- Error / Success Messages -->
+                            <div id="auth-message" class="auth-message" style="display:none;"></div>
 
-                    <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">
-                        <span class="btn-text">Login</span>
-                        <span class="btn-loader" style="display:none;"></span>
-                    </button>
-                </form>
+                            <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">
+                                <span class="btn-text">Login</span>
+                                <span class="btn-loader" style="display:none;"></span>
+                            </button>
+                        </form>
 
-                <!-- REGISTER FORM (hidden by default, same container) -->
-                <form class="auth-form" id="register-form" style="display:none;">
-                    <div class="auth-tabs">
-                        <button type="button" class="auth-tab" onclick="app.switchAuthTab('login')">Login</button>
-                        <button type="button" class="auth-tab active" onclick="app.switchAuthTab('register')">Register</button>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" id="reg-name" placeholder="Full name" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Phone Number</label>
-                        <div class="phone-input">
-                                <select id="reg-country-code" class="country-code-select">
-                                    <option value="+1">US +1</option>
-                                    <option value="+7" selected>RU +7</option>
-                                    <option value="+7">KZ +7</option>
-                                    <option value="+44">GB +44</option>
-                                    <option value="+49">DE +49</option>
-                                    <option value="+33">FR +33</option>
-                                    <option value="+34">ES +34</option>
-                                    <option value="+39">IT +39</option>
-                                    <option value="+81">JP +81</option>
-                                    <option value="+82">KR +82</option>
-                                    <option value="+86">CN +86</option>
-                                    <option value="+91">IN +91</option>
-                                </select>
-                                <input type="tel" id="reg-phone" placeholder="Phone number" required>
+                        <!-- REGISTER FORM (hidden by default, same container) -->
+                        <form class="auth-form" id="register-form" style="display:none;">
+                            <div class="auth-tabs">
+                                <button type="button" class="auth-tab"
+                                    onclick="app.switchAuthTab('login')">Login</button>
+                                <button type="button" class="auth-tab active"
+                                    onclick="app.switchAuthTab('register')">Register</button>
                             </div>
-                        </div>
 
-                    <div class="input-group">
-                        <label>Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="reg-password" placeholder="Password (Min. 6 chars)" required minlength="6">
-                            <button type="button" class="toggle-password" onclick="app.togglePassword('reg-password', this)">
-                                <i data-lucide="eye"></i>
+                            <div class="input-group">
+                                <label>Full Name</label>
+                                <input type="text" id="reg-name" placeholder="Full name" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Phone Number</label>
+                                <div class="phone-input">
+                                    <select id="reg-country-code" class="country-code-select">
+                                        <option value="+1">US +1</option>
+                                        <option value="+7" selected>RU +7</option>
+                                        <option value="+7">KZ +7</option>
+                                        <option value="+44">GB +44</option>
+                                        <option value="+49">DE +49</option>
+                                        <option value="+33">FR +33</option>
+                                        <option value="+34">ES +34</option>
+                                        <option value="+39">IT +39</option>
+                                        <option value="+81">JP +81</option>
+                                        <option value="+82">KR +82</option>
+                                        <option value="+86">CN +86</option>
+                                        <option value="+91">IN +91</option>
+                                    </select>
+                                    <input type="tel" id="reg-phone" placeholder="Phone number" required>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Password</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="reg-password" placeholder="Password (Min. 6 chars)"
+                                        required minlength="6">
+                                    <button type="button" class="toggle-password"
+                                        onclick="app.togglePassword('reg-password', this)">
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Confirm Password</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="reg-password-confirm" placeholder="Confirm password"
+                                        required>
+                                    <button type="button" class="toggle-password"
+                                        onclick="app.togglePassword('reg-password-confirm', this)">
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>I want to be a:</label>
+                                <div class="role-selector">
+                                    <button type="button" class="role-btn active" data-role="user"
+                                        onclick="app.selectRole(this)">
+                                        <i data-lucide="user"></i> Citizen
+                                    </button>
+                                    <button type="button" class="role-btn" data-role="volunteer"
+                                        onclick="app.selectRole(this)">
+                                        <i data-lucide="heart-handshake"></i> Volunteer
+                                    </button>
+                                    <button type="button" class="role-btn" data-role="responder"
+                                        onclick="app.selectRole(this)">
+                                        <i data-lucide="shield-alert"></i> Emergency Services
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="reg-message" class="auth-message" style="display:none;"></div>
+
+                            <button type="submit" id="reg-submit-btn" class="btn btn-primary btn-block">
+                                <span class="btn-text">Create Account</span>
+                                <span class="btn-loader" style="display:none;"></span>
                             </button>
-                        </div>
+                        </form>
+                    </div> <!-- End auth-container -->
+                </div> <!-- End auth-center-box -->
+
+                <div class="hero-footer">
+                    <span>© 2026 Smart City. All rights reserved.</span>
+                    <div class="footer-links">
+                        <a href="#" onclick="app.showFooterInfo('privacy'); return false;">Privacy Policy</a>
+                        <a href="#" onclick="app.showFooterInfo('terms'); return false;">Terms of Service</a>
+                        <a href="#" onclick="app.showFooterInfo('support'); return false;">Support</a>
                     </div>
-                    <div class="input-group">
-                        <label>Confirm Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="reg-password-confirm" placeholder="Confirm password" required>
-                            <button type="button" class="toggle-password" onclick="app.togglePassword('reg-password-confirm', this)">
-                                <i data-lucide="eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>I want to be a:</label>
-                        <div class="role-selector">
-                            <button type="button" class="role-btn active" data-role="user" onclick="app.selectRole(this)">
-                                <i data-lucide="user"></i> Citizen
-                            </button>
-                            <button type="button" class="role-btn" data-role="volunteer" onclick="app.selectRole(this)">
-                                <i data-lucide="heart-handshake"></i> Volunteer
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="reg-message" class="auth-message" style="display:none;"></div>
-
-                    <button type="submit" id="reg-submit-btn" class="btn btn-primary btn-block">
-                        <span class="btn-text">Create Account</span>
-                        <span class="btn-loader" style="display:none;"></span>
-                    </button>
-                </form>
-            </div> <!-- End auth-container -->
-            </div> <!-- End auth-center-box -->
-            
-            <div class="hero-footer">
-                <span>© 2026 Smart City. All rights reserved.</span>
-                <div class="footer-links">
-                    <a href="#" onclick="app.showFooterInfo('privacy'); return false;">Privacy Policy</a>
-                    <a href="#" onclick="app.showFooterInfo('terms'); return false;">Terms of Service</a>
-                    <a href="#" onclick="app.showFooterInfo('support'); return false;">Support</a>
                 </div>
-            </div>
 
-        </div> <!-- End auth-layout -->
-    </div> <!-- End auth-view -->
+            </div> <!-- End auth-layout -->
+        </div> <!-- End auth-view -->
 
         <!-- ===================== MAIN LAYOUT ===================== -->
         <div id="main-layout" class="view layout-container">
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <i data-lucide="shield-check" class="logo-sm"></i>
-                    <h2>Smart City</h2>
+            <!-- ===== TOP NAVBAR ===== -->
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <div class="navbar-brand">
+                        <i data-lucide="shield-check" class="brand-icon"></i>
+                        <span class="brand-name">Smart City</span>
+                    </div>
+                    <nav class="navbar-links" id="navbar-links">
+                        <a href="#" class="nav-link active" data-view="user-home-view" onclick="app.navigateLayout('user-home-view', this); return false;">
+                            <i data-lucide="home"></i><span>Home</span>
+                        </a>
+                        <a href="#" class="nav-link" data-view="map-view" onclick="app.navigateLayout('map-view', this); return false;">
+                            <i data-lucide="map"></i><span>Map</span>
+                        </a>
+                        <a href="#" class="nav-link" data-view="tasks-view" id="nav-tasks-link" onclick="app.navigateLayout('tasks-view', this); return false;">
+                            <i data-lucide="clipboard-list"></i><span>Tasks</span>
+                        </a>
+                        <a href="#" class="nav-link" data-view="alerts-view" onclick="app.navigateLayout('alerts-view', this); return false;">
+                            <i data-lucide="bell"></i><span>Alerts</span>
+                        </a>
+                    </nav>
                 </div>
-                <nav class="sidebar-nav">
-                    <a href="#" class="nav-item active" onclick="app.navigateLayout('user-home-view', this)">
-                        <i data-lucide="home"></i> Home
-                    </a>
-                    <a href="#" class="nav-item" onclick="app.navigateLayout('map-view', this)">
-                        <i data-lucide="map"></i> Map
-                    </a>
-                    <a href="#" class="nav-item" onclick="app.navigateLayout('tasks-view', this)">
-                        <i data-lucide="clipboard-list"></i> Tasks
-                    </a>
-                    <a href="#" class="nav-item" onclick="app.navigateLayout('alerts-view', this)">
-                        <i data-lucide="bell"></i> Alerts
-                    </a>
-                </nav>
-
-                <div class="sidebar-footer">
-                    <button class="theme-toggle-btn" onclick="app.toggleTheme()">
-                        <i data-lucide="moon"></i> <span>Dark Mode</span>
+                <div class="navbar-right">
+                    <button class="navbar-icon-btn" onclick="app.toggleTheme()" title="Toggle theme">
+                        <i data-lucide="moon"></i>
                     </button>
-                    <a href="#" class="nav-item" onclick="app.logout()" style="display:flex; align-items:center; gap:12px; padding:12px; color:var(--red); font-weight:600; text-decoration:none; transition:0.2s;">
-                        <i data-lucide="log-out" style="width:20px;height:20px;"></i> Logout
-                    </a>
+                    <div class="navbar-user" id="navbar-user">
+                        <img id="nav-user-avatar" src="https://ui-avatars.com/api/?name=User&background=10B981&color=fff" alt="User" class="nav-avatar">
+                        <div class="nav-user-info">
+                            <span class="nav-user-name" id="nav-user-name">User</span>
+                            <span class="nav-user-role" id="nav-user-role">Citizen</span>
+                        </div>
+                    </div>
+                    <button class="navbar-icon-btn logout-btn" onclick="app.logout()" title="Logout">
+                        <i data-lucide="log-out"></i>
+                    </button>
                 </div>
-            </aside>
+            </header>
 
             <main class="main-content">
                 <!-- User Home View -->
-                <div id="user-home-view" class="sub-view active">
-                    <!-- Premium Gradient Hero Header -->
-                    <header class="hero-header">
-                        <div class="hero-bg"></div>
-                        <div class="hero-content">
-                            <div class="hero-top-row">
-                                <div class="hero-greeting">
-                                    <p class="hero-welcome" id="hero-welcome-text" style="display:none;">Welcome back,</p>
-                                    <h2 id="greeting-name" class="hero-name">Hello!</h2>
-                                </div>
-                                <div class="hero-avatar-wrapper">
-                                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="User" class="hero-avatar">
-                                    <span class="online-dot"></span>
-                                </div>
-                            </div>
-                            
-                            <!-- SOS Emergency Button -->
-                            <button class="sos-button" onclick="app.navigateLayout('report-view')">
-                                <div class="sos-pulse"></div>
-                                <div class="sos-inner">
-                                    <i data-lucide="siren"></i>
-                                    <div class="sos-text">
-                                        <strong>Report Emergency</strong>
-                                        <small>Tap for instant SOS</small>
-                                    </div>
-                                    <i data-lucide="chevron-right" class="sos-arrow"></i>
-                                </div>
+                <!-- User Home View -->
+                <div id="user-home-view" class="sub-view active dashboard-v3">
+                    
+                    <!-- Top Section: Header & Quick Actions -->
+                    <div class="dash-header-v3">
+                        <div class="header-main-v3">
+                            <span class="dashboard-badge-v3">Citizen Dashboard</span>
+                            <h2 id="greeting-name" class="welcome-name">Hello, Tashkenov</h2>
+                        </div>
+                        <div class="header-actions-v3">
+                            <button class="btn btn-emerald-primary" onclick="app.navigateLayout('report-view')">
+                                <i data-lucide="plus"></i> Report Incident
+                            </button>
+                            <button class="btn btn-secondary-pill" onclick="app.navigateLayout('my-reports-view')">
+                                <i data-lucide="file-text"></i> My Reports
                             </button>
                         </div>
+                    </div>
 
-                        <!-- Live City Stats -->
-                        <div class="city-stats-bar">
-                            <div class="city-stat">
-                                <div class="stat-dot stat-dot-red"></div>
-                                <div class="city-stat-info">
-                                    <span class="city-stat-num">12</span>
-                                    <span class="city-stat-label">Active</span>
-                                </div>
+                    <!-- Section 2: Personal Impact/Contribution Stats -->
+                    <div class="impact-section-v3">
+                        <div class="impact-container-v3">
+                            <div class="impact-header-v3">
+                                <h3>Your Contribution</h3>
+                                <p class="impact-desc-v3">You helped identify <span id="user-reports-count" class="count-highlight">0</span> city issues. Thank you for making <span id="user-current-city" class="city-highlight">Turkestan</span> safer.</p>
                             </div>
-                            <div class="city-stat-divider"></div>
-                            <div class="city-stat">
-                                <div class="stat-dot stat-dot-green"></div>
-                                <div class="city-stat-info">
-                                    <span class="city-stat-num">48</span>
-                                    <span class="city-stat-label">Volunteers</span>
+                            <div class="impact-stats-row-v3">
+                                <div class="impact-stat-card">
+                                    <span class="impact-stat-num text-red" id="user-active-reports">0</span>
+                                    <span class="impact-stat-label">Active Reports</span>
                                 </div>
-                            </div>
-                            <div class="city-stat-divider"></div>
-                            <div class="city-stat">
-                                <div class="stat-dot stat-dot-blue"></div>
-                                <div class="city-stat-info">
-                                    <span class="city-stat-num">156</span>
-                                    <span class="city-stat-label">Resolved</span>
+                                <div class="impact-stat-card">
+                                    <span class="impact-stat-num text-green" id="user-resolved-reports">0</span>
+                                    <span class="impact-stat-label">Resolved</span>
                                 </div>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="home-body">
-                        <!-- Quick Actions Grid -->
-                        <div class="quick-actions">
-                            <div class="qa-card qa-reports" onclick="app.navigateLayout('my-reports-view')">
-                                <div class="qa-icon-wrap">
-                                    <i data-lucide="file-text"></i>
-                                </div>
-                                <span class="qa-label">My Reports</span>
-                                <span class="qa-count">3 submitted</span>
-                            </div>
-                            <div class="qa-card qa-map" onclick="app.navigateLayout('map-view')">
-                                <div class="qa-icon-wrap">
-                                    <i data-lucide="map-pin"></i>
-                                </div>
-                                <span class="qa-label">Live Map</span>
-                                <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
-                                    <span class="qa-live-dot"></span><span class="qa-count" style="margin:0;">12 active</span>
-                                </div>
-                            </div>
-                            <div class="qa-card qa-alerts" onclick="app.navigateLayout('alerts-view')">
-                                <div class="qa-icon-wrap">
-                                    <i data-lucide="bell"></i>
-                                </div>
-                                <span class="qa-label">Alerts</span>
-                                <span class="qa-count">3 new</span>
-                            </div>
-                            <div class="qa-card qa-volunteers" onclick="app.openVolunteerMap()">
-                                <div class="qa-icon-wrap">
-                                    <i data-lucide="heart-handshake"></i>
-                                </div>
-                                <span class="qa-label">Volunteer</span>
-                                <span class="qa-count">4 open tasks</span>
-                            </div>
-                        </div>
-
-                        <!-- Recent Activity Section -->
-                        <div class="section-header">
-                            <div class="section-title-group">
-                                <h3>Recent Incidents</h3>
-                                <span class="section-subtitle">Live feed from your area</span>
-                            </div>
-                            <a href="#" class="view-all-btn" onclick="app.navigateLayout('tasks-view'); return false;">
-                                View All <i data-lucide="arrow-right"></i>
-                            </a>
-                        </div>
-
-                        <div class="incident-feed">
-                            <!-- Incident 1 -->
-                            <div class="feed-card feed-card-high" onclick="app.navigateLayout('task-detail-view')">
-                                <div class="feed-timeline">
-                                    <div class="feed-dot feed-dot-red"></div>
-                                    <div class="feed-line"></div>
-                                </div>
-                                <div class="feed-content">
-                                    <div class="feed-header">
-                                        <div class="feed-icon-wrap feed-icon-red">
-                                            <i data-lucide="droplets"></i>
-                                        </div>
-                                        <div class="feed-info">
-                                            <h4>Flooding near Main St.</h4>
-                                            <p><i data-lucide="map-pin"></i> MG Road, Central Mall</p>
-                                        </div>
-                                        <span class="feed-badge feed-badge-high">HIGH</span>
-                                    </div>
-                                    <div class="feed-footer">
-                                        <span class="feed-time"><i data-lucide="clock"></i> 10 min ago</span>
-                                        <span class="feed-status feed-status-active"><span class="pulse-dot"></span> In Progress</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Incident 2 -->
-                            <div class="feed-card feed-card-medium" onclick="app.navigateLayout('task-detail-view')">
-                                <div class="feed-timeline">
-                                    <div class="feed-dot feed-dot-orange"></div>
-                                    <div class="feed-line"></div>
-                                </div>
-                                <div class="feed-content">
-                                    <div class="feed-header">
-                                        <div class="feed-icon-wrap feed-icon-orange">
-                                            <i data-lucide="tree-pine"></i>
-                                        </div>
-                                        <div class="feed-info">
-                                            <h4>Fallen Tree Blocking Road</h4>
-                                            <p><i data-lucide="map-pin"></i> Indiranagar Park</p>
-                                        </div>
-                                        <span class="feed-badge feed-badge-medium">MED</span>
-                                    </div>
-                                    <div class="feed-footer">
-                                        <span class="feed-time"><i data-lucide="clock"></i> 45 min ago</span>
-                                        <span class="feed-status feed-status-pending">Awaiting Response</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Incident 3 -->
-                            <div class="feed-card feed-card-low" onclick="app.navigateLayout('task-detail-view')">
-                                <div class="feed-timeline">
-                                    <div class="feed-dot feed-dot-green"></div>
-                                </div>
-                                <div class="feed-content">
-                                    <div class="feed-header">
-                                        <div class="feed-icon-wrap feed-icon-green">
-                                            <i data-lucide="traffic-cone"></i>
-                                        </div>
-                                        <div class="feed-info">
-                                            <h4>Pothole on 5th Cross</h4>
-                                            <p><i data-lucide="map-pin"></i> Jayanagar 4th Block</p>
-                                        </div>
-                                        <span class="feed-badge feed-badge-resolved">DONE</span>
-                                    </div>
-                                    <div class="feed-footer">
-                                        <span class="feed-time"><i data-lucide="clock"></i> 2 hrs ago</span>
-                                        <span class="feed-status feed-status-resolved"><i data-lucide="check-circle"></i> Resolved</span>
-                                    </div>
+                                <div class="impact-stat-card">
+                                    <span class="impact-stat-num text-blue" id="user-pending-reports">0</span>
+                                    <span class="impact-stat-label">Pending Review</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Section 3: Dual Column Operations Grid -->
+                    <div class="columns-grid-v3">
+                        <!-- Column 1: Recent Incidents (Telemetry style list) -->
+                        <div class="grid-column-v3">
+                            <div class="section-header-v3">
+                                <div class="section-title-group-v3">
+                                    <h3>Recent Incidents</h3>
+                                    <span class="section-subtitle-v3">Operational city telemetry</span>
+                                </div>
+                                <a href="#" class="view-all-link-v3" onclick="app.navigateLayout('tasks-view'); return false;">View All &rarr;</a>
+                            </div>
+                            <div class="incident-telemetry-feed" id="incident-feed">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Column 2: Eco-Telemetry & Air Quality -->
+                        <div class="grid-column-v3">
+                            <div class="section-header-v3">
+                                <div class="section-title-group-v3">
+                                    <h3>Eco-Telemetry</h3>
+                                    <span class="section-subtitle-v3">Real-time environmental monitoring</span>
+                                </div>
+                            </div>
+                            <div class="eco-widget-v3">
+                                <!-- AQI Highlights Card -->
+                                <div class="eco-aqi-card">
+                                    <div class="eco-aqi-left">
+                                        <div class="eco-aqi-icon-wrap">
+                                            <i data-lucide="wind"></i>
+                                        </div>
+                                        <div class="eco-aqi-details">
+                                            <h4>Air Quality Index (AQI)</h4>
+                                            <p>Updated just now</p>
+                                        </div>
+                                    </div>
+                                    <div class="eco-aqi-badge">
+                                        <span class="eco-aqi-pulse"></span>
+                                        <span>38 AQI • Good</span>
+                                    </div>
+                                </div>
+
+                                <!-- Environment Grid -->
+                                <div class="eco-metrics-grid">
+                                    <!-- Temperature & Condition -->
+                                    <div class="eco-metric-item">
+                                        <div class="eco-metric-top">
+                                            <i data-lucide="thermometer"></i>
+                                            <span>Temperature</span>
+                                        </div>
+                                        <span class="eco-metric-value">28°C</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);">Warm & Sunny</span>
+                                    </div>
+
+                                    <!-- Humidity -->
+                                    <div class="eco-metric-item">
+                                        <div class="eco-metric-top">
+                                            <i data-lucide="droplet"></i>
+                                            <span>Humidity</span>
+                                        </div>
+                                        <span class="eco-metric-value">42%</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);">Optimal</span>
+                                    </div>
+
+                                    <!-- Water Safety -->
+                                    <div class="eco-metric-item" style="grid-column: span 2;">
+                                        <div class="eco-metric-top">
+                                            <i data-lucide="waves"></i>
+                                            <span>Water Quality Safety</span>
+                                        </div>
+                                        <div class="flex-between">
+                                            <span class="eco-metric-value">98.4%</span>
+                                            <span class="eco-metric-status" style="color:var(--emerald-600);">Safe / Clean</span>
+                                        </div>
+                                        <div class="eco-progress-container">
+                                            <div class="eco-progress-bg">
+                                                <div class="eco-progress-fill green" style="width: 98.4%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Map View -->
                 <div id="map-view" class="sub-view">
                     <div class="livemap-wrapper">
                         <!-- The 2GIS map -->
-                        <div id="smart-map" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; min-height: 500px; background-color: #1a1a1a;"></div>
+                        <div id="smart-map"
+                            style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; min-height: 500px; background-color: #1a1a1a;">
+                        </div>
 
                         <!-- Top bar overlay -->
                         <div class="map-topbar">
@@ -464,15 +453,23 @@
                                 <h2>Live Map</h2>
                                 <div class="map-search">
                                     <i data-lucide="search" class="search-icon"></i>
-                                    <input type="text" id="map-search-input" placeholder="Search city..." onkeypress="if(event.key === 'Enter') SmartCityMap.searchLocation()">
+                                    <input type="text" id="map-search-input" placeholder="Search city..."
+                                        onkeypress="if(event.key === 'Enter') SmartCityMap.searchLocation()">
                                     <button onclick="SmartCityMap.searchLocation()" class="search-btn">Go</button>
                                 </div>
                             </div>
                             <div class="map-filters">
-                                <button class="map-filter active" data-filter="all" onclick="SmartCityMap.filterMap('all', this)">All</button>
-                                <button class="map-filter" data-filter="incidents" onclick="SmartCityMap.filterMap('incidents', this)"><span class="filter-dot filter-dot-red"></span>Incidents</button>
-                                <button class="map-filter" data-filter="volunteers" onclick="SmartCityMap.filterMap('volunteers', this)"><span class="filter-dot filter-dot-teal"></span>Volunteers</button>
-                                <button class="map-filter" data-filter="services" onclick="SmartCityMap.filterMap('services', this)"><span class="filter-dot filter-dot-blue"></span>Services</button>
+                                <button class="map-filter active" data-filter="all"
+                                    onclick="SmartCityMap.filterMap('all', this)">All</button>
+                                <button class="map-filter" data-filter="incidents"
+                                    onclick="SmartCityMap.filterMap('incidents', this)"><span
+                                        class="filter-dot filter-dot-red"></span>Incidents</button>
+                                <button class="map-filter" data-filter="volunteers"
+                                    onclick="SmartCityMap.filterMap('volunteers', this)"><span
+                                        class="filter-dot filter-dot-teal"></span>Volunteers</button>
+                                <button class="map-filter" data-filter="services"
+                                    onclick="SmartCityMap.filterMap('services', this)"><span
+                                        class="filter-dot filter-dot-blue"></span>Services</button>
                             </div>
                         </div>
 
@@ -480,10 +477,12 @@
                         <button class="map-panel-toggle" onclick="SmartCityMap.togglePanel()">
                             <i data-lucide="list"></i>
                         </button>
-                        
+
                         <div class="map-zoom-controls">
-                            <button onclick="app.googleMap && app.googleMap.setZoom(app.googleMap.getZoom() + 1)">+</button>
-                            <button onclick="app.googleMap && app.googleMap.setZoom(app.googleMap.getZoom() - 1)">-</button>
+                            <button
+                                onclick="app.googleMap && app.googleMap.setZoom(app.googleMap.getZoom() + 1)">+</button>
+                            <button
+                                onclick="app.googleMap && app.googleMap.setZoom(app.googleMap.getZoom() - 1)">-</button>
                         </div>
                         <!-- Bottom Sheet / Side Panel for Events -->
                         <div class="map-incident-panel" id="map-incident-panel">
@@ -492,7 +491,8 @@
                                 <h3>Nearby Activity</h3>
                                 <div style="display:flex; align-items:center; gap: 8px;">
                                     <span class="map-panel-count" id="map-panel-count">0 events</span>
-                                    <button class="panel-close-btn" onclick="SmartCityMap.togglePanel()" style="background:none; border:none; cursor:pointer; color:var(--text-gray);">
+                                    <button class="panel-close-btn" onclick="SmartCityMap.togglePanel()"
+                                        style="background:none; border:none; cursor:pointer; color:var(--text-gray);">
                                         <i data-lucide="x" style="width:20px; height:20px;"></i>
                                     </button>
                                 </div>
@@ -529,7 +529,8 @@
                                             <i data-lucide="clock"></i>
                                             <span id="mdc-time"></span>
                                         </div>
-                                        <div class="mdc-meta-item mdc-rating" id="mdc-rating-item" style="display:none;">
+                                        <div class="mdc-meta-item mdc-rating" id="mdc-rating-item"
+                                            style="display:none;">
                                             <i data-lucide="star"></i>
                                             <span id="mdc-rating"></span>
                                         </div>
@@ -539,7 +540,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Submit Report Flow -->
                 <div id="report-view" class="sub-view new-design">
                     <div class="report-container">
@@ -556,7 +557,7 @@
                                 </div>
                             </div>
                         </header>
-                        
+
                         <div class="report-main-area">
                             <!-- Left Sidebar Stepper -->
                             <aside class="report-sidebar">
@@ -584,19 +585,20 @@
                                     </div>
                                 </div>
                             </aside>
-                            
+
                             <!-- Center Content -->
                             <main class="report-content">
                                 <!-- Step 1 -->
                                 <div id="rs-step-1" class="rs-step active">
                                     <h2>Report Details</h2>
                                     <p class="subtitle">Provide basic information about the incident.</p>
-                                    
+
                                     <div class="two-col-form">
                                         <div class="left-col">
                                             <label>Incident Type</label>
                                             <div class="new-category-grid">
-                                                <button class="cat-btn active" onclick="app.setCategory(this, 'flooding')">
+                                                <button class="cat-btn active"
+                                                    onclick="app.setCategory(this, 'flooding')">
                                                     <i data-lucide="waves"></i><span>Flooding</span>
                                                 </button>
                                                 <button class="cat-btn" onclick="app.setCategory(this, 'road hazard')">
@@ -615,139 +617,183 @@
                                                     <i data-lucide="more-horizontal"></i><span>Other</span>
                                                 </button>
                                             </div>
-                                            
+
                                             <div class="input-wrap">
-                                                <div class="label-row"><label>Title</label><span class="char-count" id="rs-title-count">0 / 80</span></div>
-                                                <input type="text" id="rs-title" placeholder="e.g. Flooding on Main Street" maxlength="80" oninput="app.updateCharCount('rs-title', 'rs-title-count', 80)">
+                                                <div class="label-row"><label>Title</label><span class="char-count"
+                                                        id="rs-title-count">0 / 80</span></div>
+                                                <input type="text" id="rs-title"
+                                                    placeholder="e.g. Flooding on Main Street" maxlength="80"
+                                                    oninput="app.updateCharCount('rs-title', 'rs-title-count', 80)">
                                             </div>
-                                            
+
                                             <div class="input-wrap">
-                                                <div class="label-row"><label>Description</label><span class="char-count" id="rs-desc-count">0 / 500</span></div>
-                                                <textarea id="rs-desc" rows="4" placeholder="Describe what's happening, when it started, and any other important details..." maxlength="500" oninput="app.updateCharCount('rs-desc', 'rs-desc-count', 500)"></textarea>
+                                                <div class="label-row"><label>Description</label><span
+                                                        class="char-count" id="rs-desc-count">0 / 500</span></div>
+                                                <textarea id="rs-desc" rows="4"
+                                                    placeholder="Describe what's happening, when it started, and any other important details..."
+                                                    maxlength="500"
+                                                    oninput="app.updateCharCount('rs-desc', 'rs-desc-count', 500)"></textarea>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="right-col">
                                             <label>Priority Level</label>
                                             <p class="small-text">Help us understand how urgent this is.</p>
                                             <div class="priority-cards">
                                                 <div class="pri-card low" onclick="app.setPriority(this, 'low')">
                                                     <div class="radio-circle"></div>
-                                                    <div class="pri-info"><strong>Low</strong><span>Minor issue</span></div>
+                                                    <div class="pri-info"><strong>Low</strong><span>Minor issue</span>
+                                                    </div>
                                                 </div>
-                                                <div class="pri-card medium active" onclick="app.setPriority(this, 'medium')">
+                                                <div class="pri-card medium active"
+                                                    onclick="app.setPriority(this, 'medium')">
                                                     <div class="radio-circle active"></div>
-                                                    <div class="pri-info"><strong>Medium</strong><span class="text-yellow">Needs attention</span></div>
+                                                    <div class="pri-info"><strong>Medium</strong><span
+                                                            class="text-yellow">Needs attention</span></div>
                                                 </div>
                                                 <div class="pri-card high" onclick="app.setPriority(this, 'high')">
                                                     <div class="radio-circle"></div>
-                                                    <div class="pri-info"><strong>High</strong><span class="text-red">Urgent</span></div>
+                                                    <div class="pri-info"><strong>High</strong><span
+                                                            class="text-red">Urgent</span></div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="step-footer right mt-4">
-                                        <button class="rs-btn-primary" onclick="app.goToStep(2)">Next Step <i data-lucide="arrow-right"></i></button>
+                                        <button class="rs-btn-primary" onclick="app.goToStep(2)">Next Step <i
+                                                data-lucide="arrow-right"></i></button>
                                     </div>
                                 </div>
 
                                 <!-- Step 2 -->
                                 <div id="rs-step-2" class="rs-step">
                                     <h2>Location & Media</h2>
-                                    <p class="subtitle">Confirm the location of the incident and add photos or videos.</p>
-                                    
+                                    <p class="subtitle">Confirm the location of the incident and add photos or videos.
+                                    </p>
+
                                     <div class="two-col-form">
                                         <div class="left-col">
                                             <label>Location</label>
                                             <div class="location-search">
                                                 <i data-lucide="search" class="search-icon"></i>
-                                                <input type="text" id="rs-location-search" placeholder="Search address or place" onkeypress="if(event.key === 'Enter') app.searchReportLocation()">
-                                                <button class="loc-target" onclick="app.useCurrentLocationReport()"><i data-lucide="crosshair"></i></button>
+                                                <input type="text" id="rs-location-search"
+                                                    placeholder="Search address or place"
+                                                    onkeypress="if(event.key === 'Enter') app.searchReportLocation()">
+                                                <button class="loc-target" onclick="app.useCurrentLocationReport()"><i
+                                                        data-lucide="crosshair"></i></button>
                                             </div>
                                             <div class="map-container" id="rs-map"></div>
                                             <div class="map-footer">
-                                                <button class="use-curr-loc" onclick="app.useCurrentLocationReport()"><i data-lucide="crosshair"></i> Use my current location</button>
+                                                <button class="use-curr-loc" onclick="app.useCurrentLocationReport()"><i
+                                                        data-lucide="crosshair"></i> Use my current location</button>
                                                 <span class="accuracy">Accuracy: 15m</span>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="right-col">
                                             <label>Add Photos / Videos</label>
                                             <p class="small-text">Upload clear photos or videos of the incident.</p>
-                                            <div class="upload-dropzone" onclick="document.getElementById('rs-file-upload').click()">
+                                            <div class="upload-dropzone"
+                                                onclick="document.getElementById('rs-file-upload').click()">
                                                 <i data-lucide="upload-cloud"></i>
                                                 <span>Drag and drop files here<br>or click to browse</span>
                                                 <small>JPG, PNG, MP4 up to 50MB</small>
-                                                <input type="file" style="display:none" id="rs-file-upload" accept="image/*,video/*" multiple onchange="app.handleFileUpload(event)">
+                                                <input type="file" style="display:none" id="rs-file-upload"
+                                                    accept="image/*,video/*" multiple
+                                                    onchange="app.handleFileUpload(event)">
                                             </div>
                                             <div class="media-gallery" id="rs-media-gallery">
                                                 <!-- Uploaded files will appear here -->
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="step-footer space-between mt-4">
                                         <button class="rs-btn-outline" onclick="app.goToStep(1)">Back</button>
-                                        <button class="rs-btn-primary" onclick="app.goToStep(3)">Next Step <i data-lucide="arrow-right"></i></button>
+                                        <button class="rs-btn-primary" onclick="app.goToStep(3)">Next Step <i
+                                                data-lucide="arrow-right"></i></button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Step 3 -->
                                 <div id="rs-step-3" class="rs-step">
                                     <h2>Review & Submit</h2>
                                     <p class="subtitle">Please review all information before submitting your report.</p>
-                                    
+
                                     <div class="review-grid">
                                         <div class="review-card">
                                             <div class="review-header">
                                                 <h3>Report Details</h3>
-                                                <button class="edit-link" onclick="app.goToStep(1)"><i data-lucide="edit-2"></i> Edit</button>
+                                                <button class="edit-link" onclick="app.goToStep(1)"><i
+                                                        data-lucide="edit-2"></i> Edit</button>
                                             </div>
                                             <div class="review-body">
-                                                <div class="r-row"><span class="r-label">Incident Type</span><strong class="r-value"><i data-lucide="waves" class="small-icon"></i> Flooding</strong></div>
-                                                <div class="r-row"><span class="r-label">Title</span><strong class="r-value">Flooding on Main Street</strong></div>
-                                                <div class="r-row"><span class="r-label">Description</span><span class="r-value text-wrap">Heavy rain has caused flooding on Main Street near 3rd Avenue. Water level is rising and traffic is affected.</span></div>
-                                                <div class="r-row"><span class="r-label">Priority</span><strong class="r-value text-yellow"><div class="dot yellow"></div> Medium</strong></div>
+                                                <div class="r-row"><span class="r-label">Incident Type</span><strong
+                                                        class="r-value"><i data-lucide="waves" class="small-icon"></i>
+                                                        Flooding</strong></div>
+                                                <div class="r-row"><span class="r-label">Title</span><strong
+                                                        class="r-value">Flooding on Main Street</strong></div>
+                                                <div class="r-row"><span class="r-label">Description</span><span
+                                                        class="r-value text-wrap">Heavy rain has caused flooding on Main
+                                                        Street near 3rd Avenue. Water level is rising and traffic is
+                                                        affected.</span></div>
+                                                <div class="r-row"><span class="r-label">Priority</span><strong
+                                                        class="r-value text-yellow">
+                                                        <div class="dot yellow"></div> Medium
+                                                    </strong></div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="review-card">
                                             <div class="review-header">
                                                 <h3>Location</h3>
-                                                <button class="edit-link" onclick="app.goToStep(2)"><i data-lucide="edit-2"></i> Edit</button>
+                                                <button class="edit-link" onclick="app.goToStep(2)"><i
+                                                        data-lucide="edit-2"></i> Edit</button>
                                             </div>
                                             <div class="review-body loc-body">
                                                 <div class="loc-text">
                                                     <span class="r-label">Address</span>
-                                                    <strong class="r-value block">Main St & 3rd Ave<br>Downtown, Smart City<br>Karnataka 560001, India</strong>
+                                                    <strong class="r-value block">Main St & 3rd Ave<br>Downtown, Smart
+                                                        City<br>Karnataka 560001, India</strong>
                                                     <span class="r-label mt-2">Accuracy</span>
                                                     <strong class="r-value block">15m</strong>
                                                 </div>
                                                 <div class="loc-map-thumb">
-                                                    <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=200&q=80">
+                                                    <img
+                                                        src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=200&q=80">
                                                     <div class="thumb-pin"><i data-lucide="map-pin"></i></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="review-card">
                                             <div class="review-header">
                                                 <h3>Media</h3>
-                                                <button class="edit-link" onclick="app.goToStep(2)"><i data-lucide="edit-2"></i> Edit</button>
+                                                <button class="edit-link" onclick="app.goToStep(2)"><i
+                                                        data-lucide="edit-2"></i> Edit</button>
                                             </div>
                                             <div class="review-body">
                                                 <p class="r-label mb-2">3 photos, 1 video</p>
                                                 <div class="media-gallery small">
-                                                    <div class="media-item"><img src="https://images.unsplash.com/photo-1542317148-8b4eecd52671?w=100&q=80"></div>
-                                                    <div class="media-item"><img src="https://images.unsplash.com/photo-1502814881768-e4b524cb1c36?w=100&q=80"></div>
-                                                    <div class="media-item"><img src="https://images.unsplash.com/photo-1473445749354-95779c118a8f?w=100&q=80"></div>
-                                                    <div class="media-item video"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&q=80"><div class="play-icon"><i data-lucide="play"></i></div></div>
+                                                    <div class="media-item"><img
+                                                            src="https://images.unsplash.com/photo-1542317148-8b4eecd52671?w=100&q=80">
+                                                    </div>
+                                                    <div class="media-item"><img
+                                                            src="https://images.unsplash.com/photo-1502814881768-e4b524cb1c36?w=100&q=80">
+                                                    </div>
+                                                    <div class="media-item"><img
+                                                            src="https://images.unsplash.com/photo-1473445749354-95779c118a8f?w=100&q=80">
+                                                    </div>
+                                                    <div class="media-item video"><img
+                                                            src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&q=80">
+                                                        <div class="play-icon"><i data-lucide="play"></i></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="step-footer space-between mt-4">
                                         <button class="rs-btn-outline" onclick="app.goToStep(2)">Back</button>
                                         <button class="rs-btn-primary submit-btn" onclick="app.submitNewReport()">
@@ -766,8 +812,9 @@
                         <div class="success-card">
                             <div class="success-icon-wrap"><i data-lucide="check" class="success-check-icon"></i></div>
                             <h2>Report Successfully Submitted</h2>
-                            <p class="success-desc">Thank you for keeping Smart City safe. Your report has been added to the Live Map and authorities have been notified.</p>
-                            
+                            <p class="success-desc">Thank you for keeping Smart City safe. Your report has been added to
+                                the Live Map and authorities have been notified.</p>
+
                             <div class="success-details-grid">
                                 <div class="detail-item">
                                     <span class="d-label">Category</span>
@@ -782,10 +829,12 @@
                                     <strong class="text-green">Active</strong>
                                 </div>
                             </div>
-                            
+
                             <div class="success-actions">
-                                <button class="btn btn-outline" onclick="app.navigateLayout('user-home-view')">Return to Home</button>
-                                <button class="btn btn-primary" onclick="app.viewReportOnMap()">View on Live Map <i data-lucide="map"></i></button>
+                                <button class="btn btn-outline" onclick="app.navigateLayout('user-home-view')">Return to
+                                    Home</button>
+                                <button class="btn btn-primary" onclick="app.viewReportOnMap()">View on Live Map <i
+                                        data-lucide="map"></i></button>
                             </div>
                         </div>
                     </div>
@@ -793,7 +842,9 @@
 
                 <!-- Volunteer Tasks View -->
                 <div id="tasks-view" class="sub-view">
-                    <header class="header-nav"><h2>Tasks</h2></header>
+                    <header class="header-nav">
+                        <h2>Tasks</h2>
+                    </header>
                     <div class="tabs" id="task-tabs">
                         <button class="tab active" onclick="app.switchTaskTab(this, 'upcoming')">Upcoming</button>
                         <button class="tab" onclick="app.switchTaskTab(this, 'in-progress')">In Progress</button>
@@ -801,17 +852,22 @@
                     </div>
                     <div class="content-padded">
                         <!-- 1. Flooding -->
-                        <div class="task-card" data-tab="in-progress" onclick="app.openTaskDetail(0)" style="display: none;">
+                        <div class="task-card" data-tab="in-progress" onclick="app.openTaskDetail(0)"
+                            style="display: none;">
                             <div class="task-header">
                                 <div class="task-title-area">
                                     <div class="icon-box red-light"><i class="red" data-lucide="droplets"></i></div>
-                                    <div><h4>Flooding near Main St.</h4><p class="text-sm text-gray">MG Road, Central Mall</p></div>
+                                    <div>
+                                        <h4>Flooding near Main St.</h4>
+                                        <p class="text-sm text-gray">MG Road, Central Mall</p>
+                                    </div>
                                 </div>
                                 <span class="badge high">High</span>
                             </div>
                             <div class="task-footer">
                                 <span class="distance"><i data-lucide="map-pin"></i> 0.8 km away</span>
-                                <span class="eta" style="color: var(--primary);"><span class="pulse-dot"></span> In Progress</span>
+                                <span class="eta" style="color: var(--primary);"><span class="pulse-dot"></span> In
+                                    Progress</span>
                             </div>
                         </div>
 
@@ -819,8 +875,12 @@
                         <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(1)">
                             <div class="task-header">
                                 <div class="task-title-area">
-                                    <div class="icon-box orange-light"><i class="orange" data-lucide="tree-pine"></i></div>
-                                    <div><h4>Fallen Tree Blocking Road</h4><p class="text-sm text-gray">Indiranagar Park</p></div>
+                                    <div class="icon-box orange-light"><i class="orange" data-lucide="tree-pine"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Fallen Tree Blocking Road</h4>
+                                        <p class="text-sm text-gray">Indiranagar Park</p>
+                                    </div>
                                 </div>
                                 <span class="badge medium">Medium</span>
                             </div>
@@ -834,8 +894,12 @@
                         <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(2)">
                             <div class="task-header">
                                 <div class="task-title-area">
-                                    <div class="icon-box red-light"><i class="red" data-lucide="alert-triangle"></i></div>
-                                    <div><h4>Gas Leak Reported</h4><p class="text-sm text-gray">Jayanagar 5th Block</p></div>
+                                    <div class="icon-box red-light"><i class="red" data-lucide="alert-triangle"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Gas Leak Reported</h4>
+                                        <p class="text-sm text-gray">Jayanagar 5th Block</p>
+                                    </div>
                                 </div>
                                 <span class="badge high">High</span>
                             </div>
@@ -846,17 +910,23 @@
                         </div>
 
                         <!-- 4. Pothole -->
-                        <div class="task-card" data-tab="completed" onclick="app.openTaskDetail(3)" style="display: none;">
+                        <div class="task-card" data-tab="completed" onclick="app.openTaskDetail(3)"
+                            style="display: none;">
                             <div class="task-header">
                                 <div class="task-title-area">
-                                    <div class="icon-box green-light"><i class="green" data-lucide="alert-circle"></i></div>
-                                    <div><h4>Pothole on Highway</h4><p class="text-sm text-gray">Bellary Road</p></div>
+                                    <div class="icon-box green-light"><i class="green" data-lucide="alert-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Pothole on Highway</h4>
+                                        <p class="text-sm text-gray">Bellary Road</p>
+                                    </div>
                                 </div>
                                 <span class="badge resolved">Done</span>
                             </div>
                             <div class="task-footer">
                                 <span class="distance"><i data-lucide="map-pin"></i> 5.0 km away</span>
-                                <span class="eta" style="color: var(--green);"><i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Resolved</span>
+                                <span class="eta" style="color: var(--green);"><i data-lucide="check-circle"
+                                        style="width: 14px; height: 14px;"></i> Resolved</span>
                             </div>
                         </div>
 
@@ -864,8 +934,12 @@
                         <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(4)">
                             <div class="task-header">
                                 <div class="task-title-area">
-                                    <div class="icon-box blue-light"><i class="blue" data-lucide="alert-circle"></i></div>
-                                    <div><h4>Stray Dogs near school</h4><p class="text-sm text-gray">Abay St, Turkestan</p></div>
+                                    <div class="icon-box blue-light"><i class="blue" data-lucide="alert-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Stray Dogs near school</h4>
+                                        <p class="text-sm text-gray">Abay St, Turkestan</p>
+                                    </div>
                                 </div>
                                 <span class="badge low">Low</span>
                             </div>
@@ -880,7 +954,10 @@
                             <div class="task-header">
                                 <div class="task-title-area">
                                     <div class="icon-box blue-light"><i class="blue" data-lucide="zap-off"></i></div>
-                                    <div><h4>Broken Streetlight</h4><p class="text-sm text-gray">Esim Khan Square, Turkestan</p></div>
+                                    <div>
+                                        <h4>Broken Streetlight</h4>
+                                        <p class="text-sm text-gray">Esim Khan Square, Turkestan</p>
+                                    </div>
                                 </div>
                                 <span class="badge low">Low</span>
                             </div>
@@ -895,14 +972,16 @@
                 <!-- My Reports View -->
                 <div id="my-reports-view" class="sub-view">
                     <header class="header-nav">
-                        <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i data-lucide="arrow-left"></i></button>
+                        <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i
+                                data-lucide="arrow-left"></i></button>
                         <h2>My Reports</h2>
                         <div style="width: 24px;"></div>
                     </header>
                     <div class="content-padded">
                         <div id="my-reports-list" class="incident-feed">
                             <div style="text-align:center; padding: 40px 20px; color: var(--text-gray);">
-                                <i data-lucide="loader" class="spin" style="width:32px; height:32px; margin-bottom:12px;"></i>
+                                <i data-lucide="loader" class="spin"
+                                    style="width:32px; height:32px; margin-bottom:12px;"></i>
                                 <p>Loading your reports...</p>
                             </div>
                         </div>
@@ -911,53 +990,52 @@
 
                 <!-- Alerts View -->
                 <div id="alerts-view" class="sub-view">
-                    <header class="header-nav">
+                    <header class="header-nav alerts-header">
                         <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i data-lucide="arrow-left"></i></button>
-                        <h2>Alerts</h2>
-                        <div style="width: 24px;"></div>
+                        <h2>Notifications</h2>
+                        <button class="mark-read-btn"><i data-lucide="check-check"></i></button>
                     </header>
                     <div class="content-padded">
-                        <div class="incident-feed">
-                            <div class="feed-card feed-card-high">
-                                <div class="feed-timeline"><div class="feed-dot feed-dot-red"></div><div class="feed-line"></div></div>
-                                <div class="feed-content">
-                                    <div class="feed-header">
-                                        <div class="feed-icon-wrap feed-icon-red"><i data-lucide="alert-triangle"></i></div>
-                                        <div class="feed-info"><h4>Severe Weather Warning</h4><p>Heavy rainfall expected in your area for the next 6 hours.</p></div>
-                                        <span class="feed-badge feed-badge-high">URGENT</span>
+                        <div class="alerts-list">
+                            <div class="alert-card alert-urgent">
+                                <div class="alert-icon-glow">
+                                    <i data-lucide="alert-triangle"></i>
+                                </div>
+                                <div class="alert-body">
+                                    <div class="alert-top">
+                                        <h4>Severe Weather Warning</h4>
+                                        <span class="alert-time">5m ago</span>
                                     </div>
-                                    <div class="feed-footer">
-                                        <span class="feed-time"><i data-lucide="clock"></i> 5 min ago</span>
-                                        <span class="feed-status feed-status-active"><span class="pulse-dot"></span> Active</span>
+                                    <p>Heavy rainfall expected in your area for the next 6 hours. Stay indoors.</p>
+                                    <div class="alert-actions">
+                                        <button class="btn-sm btn-urgent">View Details</button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="feed-card feed-card-medium">
-                                <div class="feed-timeline"><div class="feed-dot feed-dot-orange"></div><div class="feed-line"></div></div>
-                                <div class="feed-content">
-                                    <div class="feed-header">
-                                        <div class="feed-icon-wrap feed-icon-orange"><i data-lucide="construction"></i></div>
-                                        <div class="feed-info"><h4>Road Construction Alert</h4><p>MG Road will be partially closed for maintenance from 10 PM to 6 AM.</p></div>
-                                        <span class="feed-badge feed-badge-medium">INFO</span>
+
+                            <div class="alert-card alert-info">
+                                <div class="alert-icon-glow">
+                                    <i data-lucide="construction"></i>
+                                </div>
+                                <div class="alert-body">
+                                    <div class="alert-top">
+                                        <h4>Road Construction</h4>
+                                        <span class="alert-time">1h ago</span>
                                     </div>
-                                    <div class="feed-footer">
-                                        <span class="feed-time"><i data-lucide="clock"></i> 1 hr ago</span>
-                                        <span class="feed-status feed-status-pending">Scheduled</span>
-                                    </div>
+                                    <p>MG Road will be partially closed for maintenance from 10 PM to 6 AM.</p>
                                 </div>
                             </div>
-                            <div class="feed-card feed-card-low">
-                                <div class="feed-timeline"><div class="feed-dot feed-dot-green"></div></div>
-                                <div class="feed-content">
-                                    <div class="feed-header">
-                                        <div class="feed-icon-wrap feed-icon-green"><i data-lucide="check-circle"></i></div>
-                                        <div class="feed-info"><h4>Issue Resolved</h4><p>The flooding on Main St. has been resolved. Road is now clear.</p></div>
-                                        <span class="feed-badge feed-badge-resolved">DONE</span>
+
+                            <div class="alert-card alert-success">
+                                <div class="alert-icon-glow">
+                                    <i data-lucide="check-circle"></i>
+                                </div>
+                                <div class="alert-body">
+                                    <div class="alert-top">
+                                        <h4>Issue Resolved</h4>
+                                        <span class="alert-time">3h ago</span>
                                     </div>
-                                    <div class="feed-footer">
-                                        <span class="feed-time"><i data-lucide="clock"></i> 3 hrs ago</span>
-                                        <span class="feed-status feed-status-resolved"><i data-lucide="check-circle"></i> Resolved</span>
-                                    </div>
+                                    <p>The flooding on Main St. has been resolved. Road is now clear.</p>
                                 </div>
                             </div>
                         </div>
@@ -967,32 +1045,53 @@
                 <!-- Task Detail View -->
                 <div id="task-detail-view" class="sub-view">
                     <header class="header-nav">
-                        <button class="back-btn" onclick="app.navigateLayout('tasks-view')"><i data-lucide="arrow-left"></i></button>
+                        <button class="back-btn" onclick="app.navigateLayout('tasks-view')"><i
+                                data-lucide="arrow-left"></i></button>
                         <h2>Task Details</h2>
                         <div style="width: 24px;"></div>
                     </header>
                     <div class="content-padded">
-                        <div class="flex-between mb-2">
-                            <span id="td-badge" class="badge medium">Medium</span>
-                            <span id="td-time" class="text-sm text-gray">2 min ago</span>
-                        </div>
-                        <h3 id="td-title">Elderly Needs Help</h3>
-                        <p id="td-location" class="text-sm text-gray mb-3">Koramangala 4th Block, Bengaluru, Karnataka</p>
-                        <div class="map-snippet small mb-4" style="height: 200px;">
-                            <img id="td-image" src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" alt="Map snippet" class="map-bg" style="object-fit: cover;">
-                            <div id="td-pin" class="map-pin teal" style="top:50%; left:50%; display: none;"><i data-lucide="user"></i></div>
-                        </div>
-                        <h4>Description</h4>
-                        <p id="td-desc" class="text-body mb-4">An elderly person needs assistance with getting medicine from a nearby pharmacy.</p>
-                        <h4>What You Need To Do</h4>
-                        <ul class="todo-list mb-4">
-                            <li>Visit the location</li>
-                            <li>Assess the situation</li>
-                            <li>Provide necessary assistance</li>
-                        </ul>
-                        <div class="action-buttons-row">
-                            <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Reject</button>
-                            <button class="btn btn-primary" style="flex:1" onclick="app.acceptTask()">Accept</button>
+                        <div class="task-detail-grid-v3">
+                            <!-- Left Column: The Photo (Large, fully visible, 16:9) -->
+                            <div class="task-detail-left-col">
+                                <div class="task-detail-image-wrap-v3">
+                                    <img id="td-image"
+                                        src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80"
+                                        alt="Incident Photo" class="task-detail-img-v3">
+                                    <div id="td-pin" class="map-pin teal" style="top:50%; left:50%; display: none;">
+                                        <i data-lucide="user"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column: Details & Actions -->
+                            <div class="task-detail-right-col">
+                                <div class="flex-between mb-2">
+                                    <span id="td-badge" class="badge medium">Medium</span>
+                                    <span id="td-time" class="text-sm text-gray">2 min ago</span>
+                                </div>
+                                <h3 id="td-title" class="task-detail-title-v3">Elderly Needs Help</h3>
+                                <p id="td-location" class="text-sm text-gray mb-3">Koramangala 4th Block, Bengaluru, Karnataka</p>
+                                
+                                <div class="task-detail-section-v3">
+                                    <h4>Description</h4>
+                                    <p id="td-desc" class="text-body mb-4">An elderly person needs assistance with getting medicine from a nearby pharmacy.</p>
+                                </div>
+                                
+                                <div class="task-detail-section-v3">
+                                    <h4>What You Need To Do</h4>
+                                    <ul class="todo-list mb-4">
+                                        <li>Visit the location</li>
+                                        <li>Assess the situation</li>
+                                        <li>Provide necessary assistance</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="action-buttons-row">
+                                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Reject</button>
+                                    <button class="btn btn-primary" style="flex:1" onclick="app.acceptTask()">Accept</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1012,19 +1111,20 @@
                                     <i data-lucide="check" style="width: 80px; height: 80px; color: white;"></i>
                                 </div>
                             </div>
-                            
+
                             <h1 class="fs-title">TASK COMPLETED</h1>
                             <p class="fs-subtitle">The city thanks you for your contribution.</p>
-                            
+
                             <!-- Massive XP Reward -->
                             <div class="fs-reward-box">
                                 <div class="fs-reward-glow"></div>
                                 <i data-lucide="zap" class="fs-zap" style="width: 48px; height: 48px;"></i>
                                 <span class="fs-xp-text">+25 XP</span>
                             </div>
-                            
+
                             <div class="fs-actions">
-                                <button class="btn btn-primary fs-btn" onclick="app.navigateLayout('user-home-view')">CONTINUE</button>
+                                <button class="btn btn-primary fs-btn"
+                                    onclick="app.navigateLayout('user-home-view')">CONTINUE</button>
                             </div>
                         </div>
                     </div>
@@ -1033,10 +1133,15 @@
 
             <!-- Bottom Nav for Mobile -->
             <nav class="bottom-nav">
-                <a href="#" class="nav-item active" onclick="app.navigateLayout('user-home-view', this)"><i data-lucide="home"></i><span>Home</span></a>
-                <a href="#" class="nav-item" onclick="app.navigateLayout('map-view', this)"><i data-lucide="map"></i><span>Map</span></a>
-                <a href="#" class="nav-item" onclick="app.navigateLayout('report-view', this)"><div class="report-fab"><i data-lucide="plus"></i></div><span>Report</span></a>
-                <a href="#" class="nav-item" onclick="app.navigateLayout('tasks-view', this)"><i data-lucide="users"></i><span>Tasks</span></a>
+                <a href="#" class="nav-item active" onclick="app.navigateLayout('user-home-view', this)"><i
+                        data-lucide="home"></i><span>Home</span></a>
+                <a href="#" class="nav-item" onclick="app.navigateLayout('map-view', this)"><i
+                        data-lucide="map"></i><span>Map</span></a>
+                <a href="#" class="nav-item" onclick="app.navigateLayout('report-view', this)">
+                    <div class="report-fab"><i data-lucide="plus"></i></div><span>Report</span>
+                </a>
+                <a href="#" class="nav-item" id="mobile-tasks-link" onclick="app.navigateLayout('tasks-view', this)"><i
+                        data-lucide="users"></i><span>Tasks</span></a>
                 <a href="#" class="nav-item" onclick="app.logout()"><i data-lucide="log-out"></i><span>Logout</span></a>
             </nav>
         </div>
@@ -1049,11 +1154,16 @@
                     <h2>Smart City <span class="text-purple">Admin</span></h2>
                 </div>
                 <nav class="sidebar-nav">
-                    <a href="#" class="nav-item active" onclick="app.switchAdminTab(this, 'dashboard')"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'reports')"><i data-lucide="file-text"></i> Reports</a>
-                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'map')"><i data-lucide="map"></i> Map</a>
-                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'teams')"><i data-lucide="users"></i> Teams</a>
-                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'settings')"><i data-lucide="settings"></i> Settings</a>
+                    <a href="#" class="nav-item active" onclick="app.switchAdminTab(this, 'dashboard')"><i
+                            data-lucide="layout-dashboard"></i> Dashboard</a>
+                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'reports')"><i
+                            data-lucide="file-text"></i> Reports</a>
+                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'map')"><i data-lucide="map"></i>
+                        Map</a>
+                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'teams')"><i data-lucide="users"></i>
+                        Teams</a>
+                    <a href="#" class="nav-item" onclick="app.switchAdminTab(this, 'settings')"><i
+                            data-lucide="settings"></i> Settings</a>
                     <a href="#" class="nav-item mt-auto" onclick="app.logout()"><i data-lucide="log-out"></i> Logout</a>
                 </nav>
             </aside>
@@ -1067,58 +1177,139 @@
                 </header>
                 <div class="admin-content">
                     <div class="stats-row">
-                        <div class="stat-card"><div class="stat-icon bg-purple-light"><i data-lucide="file-text" class="text-purple"></i></div><div class="stat-info"><h3>32</h3><p>New Reports</p></div></div>
-                        <div class="stat-card"><div class="stat-icon bg-orange-light"><i data-lucide="clock" class="text-orange"></i></div><div class="stat-info"><h3>19</h3><p>Under Review</p></div></div>
-                        <div class="stat-card"><div class="stat-icon bg-green-light"><i data-lucide="check-circle" class="text-green"></i></div><div class="stat-info"><h3>76</h3><p>Resolved</p></div></div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-purple-light"><i data-lucide="file-text" class="text-purple"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>32</h3>
+                                <p>New Reports</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-orange-light"><i data-lucide="clock" class="text-orange"></i></div>
+                            <div class="stat-info">
+                                <h3>19</h3>
+                                <p>Under Review</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-green-light"><i data-lucide="check-circle" class="text-green"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>76</h3>
+                                <p>Resolved</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="admin-grid">
                         <div class="panel list-panel">
-                            <div class="panel-header"><h4>Incoming Reports</h4><a href="#" onclick="app.switchAdminTab(document.querySelector('.admin-sidebar .nav-item:nth-child(2)'), 'reports'); return false;">View All</a></div>
+                            <div class="panel-header">
+                                <h4>Incoming Reports</h4><a href="#"
+                                    onclick="app.switchAdminTab(document.querySelector('.admin-sidebar .nav-item:nth-child(2)'), 'reports'); return false;">View
+                                    All</a>
+                            </div>
                             <div class="report-list">
-                                <div class="report-item active" onclick="app.selectReport(this)"><div class="report-icon bg-red"><i data-lucide="droplets"></i></div><div class="report-details"><h5>Flooding near Main St.</h5><p>10 min ago</p></div><div class="ai-score"><span class="score">92%</span><small>AI Score</small></div></div>
-                                <div class="report-item" onclick="app.selectReport(this)"><div class="report-icon bg-orange"><i data-lucide="heart-handshake"></i></div><div class="report-details"><h5>Elderly Needs Help</h5><p>25 min ago</p></div><div class="ai-score"><span class="score">88%</span><small>AI Score</small></div></div>
-                                <div class="report-item" onclick="app.selectReport(this)"><div class="report-icon bg-blue"><i data-lucide="tree-pine"></i></div><div class="report-details"><h5>Fallen Tree</h5><p>45 min ago</p></div><div class="ai-score"><span class="score">46%</span><small>AI Score</small></div></div>
+                                <div class="report-item active" onclick="app.selectReport(this)">
+                                    <div class="report-icon bg-red"><i data-lucide="droplets"></i></div>
+                                    <div class="report-details">
+                                        <h5>Flooding near Main St.</h5>
+                                        <p>10 min ago</p>
+                                    </div>
+                                    <div class="ai-score"><span class="score">92%</span><small>AI Score</small></div>
+                                </div>
+                                <div class="report-item" onclick="app.selectReport(this)">
+                                    <div class="report-icon bg-orange"><i data-lucide="heart-handshake"></i></div>
+                                    <div class="report-details">
+                                        <h5>Elderly Needs Help</h5>
+                                        <p>25 min ago</p>
+                                    </div>
+                                    <div class="ai-score"><span class="score">88%</span><small>AI Score</small></div>
+                                </div>
+                                <div class="report-item" onclick="app.selectReport(this)">
+                                    <div class="report-icon bg-blue"><i data-lucide="tree-pine"></i></div>
+                                    <div class="report-details">
+                                        <h5>Fallen Tree</h5>
+                                        <p>45 min ago</p>
+                                    </div>
+                                    <div class="ai-score"><span class="score">46%</span><small>AI Score</small></div>
+                                </div>
                             </div>
                         </div>
                         <div class="panel detail-panel">
-                            <div class="detail-header flex-between"><span class="badge high">High Priority</span><span class="text-sm text-gray">#RP-3881 • 2 min ago</span></div>
+                            <div class="detail-header flex-between"><span class="badge high">High Priority</span><span
+                                    class="text-sm text-gray">#RP-3881 • 2 min ago</span></div>
                             <h3>Flooding near Main St.</h3>
-                            <p class="text-sm text-gray mb-3"><i data-lucide="map-pin"></i> MG Road, Central Mall, Bengaluru, Karnataka</p>
+                            <p class="text-sm text-gray mb-3"><i data-lucide="map-pin"></i> MG Road, Central Mall,
+                                Bengaluru, Karnataka</p>
                             <div class="photo-gallery mb-4">
-                                <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=200&q=80" alt="flood 1">
-                                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=200&q=80" alt="map">
+                                <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=200&q=80"
+                                    alt="flood 1">
+                                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=200&q=80"
+                                    alt="map">
                             </div>
                             <div class="ai-analysis-box mb-4">
                                 <h4>✨ AI Analysis</h4>
                                 <div class="ai-scores row flex-between mt-2">
-                                    <div class="score-card"><span class="text-sm text-gray">Validity Score</span><div class="score-value text-green">92% <span class="badge-sm bg-green">Valid</span></div></div>
-                                    <div class="score-card"><span class="text-sm text-gray">Severity Score</span><div class="score-value text-red">88/100 <span class="badge-sm bg-red">High</span></div></div>
+                                    <div class="score-card"><span class="text-sm text-gray">Validity Score</span>
+                                        <div class="score-value text-green">92% <span
+                                                class="badge-sm bg-green">Valid</span></div>
+                                    </div>
+                                    <div class="score-card"><span class="text-sm text-gray">Severity Score</span>
+                                        <div class="score-value text-red">88/100 <span
+                                                class="badge-sm bg-red">High</span></div>
+                                    </div>
                                 </div>
-                                <div class="key-factors mt-3"><strong>Key Factors</strong><ul><li>Water accumulation</li><li>Traffic blocked</li><li>Heavy rain</li></ul></div>
+                                <div class="key-factors mt-3"><strong>Key Factors</strong>
+                                    <ul>
+                                        <li>Water accumulation</li>
+                                        <li>Traffic blocked</li>
+                                        <li>Heavy rain</li>
+                                    </ul>
+                                </div>
                             </div>
                             <div class="action-panel">
                                 <h4>Take Action</h4>
-                                <div class="input-group"><label>Assign To</label><div class="assign-toggle"><button class="toggle-btn active" onclick="app.toggleAssign(this)">Authorities</button><button class="toggle-btn" onclick="app.toggleAssign(this)">Volunteers</button></div></div>
-                                <div class="input-group"><label>Select Unit / Team</label><select class="form-select"><option>BBMP - Drainage Team (Unit 12)</option><option>Fire Dept.</option><option>Police</option></select></div>
+                                <div class="input-group"><label>Assign To</label>
+                                    <div class="assign-toggle"><button class="toggle-btn active"
+                                            onclick="app.toggleAssign(this)">Authorities</button><button
+                                            class="toggle-btn" onclick="app.toggleAssign(this)">Volunteers</button>
+                                    </div>
+                                </div>
+                                <div class="input-group"><label>Select Unit / Team</label><select class="form-select">
+                                        <option>BBMP - Drainage Team (Unit 12)</option>
+                                        <option>Fire Dept.</option>
+                                        <option>Police</option>
+                                    </select></div>
                                 <div class="row flex-between" style="gap: 16px;">
-                                    <div class="input-group" style="flex:1"><label>Change Priority</label><select class="form-select"><option>High</option><option>Medium</option><option>Low</option></select></div>
-                                    <div class="input-group" style="flex:1"><label>Change Region</label><select class="form-select"><option>Bengaluru Central</option></select></div>
+                                    <div class="input-group" style="flex:1"><label>Change Priority</label><select
+                                            class="form-select">
+                                            <option>High</option>
+                                            <option>Medium</option>
+                                            <option>Low</option>
+                                        </select></div>
+                                    <div class="input-group" style="flex:1"><label>Change Region</label><select
+                                            class="form-select">
+                                            <option>Bengaluru Central</option>
+                                        </select></div>
                                 </div>
                                 <div class="action-buttons-row mt-4">
-                                    <button class="btn btn-outline" style="flex:1" onclick="app.markReportInvalid()">Mark as Invalid</button>
-                                    <button class="btn btn-primary bg-purple" style="flex:2" onclick="alert('Assigned & Notified!')">Assign & Notify</button>
+                                    <button class="btn btn-outline" style="flex:1"
+                                        onclick="app.markReportInvalid()">Mark as Invalid</button>
+                                    <button class="btn btn-primary bg-purple" style="flex:2"
+                                        onclick="alert('Assigned & Notified!')">Assign & Notify</button>
                                 </div>
                             </div>
                         </div>
-                        </div>
                     </div>
                 </div>
-            </main>
         </div>
+        </main>
     </div>
-    
+    </div>
+
     <script src="js/map.js?v=2"></script>
-    <script src="js/app.js?v=2"></script>
+    <script src="js/app.js?v=4"></script>
     <script>lucide.createIcons();</script>
 </body>
+
 </html>

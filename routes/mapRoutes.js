@@ -13,7 +13,7 @@ router.get('/markers', async (req, res) => {
     try {
         const result = await db.query(
             `SELECT id, category, title, description, severity, location,
-                    latitude, longitude, status, created_at
+                    latitude, longitude, status, image_url, created_at
              FROM reports
              WHERE latitude IS NOT NULL AND longitude IS NOT NULL
              ORDER BY created_at DESC`

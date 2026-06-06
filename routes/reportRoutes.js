@@ -12,16 +12,16 @@ router.post('/', async (req, res) => {
             return res.status(401).json({ error: 'You must be logged in to submit a report.' });
         }
 
-        const { category, title, description, severity, location, latitude, longitude } = req.body;
+        const { category, title, description, severity, location, latitude, longitude, image_url } = req.body;
 
         if (!category) {
             return res.status(400).json({ error: 'Category is required.' });
         }
 
         const result = await db.query(
-            `INSERT INTO reports (user_id, category, title, description, severity, location, latitude, longitude, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending')
-             RETURNING id, category, title, severity, status, created_at`,
+            `INSERT INTO reports (user_id, category, title, description, severity, location, latitude, longitude, status, image_url)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9)
+             RETURNING id, category, title, severity, status, image_url, created_at`,
             [
                 req.session.userId,
                 category,
@@ -30,7 +30,8 @@ router.post('/', async (req, res) => {
                 severity || 'medium',
                 location || '',
                 latitude || null,
-                longitude || null
+                longitude || null,
+                image_url || null
             ]
         );
 
@@ -44,7 +45,8 @@ router.post('/', async (req, res) => {
                 category: report.category,
                 title: report.title,
                 severity: report.severity,
-                status: report.status
+                status: report.status,
+                image_url: report.image_url
             }
         });
     } catch (err) {
@@ -62,16 +64,21 @@ router.get('/', async (req, res) => {
         }
 
         let result;
-        if (req.session.userRole === 'admin') {
+        if (req.session.userRole === 'admin' || req.session.userRole === 'volunteer' || req.session.userRole === 'responder') {
             result = await db.query(
-                `SELECT r.*, u.full_name AS reporter_name
+                `SELECT r.*, u.full_name AS reporter_name, a.full_name AS assignee_name
                  FROM reports r
                  LEFT JOIN users u ON r.user_id = u.id
+                 LEFT JOIN users a ON r.assignee_id = a.id
                  ORDER BY r.created_at DESC`
             );
         } else {
             result = await db.query(
-                'SELECT * FROM reports WHERE user_id = $1 ORDER BY created_at DESC',
+                `SELECT r.*, a.full_name AS assignee_name 
+                 FROM reports r
+                 LEFT JOIN users a ON r.assignee_id = a.id
+                 WHERE r.user_id = $1 
+                 ORDER BY r.created_at DESC`,
                 [req.session.userId]
             );
         }
@@ -83,26 +90,113 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ==================== UPDATE REPORT STATUS (admin only) ====================
+// ==================== GET FEED REPORTS ====================
+// Filtered based on user role:
+// - admin, volunteer, responder: see all reports (no severity filtering)
+// - user: all active/resolved reports
+router.get('/feed', async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'You must be logged in.' });
+        }
+
+        const role = req.session.userRole;
+        let queryStr = '';
+
+        if (role === 'admin' || role === 'volunteer' || role === 'responder') {
+            queryStr = `
+                SELECT r.*, u.full_name AS reporter_name, a.full_name AS assignee_name
+                FROM reports r
+                LEFT JOIN users u ON r.user_id = u.id
+                LEFT JOIN users a ON r.assignee_id = a.id
+                WHERE r.status != 'invalid'
+                ORDER BY r.created_at DESC
+            `;
+        } else {
+            // Citizen (user): sees active/resolved reports
+            queryStr = `
+                SELECT r.*, u.full_name AS reporter_name, a.full_name AS assignee_name
+                FROM reports r
+                LEFT JOIN users u ON r.user_id = u.id
+                LEFT JOIN users a ON r.assignee_id = a.id
+                WHERE r.status != 'invalid'
+                ORDER BY r.created_at DESC
+            `;
+        }
+
+        const result = await db.query(queryStr);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Get feed error:', err);
+        res.status(500).json({ error: 'Server error while loading feed.' });
+    }
+});
+
+// ==================== UPDATE REPORT STATUS ====================
+// Admins can update any status.
+// Volunteers/Responders can accept (set to in_progress) or resolve (set to resolved) reports.
 router.put('/:id/status', async (req, res) => {
     try {
-        if (!req.session.userId || req.session.userRole !== 'admin') {
-            return res.status(403).json({ error: 'Admin access required.' });
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'You must be logged in.' });
         }
 
+        const reportId = req.params.id;
         const { status } = req.body;
         const validStatuses = ['pending', 'in_progress', 'resolved', 'invalid'];
+
         if (!validStatuses.includes(status)) {
-            return res.status(400).json({ error: 'Invalid status. Use: ' + validStatuses.join(', ') });
+            return res.status(400).json({ error: 'Invalid status.' });
         }
 
-        const result = await db.query(
-            'UPDATE reports SET status = $1 WHERE id = $2 RETURNING id',
-            [status, req.params.id]
-        );
+        const role = req.session.userRole;
+        const userId = req.session.userId;
 
-        if (result.rows.length === 0) {
+        // Load the current report to check severity and assignee
+        const reportRes = await db.query('SELECT * FROM reports WHERE id = $1', [reportId]);
+        if (reportRes.rows.length === 0) {
             return res.status(404).json({ error: 'Report not found.' });
+        }
+        const report = reportRes.rows[0];
+
+        if (role === 'admin') {
+            // Admin can do anything
+            await db.query(
+                'UPDATE reports SET status = $1 WHERE id = $2',
+                [status, reportId]
+            );
+        } else if (role === 'responder' || role === 'volunteer') {
+            // Allowed severity is unrestricted for visibility but can accept any
+            if (status === 'in_progress') {
+                // Accept the task: assign to current user
+                await db.query(
+                    'UPDATE reports SET status = $1, assignee_id = $2 WHERE id = $3',
+                    [status, userId, reportId]
+                );
+            } else if (status === 'resolved') {
+                // Resolve the task
+                // Allow if they are the assignee, or if it wasn't assigned (auto-assign on resolve)
+                if (report.assignee_id && report.assignee_id !== userId) {
+                    return res.status(403).json({ error: 'This task is assigned to another person.' });
+                }
+                await db.query(
+                    'UPDATE reports SET status = $1, assignee_id = COALESCE(assignee_id, $2) WHERE id = $3',
+                    [status, userId, reportId]
+                );
+            } else if (status === 'pending') {
+                // Release the task
+                if (report.assignee_id !== userId) {
+                    return res.status(403).json({ error: 'You cannot release this task as you are not the assignee.' });
+                }
+                await db.query(
+                    'UPDATE reports SET status = $1, assignee_id = NULL WHERE id = $2',
+                    [status, reportId]
+                );
+            } else {
+                return res.status(403).json({ error: 'Invalid operation for your role.' });
+            }
+        } else {
+            return res.status(403).json({ error: 'Citizen users cannot update incident statuses.' });
         }
 
         res.json({ success: true, message: `Report status updated to "${status}".` });

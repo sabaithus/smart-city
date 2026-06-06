@@ -290,17 +290,434 @@ const app = {
         }
     },
 
+    detectUserCity: function() {
+        const cityEl = document.getElementById('user-current-city');
+        if (cityEl) {
+            cityEl.textContent = 'Turkestan';
+        }
+    },
+
     updateUI: function() {
         if (this.currentUser) {
             const name = this.currentUser.fullName || 'User';
             const firstName = name.split(' ')[0];
-            document.getElementById('greeting-name').textContent = `Hello, ${firstName}!`;
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=27ae60&color=fff`;
+            const hour = new Date().getHours();
+            let greeting = 'Hello';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 18) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+            document.getElementById('greeting-name').textContent = `${greeting}, ${firstName}`;
+            
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10B981&color=fff`;
+            const userAvatar = document.getElementById('user-avatar');
+            if (userAvatar) userAvatar.src = avatarUrl;
+            const navUserAvatar = document.getElementById('nav-user-avatar');
+            if (navUserAvatar) navUserAvatar.src = avatarUrl;
+
+            const navUserName = document.getElementById('nav-user-name');
+            if (navUserName) navUserName.textContent = name;
+            
+            const roleLabels = {
+                user: 'Citizen',
+                volunteer: 'Volunteer',
+                responder: 'Emergency Services',
+                admin: 'Administrator'
+            };
+            const role = this.currentUser.role || 'user';
+            const navUserRole = document.getElementById('nav-user-role');
+            if (navUserRole) navUserRole.textContent = roleLabels[role] || 'Citizen';
+
             // Show welcome text
             const welcomeEl = document.getElementById('hero-welcome-text');
             if (welcomeEl) welcomeEl.style.display = 'block';
+
+            // Show/hide navbar "Tasks" link
+            const navTasksLink = document.getElementById('nav-tasks-link');
+            const mobileTasksLink = document.getElementById('mobile-tasks-link');
+            if (role === 'volunteer' || role === 'responder' || role === 'admin') {
+                if (navTasksLink) navTasksLink.style.display = 'flex';
+                if (mobileTasksLink) mobileTasksLink.style.display = 'flex';
+            } else {
+                if (navTasksLink) navTasksLink.style.display = 'none';
+                if (mobileTasksLink) mobileTasksLink.style.display = 'none';
+            }
+
+            // Update dashboard grid cards display based on role
+            const sosCard = document.getElementById('dash-sos');
+            const volunteerCard = document.getElementById('dash-volunteer-card');
+            const responderCard = document.getElementById('dash-responder-card');
+
+            if (role === 'user') {
+                if (sosCard) sosCard.style.display = 'flex';
+                if (volunteerCard) volunteerCard.style.display = 'none';
+                if (responderCard) responderCard.style.display = 'none';
+            } else if (role === 'volunteer') {
+                if (sosCard) sosCard.style.display = 'none';
+                if (volunteerCard) volunteerCard.style.display = 'flex';
+                if (responderCard) responderCard.style.display = 'none';
+            } else if (role === 'responder') {
+                if (sosCard) sosCard.style.display = 'none';
+                if (volunteerCard) volunteerCard.style.display = 'none';
+                if (responderCard) responderCard.style.display = 'flex';
+            } else if (role === 'admin') {
+                if (sosCard) sosCard.style.display = 'flex';
+                if (volunteerCard) volunteerCard.style.display = 'flex';
+                if (responderCard) responderCard.style.display = 'flex';
+            }
+
+            // Load role-filtered feed and home stats
+            this.loadFeed();
+            this.updateHomeStats();
+            this.detectUserCity();
         }
         this.updateThemeIcon();
+    },
+
+    feedReports: [],
+    selectedTaskId: null,
+
+    loadFeed: async function() {
+        try {
+            const res = await fetch('/api/reports/feed');
+            
+            // Check content type before parsing
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    console.warn('Feed returned error:', errorData.error);
+                    return;
+                }
+                const reports = await res.json();
+                this.feedReports = reports;
+
+                this.renderHomeFeed();
+                this.renderTasksFeed();
+            } else {
+                console.error('Expected JSON from feed, but got:', contentType);
+                const text = await res.text();
+                console.error('Response preview:', text.substring(0, 100));
+            }
+        } catch(e) {
+            console.error('Error loading feed:', e);
+        }
+    },
+
+    updateHomeStats: async function() {
+        try {
+            const res = await fetch('/api/reports');
+            if (res.ok) {
+                const reports = await res.json();
+                
+                let totalSubmitted = reports.length;
+                let activeCount = reports.filter(r => r.status === 'in_progress').length;
+                let resolvedCount = reports.filter(r => r.status === 'resolved').length;
+                let pendingCount = reports.filter(r => r.status === 'pending').length;
+
+                if (this.currentUser && (this.currentUser.role === 'volunteer' || this.currentUser.role === 'responder')) {
+                    const userId = this.currentUser.id;
+                    activeCount = reports.filter(r => r.assignee_id === userId && r.status === 'in_progress').length;
+                    resolvedCount = reports.filter(r => r.assignee_id === userId && r.status === 'resolved').length;
+                    pendingCount = reports.filter(r => r.status === 'pending').length;
+                    totalSubmitted = activeCount + resolvedCount + pendingCount;
+                }
+
+                const totalEl = document.getElementById('user-reports-count');
+                const activeEl = document.getElementById('user-active-reports');
+                const resolvedEl = document.getElementById('user-resolved-reports');
+                const pendingEl = document.getElementById('user-pending-reports');
+
+                if (totalEl) totalEl.textContent = totalSubmitted;
+                if (activeEl) activeEl.textContent = activeCount;
+                if (resolvedEl) resolvedEl.textContent = resolvedCount;
+                if (pendingEl) pendingEl.textContent = pendingCount;
+            }
+        } catch(e) {
+            console.error('Error fetching/updating home stats:', e);
+        }
+    },
+
+    renderHomeFeed: function() {
+        const container = document.getElementById('incident-feed');
+        if (!container) return;
+
+        const activeReports = this.feedReports.filter(r => r.status !== 'resolved' && r.status !== 'invalid').slice(0, 6);
+
+        if (activeReports.length === 0) {
+            container.innerHTML = `
+                <div class="no-incidents-v3">
+                    <i data-lucide="check-circle" style="width:24px; height:24px; color:var(--emerald-500);"></i>
+                    <p style="font-size:0.85rem; color:var(--text-secondary);">No active incidents in this area.</p>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+
+        const iconMap = { fire: 'flame', flooding: 'waves', 'road hazard': 'cone', accident: 'car', 'power outage': 'zap', other: 'alert-triangle' };
+        
+        container.innerHTML = activeReports.map(r => {
+            const sev = r.severity || 'medium';
+            const timeStr = this.formatTime(r.created_at);
+            const statusLabel = r.status === 'in_progress' ? 'In Progress' : 'Pending';
+            const statusClass = r.status === 'in_progress' ? 'status-active' : 'status-pending';
+
+            const icon = iconMap[r.category] || 'alert-triangle';
+            const categoryClass = r.category.replace(' ', '-');
+            
+            let displayTitle = r.title ? r.title.trim() : '';
+            if (!displayTitle) {
+                displayTitle = r.category.charAt(0).toUpperCase() + r.category.slice(1);
+            } else if (displayTitle.toLowerCase() === 'fireee') {
+                displayTitle = 'Fire';
+            }
+            
+            const displayLocation = r.location ? r.location.split(',')[0] : 'Reported Area';
+
+            return `
+                <div class="telemetry-row-v3 border-left-sev-${sev}" onclick="app.openTaskDetail(${r.id})">
+                    <div class="tel-left-v3">
+                        <div class="tel-icon-wrap-v3 tel-icon-${categoryClass}">
+                            <i data-lucide="${icon}"></i>
+                        </div>
+                        <div class="tel-meta-col-v3">
+                            <span class="tel-title-v3">${displayTitle}</span>
+                            <div class="tel-badge-row-v3">
+                                <span class="tel-badge-v3 tel-badge-${statusClass}">${statusLabel}</span>
+                                <span class="tel-severity-dot-v3 dot-${sev}"></span>
+                                <span class="tel-severity-text-v3 text-${sev}">${sev.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tel-right-v3">
+                        <span class="tel-address-v3">${displayLocation}</span>
+                        <span class="tel-time-v3">${timeStr}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (window.lucide) lucide.createIcons();
+    },
+
+    renderActivityTimeline: function() {
+        const timelineContainer = document.getElementById('activity-timeline');
+        if (!timelineContainer) return;
+
+        const timelineReports = this.feedReports.slice(0, 6);
+
+        if (timelineReports.length === 0) {
+            timelineContainer.innerHTML = `
+                <div class="no-incidents-v3">
+                    <i data-lucide="activity" style="width:24px; height:24px; color:var(--text-secondary);"></i>
+                    <p style="font-size:0.85rem; color:var(--text-secondary);">No recent activity logged.</p>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+            return;
+        }
+
+        timelineContainer.innerHTML = timelineReports.map(r => {
+            let logIcon = 'plus-circle';
+            let logColorClass = 'log-new';
+            let logMsg = '';
+
+            const timeStr = this.formatTime(r.created_at);
+            const locationStr = r.location ? r.location.split(',')[0] : 'reported area';
+            const categoryStr = r.category.charAt(0).toUpperCase() + r.category.slice(1);
+
+            if (r.status === 'resolved') {
+                logIcon = 'check-circle';
+                logColorClass = 'log-resolved';
+                logMsg = `Report resolved: <strong>${categoryStr}</strong> resolved at ${locationStr}`;
+            } else if (r.status === 'in_progress') {
+                logIcon = 'shield';
+                logColorClass = 'log-progress';
+                logMsg = `Status update: <strong>${categoryStr}</strong> in progress at ${locationStr}`;
+            } else {
+                logIcon = 'alert-triangle';
+                logColorClass = 'log-new';
+                logMsg = `New alert: <strong>${categoryStr}</strong> reported at ${locationStr}`;
+            }
+
+            return `
+                <div class="timeline-item-v3">
+                    <div class="timeline-icon-wrap-v3 ${logColorClass}">
+                        <i data-lucide="${logIcon}"></i>
+                    </div>
+                    <div class="timeline-content-v3">
+                        <p class="timeline-text-v3">${logMsg}</p>
+                        <span class="timeline-time-v3">${timeStr}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (window.lucide) lucide.createIcons();
+    },
+
+    renderTasksFeed: function() {
+        const container = document.querySelector('#tasks-view .content-padded');
+        if (!container) return;
+
+        // Clear existing task cards
+        container.querySelectorAll('.task-card').forEach(c => c.remove());
+
+        const iconMap = { flooding: 'droplets', 'road hazard': 'cone', fire: 'flame', accident: 'car', 'power outage': 'zap', other: 'more-horizontal' };
+        const severityColors = { low: 'blue-light', medium: 'orange-light', high: 'red-light' };
+        const iconColors = { low: 'blue', medium: 'orange', high: 'red' };
+
+        const userId = this.currentUser ? this.currentUser.id : null;
+
+        const cardsHTML = this.feedReports.map(r => {
+            let tab = 'upcoming'; // default
+            if (r.status === 'in_progress') {
+                if (r.assignee_id === userId) {
+                    tab = 'in-progress';
+                } else {
+                    return ''; // hidden
+                }
+            } else if (r.status === 'resolved') {
+                if (r.assignee_id === userId) {
+                    tab = 'completed';
+                } else {
+                    return ''; // hidden
+                }
+            } else if (r.status === 'invalid') {
+                return ''; // hidden
+            }
+
+            const sev = r.severity || 'medium';
+            const iconBoxColor = severityColors[sev] || 'orange-light';
+            const iconColor = iconColors[sev] || 'orange';
+            const icon = iconMap[r.category] || 'alert-circle';
+            const timeStr = this.formatTime(r.created_at);
+
+            let footerHTML = '';
+            if (tab === 'upcoming') {
+                footerHTML = `
+                    <span class="distance"><i data-lucide="clock"></i> ${timeStr}</span>
+                    <span class="eta">Awaiting Help</span>
+                `;
+            } else if (tab === 'in-progress') {
+                footerHTML = `
+                    <span class="distance"><i data-lucide="clock"></i> ${timeStr}</span>
+                    <span class="eta" style="color: var(--primary);"><span class="pulse-dot"></span> Active Mission</span>
+                `;
+            } else {
+                footerHTML = `
+                    <span class="distance"><i data-lucide="clock"></i> ${timeStr}</span>
+                    <span class="eta" style="color: var(--green);"><i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Resolved</span>
+                `;
+            }
+
+            const badgeClass = r.status === 'resolved' ? 'resolved' : sev;
+            const badgeText = r.status === 'resolved' ? 'Done' : sev.charAt(0).toUpperCase() + sev.slice(1);
+
+            return `
+                <div class="task-card" data-tab="${tab}" onclick="app.openTaskDetail(${r.id})" style="display: none;">
+                    <div class="task-header">
+                        <div class="task-title-area">
+                            <div class="icon-box ${iconBoxColor}"><i class="${iconColor}" data-lucide="${icon}"></i></div>
+                            <div>
+                                <h4>${r.title || r.category.toUpperCase()}</h4>
+                                <p class="text-sm text-gray">${r.location || 'Reported area'}</p>
+                            </div>
+                        </div>
+                        <span class="badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="task-footer">
+                        ${footerHTML}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.insertAdjacentHTML('afterbegin', cardsHTML);
+
+        // Find active tab and trigger switch to show cards
+        const activeTabBtn = document.querySelector('#task-tabs .tab.active');
+        if (activeTabBtn) {
+            const tabName = activeTabBtn.textContent.toLowerCase().replace(' ', '-');
+            this.switchTaskTab(activeTabBtn, tabName);
+        } else {
+            const firstTab = document.querySelector('#task-tabs .tab');
+            if (firstTab) {
+                this.switchTaskTab(firstTab, 'upcoming');
+            }
+        }
+
+        if (window.lucide) lucide.createIcons();
+    },
+
+    acceptReportTask: async function(id) {
+        try {
+            const res = await fetch(`/api/reports/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'in_progress' })
+            });
+            if (res.ok) {
+                alert('Task Accepted! You are now responsible for this task.');
+                await this.loadFeed();
+                this.navigateLayout('tasks-view');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to accept task.');
+            }
+        } catch(e) {
+            alert('Error accepting task.');
+        }
+    },
+
+    releaseReportTask: async function(id) {
+        try {
+            const res = await fetch(`/api/reports/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'pending' })
+            });
+            if (res.ok) {
+                alert('Task released back to the community.');
+                await this.loadFeed();
+                this.navigateLayout('tasks-view');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to release task.');
+            }
+        } catch(e) {
+            alert('Error releasing task.');
+        }
+    },
+
+    resolveReportTask: async function(id) {
+        try {
+            const res = await fetch(`/api/reports/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'resolved' })
+            });
+            if (res.ok) {
+                await this.loadFeed();
+                this.navigateLayout('success-view');
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to resolve task.');
+            }
+        } catch(e) {
+            alert('Error resolving task.');
+        }
+    },
+
+    formatTime: function(isoString) {
+        if (!isoString) return 'Unknown';
+        const date = new Date(isoString);
+        const diffMin = Math.floor((new Date() - date) / 60000);
+        if (diffMin < 1) return 'Just now';
+        if (diffMin < 60) return `${diffMin} min ago`;
+        const diffHrs = Math.floor(diffMin / 60);
+        if (diffHrs < 24) return `${diffHrs} hr${diffHrs > 1 ? 's' : ''} ago`;
+        return date.toLocaleDateString();
     },
 
     updateThemeIcon: function() {
@@ -352,7 +769,8 @@ const app = {
                 this.reportStep = 1;
                 this.goToStep(this.reportStep);
             }
-            // Initialize maps
+
+            // Initialize maps and load feeds
             if (subViewId === 'map-view') {
                 setTimeout(() => { if (window.SmartCityMap) window.SmartCityMap.show(); }, 100);
             } else if (subViewId === 'report-view') {
@@ -362,12 +780,17 @@ const app = {
                 this.loadMyReports();
             } else if (subViewId === 'user-home-view') {
                 if (this.updateHomeStats) this.updateHomeStats();
+                this.loadFeed();
+            } else if (subViewId === 'tasks-view') {
+                this.loadFeed();
             }
+
             if (navElement) {
                 this.updateNavState(navElement);
             } else {
                 this.syncNavState(subViewId);
             }
+
             lucide.createIcons();
         } catch (err) {
             alert("Error in navigateLayout: " + err.message + "\nStack: " + err.stack);
@@ -390,21 +813,19 @@ const app = {
     },
 
     updateNavState: function(activeEl) {
-        const selectors = ['.bottom-nav .nav-item', '.sidebar-nav .nav-item'];
-        selectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => el.classList.remove('active'));
-        });
-        const icon = activeEl.querySelector('i');
-        if (!icon) return;
-        const iconName = icon.getAttribute('data-lucide');
-        selectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => {
-                const i = el.querySelector('i');
-                if (i && i.getAttribute('data-lucide') === iconName) {
-                    el.classList.add('active');
-                }
-            });
-        });
+        // Just derive the viewId and let syncNavState handle it
+        let viewId = activeEl.dataset && activeEl.dataset.view;
+        if (!viewId) {
+            // Try to extract from onclick
+            const onclickAttr = activeEl.getAttribute('onclick');
+            if (onclickAttr) {
+                const match = onclickAttr.match(/navigateLayout\('([^']+)'/);
+                if (match) viewId = match[1];
+            }
+        }
+        if (viewId) {
+            this.syncNavState(viewId);
+        }
     },
 
     syncNavState: function(viewId) {
@@ -419,15 +840,26 @@ const app = {
             'report-success-view': 'home'
         };
         const targetIcon = iconMap[viewId];
-        if (!targetIcon) return;
-        ['.bottom-nav .nav-item', '.sidebar-nav .nav-item'].forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => {
-                el.classList.remove('active');
-                const i = el.querySelector('i');
-                if (i && i.getAttribute('data-lucide') === targetIcon) {
-                    el.classList.add('active');
-                }
+        
+        if (targetIcon) {
+            ['.bottom-nav .nav-item', '.sidebar-nav .nav-item'].forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    el.classList.remove('active');
+                    // Check for either the uninitialized <i> or the SVG created by lucide
+                    const icon = el.querySelector(`[data-lucide="${targetIcon}"], .lucide-${targetIcon}`);
+                    if (icon) {
+                        el.classList.add('active');
+                    }
+                });
             });
+        }
+
+        // Sync top navbar links via data-view attribute
+        document.querySelectorAll('.navbar-links .nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.dataset.view === viewId) {
+                link.classList.add('active');
+            }
         });
     },
 
@@ -630,7 +1062,65 @@ const app = {
 
     // ==================== NEW: TASK TABS & DETAILS ====================
 
-    openTaskDetail: function(index) {
+    openTaskDetail: function(reportId) {
+        const report = this.feedReports.find(r => r.id === reportId);
+        if (!report) {
+            // Check if it's a demo task index fallback
+            if (typeof reportId === 'number' && reportId < 10) {
+                this.openDemoTaskDetail(reportId);
+            }
+            return;
+        }
+
+        // Store selected task ID
+        this.selectedTaskId = reportId;
+
+        document.getElementById('td-title').textContent = report.title || report.category.toUpperCase();
+        document.getElementById('td-location').textContent = report.location || 'Reported location';
+        document.getElementById('td-time').textContent = this.formatTime(report.created_at);
+        document.getElementById('td-desc').textContent = report.description || 'No description provided.';
+        
+        const badge = document.getElementById('td-badge');
+        badge.textContent = report.severity.toUpperCase();
+        badge.className = `badge ${report.severity === 'high' ? 'high' : report.severity === 'medium' ? 'medium' : 'low'}`;
+        
+        const img = document.getElementById('td-image');
+        const pin = document.getElementById('td-pin');
+        if (report.image_url) {
+            img.src = report.image_url;
+            img.style.display = 'block';
+            pin.style.display = 'none';
+        } else {
+            img.src = "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80";
+            img.style.display = 'block';
+            pin.style.display = 'none';
+        }
+
+        // Update the buttons based on status
+        const actionRow = document.querySelector('#task-detail-view .action-buttons-row');
+        if (actionRow) {
+            if (report.status === 'pending') {
+                actionRow.innerHTML = `
+                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Back</button>
+                    <button class="btn btn-primary" style="flex:1" onclick="app.acceptReportTask(${reportId})">Accept Task</button>
+                `;
+            } else if (report.status === 'in_progress') {
+                actionRow.innerHTML = `
+                    <button class="btn btn-outline" style="flex:1" onclick="app.releaseReportTask(${reportId})">Abandon</button>
+                    <button class="btn btn-primary" style="flex:1" onclick="app.resolveReportTask(${reportId})">Resolve Task</button>
+                `;
+            } else {
+                // resolved
+                actionRow.innerHTML = `
+                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Back to Tasks</button>
+                `;
+            }
+        }
+
+        this.navigateLayout('task-detail-view');
+    },
+
+    openDemoTaskDetail: function(index) {
         if (!window.SmartCityMap || !SmartCityMap.demoData[index]) return;
         const task = SmartCityMap.demoData[index];
         
@@ -654,6 +1144,15 @@ const app = {
             pin.style.display = 'flex';
         }
         
+        // Demo action buttons (default behavior)
+        const actionRow = document.querySelector('#task-detail-view .action-buttons-row');
+        if (actionRow) {
+            actionRow.innerHTML = `
+                <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Reject</button>
+                <button class="btn btn-primary" style="flex:1" onclick="app.acceptTask()">Accept</button>
+            `;
+        }
+
         this.navigateLayout('task-detail-view');
     },
 
