@@ -4,24 +4,61 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const multer = require('multer');
+const path = require('path');
+const { analyzeIncident, detectCrisis } = require('../services/aiService');
+const { getDistrictId } = require('../services/districtService');
+const { logTimelineEvent } = require('../services/timelineService');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'report-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 
 // ==================== CREATE REPORT ====================
-router.post('/', async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
     try {
         if (!req.session.userId) {
             return res.status(401).json({ error: 'You must be logged in to submit a report.' });
         }
 
-        const { category, title, description, severity, location, latitude, longitude, image_url } = req.body;
-
-        if (!category) {
-            return res.status(400).json({ error: 'Category is required.' });
+        let { category, title, description, severity, location, latitude, longitude } = req.body;
+        let image_url = req.body.image_url || null;
+        if (req.file) {
+            image_url = '/uploads/' + req.file.filename;
         }
 
+        // Get District
+        const districtId = await getDistrictId(latitude, longitude);
+
+        let aiClassified = false;
+        // Call AI Service if description exists
+        if (description) {
+            const aiResult = await analyzeIncident(description);
+            if (aiResult) {
+                category = aiResult.category || category;
+                severity = aiResult.severity || severity;
+                if (aiResult.reasoning && aiResult.department) {
+                    description += `\n\n[AI Assessment]: Routed to ${aiResult.department}. ${aiResult.reasoning}`;
+                }
+                aiClassified = true;
+            }
+        }
+
+        // Fallbacks
+        if (!category) category = 'other';
+        if (!severity) severity = 'medium';
+
         const result = await db.query(
-            `INSERT INTO reports (user_id, category, title, description, severity, location, latitude, longitude, status, image_url)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9)
-             RETURNING id, category, title, severity, status, image_url, created_at`,
+            `INSERT INTO reports (user_id, category, title, description, severity, location, latitude, longitude, status, image_url, district_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9, $10)
+             RETURNING id, category, title, severity, status, image_url, created_at, district_id`,
             [
                 req.session.userId,
                 category,
@@ -31,11 +68,48 @@ router.post('/', async (req, res) => {
                 location || '',
                 latitude || null,
                 longitude || null,
-                image_url || null
+                image_url || null,
+                districtId
             ]
         );
 
         const report = result.rows[0];
+
+        // 1. Timeline: Reported
+        await logTimelineEvent('report', report.id, 'Citizen reported incident');
+        
+        // 2. Timeline: AI Classified
+        if (aiClassified) {
+            await logTimelineEvent('report', report.id, 'AI classified incident and assigned priority');
+        }
+
+        // 3. Check for Crisis
+        if (districtId) {
+            const recentReports = await db.query(`
+                SELECT id, title, description, category, severity FROM reports 
+                WHERE district_id = $1 AND crisis_event_id IS NULL AND created_at > NOW() - INTERVAL '1 hour'
+            `, [districtId]);
+
+            if (recentReports.rows.length >= 3) {
+                const crisis = await detectCrisis(recentReports.rows);
+                if (crisis && crisis.is_crisis) {
+                    const crisisRes = await db.query(`
+                        INSERT INTO crisis_events (title, description, district_id, severity) 
+                        VALUES ($1, $2, $3, $4) RETURNING id
+                    `, [crisis.title, crisis.description, districtId, crisis.severity || 'high']);
+                    const crisisId = crisisRes.rows[0].id;
+
+                    await logTimelineEvent('crisis', crisisId, 'AI detected emerging crisis event from clustered reports');
+
+                    const reportIds = recentReports.rows.map(r => r.id);
+                    await db.query(`UPDATE reports SET crisis_event_id = $1 WHERE id = ANY($2::int[])`, [crisisId, reportIds]);
+                    
+                    for (const rId of reportIds) {
+                        await logTimelineEvent('report', rId, `Linked to Crisis Event #${crisisId}`);
+                    }
+                }
+            }
+        }
 
         res.status(201).json({
             success: true,
@@ -168,11 +242,14 @@ router.put('/:id/status', async (req, res) => {
         } else if (role === 'responder' || role === 'volunteer') {
             // Allowed severity is unrestricted for visibility but can accept any
             if (status === 'in_progress') {
-                // Accept the task: assign to current user
-                await db.query(
-                    'UPDATE reports SET status = $1, assignee_id = $2 WHERE id = $3',
+                // Accept the task: assign to current user atomically
+                const updateRes = await db.query(
+                    'UPDATE reports SET status = $1, assignee_id = $2 WHERE id = $3 AND (assignee_id IS NULL OR assignee_id = $2) RETURNING id',
                     [status, userId, reportId]
                 );
+                if (updateRes.rowCount === 0) {
+                    return res.status(409).json({ error: 'This task has already been accepted by another person.' });
+                }
             } else if (status === 'resolved') {
                 // Resolve the task
                 // Allow if they are the assignee, or if it wasn't assigned (auto-assign on resolve)
@@ -197,6 +274,31 @@ router.put('/:id/status', async (req, res) => {
             }
         } else {
             return res.status(403).json({ error: 'Citizen users cannot update incident statuses.' });
+        }
+
+        // Timeline Logging
+        let timelineAction = '';
+        if (status === 'in_progress') timelineAction = `Volunteer ${req.session.userName} assigned to task`;
+        else if (status === 'resolved') timelineAction = `Task resolved by ${req.session.userName}`;
+        else if (status === 'pending') timelineAction = `Task released by ${req.session.userName}`;
+        else timelineAction = `Status updated to ${status} by Admin`;
+
+        await logTimelineEvent('report', reportId, timelineAction);
+
+        // Check Crisis Auto-Resolution
+        if (status === 'resolved') {
+            await db.query('UPDATE reports SET resolved_at = NOW() WHERE id = $1', [reportId]);
+            if (report.crisis_event_id) {
+                const crisisId = report.crisis_event_id;
+                const unresolvedCount = await db.query(`
+                    SELECT COUNT(*) FROM reports WHERE crisis_event_id = $1 AND status != 'resolved' AND status != 'invalid'
+                `, [crisisId]);
+
+                if (parseInt(unresolvedCount.rows[0].count) === 0) {
+                    await db.query(`UPDATE crisis_events SET status = 'Resolved', resolved_at = NOW() WHERE id = $1`, [crisisId]);
+                    await logTimelineEvent('crisis', crisisId, 'All related tasks resolved. Crisis Event closed.');
+                }
+            }
         }
 
         res.json({ success: true, message: `Report status updated to "${status}".` });

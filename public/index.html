@@ -9,12 +9,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&family=Syne:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ4qk1r-GZoostyDi0Kj11uHzkC0Ty6kk&libraries=places"></script>
-    <link rel="stylesheet" href="styles.css?v=22">
+    <link rel="stylesheet" href="styles.css?v=23">
     <link rel="stylesheet" href="dashboard.css?v=2">
 </head>
 
@@ -272,16 +272,20 @@
                         <span class="brand-name">Smart City</span>
                     </div>
                     <nav class="navbar-links" id="navbar-links">
-                        <a href="#" class="nav-link active" data-view="user-home-view" onclick="app.navigateLayout('user-home-view', this); return false;">
+                        <a href="#" class="nav-link active" data-view="user-home-view"
+                            onclick="app.navigateLayout('user-home-view', this); return false;">
                             <i data-lucide="home"></i><span>Home</span>
                         </a>
-                        <a href="#" class="nav-link" data-view="map-view" onclick="app.navigateLayout('map-view', this); return false;">
+                        <a href="#" class="nav-link" data-view="map-view"
+                            onclick="app.navigateLayout('map-view', this); return false;">
                             <i data-lucide="map"></i><span>Map</span>
                         </a>
-                        <a href="#" class="nav-link" data-view="tasks-view" id="nav-tasks-link" onclick="app.navigateLayout('tasks-view', this); return false;">
+                        <a href="#" class="nav-link" data-view="tasks-view" id="nav-tasks-link"
+                            onclick="app.navigateLayout('tasks-view', this); return false;">
                             <i data-lucide="clipboard-list"></i><span>Tasks</span>
                         </a>
-                        <a href="#" class="nav-link" data-view="alerts-view" onclick="app.navigateLayout('alerts-view', this); return false;">
+                        <a href="#" class="nav-link" data-view="alerts-view"
+                            onclick="app.navigateLayout('alerts-view', this); return false;">
                             <i data-lucide="bell"></i><span>Alerts</span>
                         </a>
                     </nav>
@@ -291,7 +295,9 @@
                         <i data-lucide="moon"></i>
                     </button>
                     <div class="navbar-user" id="navbar-user">
-                        <img id="nav-user-avatar" src="https://ui-avatars.com/api/?name=User&background=10B981&color=fff" alt="User" class="nav-avatar">
+                        <img id="nav-user-avatar"
+                            src="https://ui-avatars.com/api/?name=User&background=10B981&color=fff" alt="User"
+                            class="nav-avatar">
                         <div class="nav-user-info">
                             <span class="nav-user-name" id="nav-user-name">User</span>
                             <span class="nav-user-role" id="nav-user-role">Citizen</span>
@@ -307,7 +313,7 @@
                 <!-- User Home View -->
                 <!-- User Home View -->
                 <div id="user-home-view" class="sub-view active dashboard-v3">
-                    
+
                     <!-- Top Section: Header & Quick Actions -->
                     <div class="dash-header-v3">
                         <div class="header-main-v3">
@@ -329,7 +335,9 @@
                         <div class="impact-container-v3">
                             <div class="impact-header-v3">
                                 <h3>Your Contribution</h3>
-                                <p class="impact-desc-v3">You helped identify <span id="user-reports-count" class="count-highlight">0</span> city issues. Thank you for making <span id="user-current-city" class="city-highlight">Turkestan</span> safer.</p>
+                                <p class="impact-desc-v3">You helped identify <span id="user-reports-count"
+                                        class="count-highlight">0</span> city issues. Thank you for making <span
+                                        id="user-current-city" class="city-highlight">Turkestan</span> safer.</p>
                             </div>
                             <div class="impact-stats-row-v3">
                                 <div class="impact-stat-card">
@@ -357,7 +365,8 @@
                                     <h3>Recent Incidents</h3>
                                     <span class="section-subtitle-v3">Operational city telemetry</span>
                                 </div>
-                                <a href="#" class="view-all-link-v3" onclick="app.navigateLayout('tasks-view'); return false;">View All &rarr;</a>
+                                <a href="#" class="view-all-link-v3"
+                                    onclick="app.navigateLayout('tasks-view'); return false;">View All &rarr;</a>
                             </div>
                             <div class="incident-telemetry-feed" id="incident-feed">
                                 <!-- Populated dynamically by JS -->
@@ -399,7 +408,8 @@
                                             <span>Temperature</span>
                                         </div>
                                         <span class="eco-metric-value">28°C</span>
-                                        <span class="eco-metric-status" style="color:var(--emerald-600);">Warm & Sunny</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);">Warm &
+                                            Sunny</span>
                                     </div>
 
                                     <!-- Humidity -->
@@ -420,7 +430,8 @@
                                         </div>
                                         <div class="flex-between">
                                             <span class="eco-metric-value">98.4%</span>
-                                            <span class="eco-metric-status" style="color:var(--emerald-600);">Safe / Clean</span>
+                                            <span class="eco-metric-status" style="color:var(--emerald-600);">Safe /
+                                                Clean</span>
                                         </div>
                                         <div class="eco-progress-container">
                                             <div class="eco-progress-bg">
@@ -544,19 +555,7 @@
                 <!-- Submit Report Flow -->
                 <div id="report-view" class="sub-view new-design">
                     <div class="report-container">
-                        <header class="report-topbar">
-                            <div class="profile-section">
-                                <i data-lucide="bell" class="bell-icon"></i>
-                                <div class="avatar-wrap">
-                                    <img src="https://ui-avatars.com/api/?name=Yera&background=random" alt="Avatar">
-                                    <div class="avatar-info">
-                                        <strong>Yera</strong>
-                                        <span>Community Helper</span>
-                                    </div>
-                                    <i data-lucide="chevron-down"></i>
-                                </div>
-                            </div>
-                        </header>
+
 
                         <div class="report-main-area">
                             <!-- Left Sidebar Stepper -->
@@ -666,53 +665,59 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 2 -->
-                                <div id="rs-step-2" class="rs-step">
-                                    <h2>Location & Media</h2>
-                                    <p class="subtitle">Confirm the location of the incident and add photos or videos.
-                                    </p>
+                                <!-- Step 2: Location & Media (Editorial Dark Theme) -->
+                                <div id="rs-step-2" class="rs-step ed-split-layout">
+                                    <div class="ed-left-panel">
+                                        <div class="ed-header">
+                                            <span class="ed-step-label">STEP 02</span>
+                                            <h2 class="ed-heading">Where did it<br>happen?</h2>
+                                            <p class="ed-sub">Click anywhere on the map to pin the exact location.</p>
+                                        </div>
+                                        
+                                        <!-- Location States -->
+                                        <div id="ed-loc-placeholder" class="ed-loc-card placeholder">
+                                            <i data-lucide="map-pin"></i>
+                                            <span>Click the map to pin the incident location</span>
+                                        </div>
 
-                                    <div class="two-col-form">
-                                        <div class="left-col">
-                                            <label>Location</label>
-                                            <div class="location-search">
-                                                <i data-lucide="search" class="search-icon"></i>
-                                                <input type="text" id="rs-location-search"
-                                                    placeholder="Search address or place"
-                                                    onkeypress="if(event.key === 'Enter') app.searchReportLocation()">
-                                                <button class="loc-target" onclick="app.useCurrentLocationReport()"><i
-                                                        data-lucide="crosshair"></i></button>
+                                        <div id="ed-loc-active" class="ed-loc-card active" style="display: none;">
+                                            <div class="ed-loc-info">
+                                                <div class="pulse-dot"></div>
+                                                <div class="ed-address-details">
+                                                    <span class="ed-address" id="ed-address-text">--</span>
+                                                    <span class="ed-coords" id="ed-coords-text">--</span>
+                                                </div>
                                             </div>
-                                            <div class="map-container" id="rs-map"></div>
-                                            <div class="map-footer">
-                                                <button class="use-curr-loc" onclick="app.useCurrentLocationReport()"><i
-                                                        data-lucide="crosshair"></i> Use my current location</button>
-                                                <span class="accuracy">Accuracy: 15m</span>
+                                            <button class="ed-clear-btn" onclick="app.clearEditorialPin()"><i data-lucide="x"></i></button>
+                                        </div>
+
+                                        <!-- Media Section -->
+                                        <div class="ed-media-section">
+                                            <span class="ed-section-label">PHOTOS / VIDEO <span class="dim">OPTIONAL</span></span>
+                                            <div class="ed-dropzone" onclick="document.getElementById('rs-file-upload').click()">
+                                                <i data-lucide="upload-cloud"></i>
+                                                <span class="dz-title">Drop files or <span class="text-emerald">browse</span></span>
+                                                <span class="dz-sub">JPG - PNG - MP4 - max 50 MB</span>
+                                                <input type="file" style="display:none" id="rs-file-upload" accept="image/*,video/*" multiple onchange="app.handleEditorialFileUpload(event)">
+                                            </div>
+                                            <div class="ed-media-grid" id="ed-media-gallery">
+                                                <!-- Thumbnails -->
                                             </div>
                                         </div>
 
-                                        <div class="right-col">
-                                            <label>Add Photos / Videos</label>
-                                            <p class="small-text">Upload clear photos or videos of the incident.</p>
-                                            <div class="upload-dropzone"
-                                                onclick="document.getElementById('rs-file-upload').click()">
-                                                <i data-lucide="upload-cloud"></i>
-                                                <span>Drag and drop files here<br>or click to browse</span>
-                                                <small>JPG, PNG, MP4 up to 50MB</small>
-                                                <input type="file" style="display:none" id="rs-file-upload"
-                                                    accept="image/*,video/*" multiple
-                                                    onchange="app.handleFileUpload(event)">
-                                            </div>
-                                            <div class="media-gallery" id="rs-media-gallery">
-                                                <!-- Uploaded files will appear here -->
-                                            </div>
+                                        <div class="ed-footer">
+                                            <button class="ed-btn-ghost" onclick="app.goToStep(1)">Back</button>
+                                            <button class="ed-btn-solid" onclick="app.goToStep(3)">Next step &rarr;</button>
                                         </div>
                                     </div>
-
-                                    <div class="step-footer space-between mt-4">
-                                        <button class="rs-btn-outline" onclick="app.goToStep(1)">Back</button>
-                                        <button class="rs-btn-primary" onclick="app.goToStep(3)">Next Step <i
-                                                data-lucide="arrow-right"></i></button>
+                                    
+                                    <div class="ed-right-panel">
+                                        <div class="ed-search-bar">
+                                            <i data-lucide="search"></i>
+                                            <input type="text" id="ed-search-input" placeholder="Search address or district...">
+                                        </div>
+                                        <canvas id="ed-map-canvas"></canvas>
+                                        <div class="ed-map-hint" id="ed-map-hint">Click anywhere to drop a pin</div>
                                     </div>
                                 </div>
 
@@ -991,7 +996,8 @@
                 <!-- Alerts View -->
                 <div id="alerts-view" class="sub-view">
                     <header class="header-nav alerts-header">
-                        <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i data-lucide="arrow-left"></i></button>
+                        <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i
+                                data-lucide="arrow-left"></i></button>
                         <h2>Notifications</h2>
                         <button class="mark-read-btn"><i data-lucide="check-check"></i></button>
                     </header>
@@ -1044,12 +1050,6 @@
 
                 <!-- Task Detail View -->
                 <div id="task-detail-view" class="sub-view">
-                    <header class="header-nav">
-                        <button class="back-btn" onclick="app.navigateLayout('tasks-view')"><i
-                                data-lucide="arrow-left"></i></button>
-                        <h2>Task Details</h2>
-                        <div style="width: 24px;"></div>
-                    </header>
                     <div class="content-padded">
                         <div class="task-detail-grid-v3">
                             <!-- Left Column: The Photo (Large, fully visible, 16:9) -->
@@ -1063,7 +1063,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Right Column: Details & Actions -->
                             <div class="task-detail-right-col">
                                 <div class="flex-between mb-2">
@@ -1071,13 +1071,15 @@
                                     <span id="td-time" class="text-sm text-gray">2 min ago</span>
                                 </div>
                                 <h3 id="td-title" class="task-detail-title-v3">Elderly Needs Help</h3>
-                                <p id="td-location" class="text-sm text-gray mb-3">Koramangala 4th Block, Bengaluru, Karnataka</p>
-                                
+                                <p id="td-location" class="text-sm text-gray mb-3">Koramangala 4th Block, Bengaluru,
+                                    Karnataka</p>
+
                                 <div class="task-detail-section-v3">
                                     <h4>Description</h4>
-                                    <p id="td-desc" class="text-body mb-4">An elderly person needs assistance with getting medicine from a nearby pharmacy.</p>
+                                    <p id="td-desc" class="text-body mb-4">An elderly person needs assistance with
+                                        getting medicine from a nearby pharmacy.</p>
                                 </div>
-                                
+
                                 <div class="task-detail-section-v3">
                                     <h4>What You Need To Do</h4>
                                     <ul class="todo-list mb-4">
@@ -1086,10 +1088,12 @@
                                         <li>Provide necessary assistance</li>
                                     </ul>
                                 </div>
-                                
+
                                 <div class="action-buttons-row">
-                                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Reject</button>
-                                    <button class="btn btn-primary" style="flex:1" onclick="app.acceptTask()">Accept</button>
+                                    <button class="btn btn-outline" style="flex:1"
+                                        onclick="app.navigateLayout('tasks-view')">Reject</button>
+                                    <button class="btn btn-primary" style="flex:1"
+                                        onclick="app.acceptTask()">Accept</button>
                                 </div>
                             </div>
                         </div>
@@ -1175,128 +1179,51 @@
                         <img src="https://ui-avatars.com/api/?name=Admin&background=8b5cf6&color=fff" alt="Admin">
                     </div>
                 </header>
-                <div class="admin-content">
-                    <div class="stats-row">
+                <div class="admin-content" id="ops-center-content" style="padding: 24px;">
+                    <!-- Top KPIs -->
+                    <div class="stats-row" style="margin-bottom: 24px;">
                         <div class="stat-card">
-                            <div class="stat-icon bg-purple-light"><i data-lucide="file-text" class="text-purple"></i>
+                            <div class="stat-icon bg-red-light"><i data-lucide="alert-triangle" class="text-red"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>32</h3>
-                                <p>New Reports</p>
+                                <h3 id="ops-active-crises">0</h3>
+                                <p>Active Crises</p>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon bg-orange-light"><i data-lucide="clock" class="text-orange"></i></div>
+                            <div class="stat-icon bg-orange-light"><i data-lucide="flame" class="text-orange"></i></div>
                             <div class="stat-info">
-                                <h3>19</h3>
-                                <p>Under Review</p>
+                                <h3 id="ops-critical-incidents">0</h3>
+                                <p>Critical Incidents</p>
                             </div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-icon bg-green-light"><i data-lucide="check-circle" class="text-green"></i>
-                            </div>
+                            <div class="stat-icon bg-green-light"><i data-lucide="clock" class="text-green"></i></div>
                             <div class="stat-info">
-                                <h3>76</h3>
-                                <p>Resolved</p>
+                                <h3 id="ops-avg-response">0h 0m</h3>
+                                <p>Avg Response Time</p>
                             </div>
                         </div>
                     </div>
-                    <div class="admin-grid">
-                        <div class="panel list-panel">
-                            <div class="panel-header">
-                                <h4>Incoming Reports</h4><a href="#"
-                                    onclick="app.switchAdminTab(document.querySelector('.admin-sidebar .nav-item:nth-child(2)'), 'reports'); return false;">View
-                                    All</a>
-                            </div>
-                            <div class="report-list">
-                                <div class="report-item active" onclick="app.selectReport(this)">
-                                    <div class="report-icon bg-red"><i data-lucide="droplets"></i></div>
-                                    <div class="report-details">
-                                        <h5>Flooding near Main St.</h5>
-                                        <p>10 min ago</p>
-                                    </div>
-                                    <div class="ai-score"><span class="score">92%</span><small>AI Score</small></div>
-                                </div>
-                                <div class="report-item" onclick="app.selectReport(this)">
-                                    <div class="report-icon bg-orange"><i data-lucide="heart-handshake"></i></div>
-                                    <div class="report-details">
-                                        <h5>Elderly Needs Help</h5>
-                                        <p>25 min ago</p>
-                                    </div>
-                                    <div class="ai-score"><span class="score">88%</span><small>AI Score</small></div>
-                                </div>
-                                <div class="report-item" onclick="app.selectReport(this)">
-                                    <div class="report-icon bg-blue"><i data-lucide="tree-pine"></i></div>
-                                    <div class="report-details">
-                                        <h5>Fallen Tree</h5>
-                                        <p>45 min ago</p>
-                                    </div>
-                                    <div class="ai-score"><span class="score">46%</span><small>AI Score</small></div>
-                                </div>
-                            </div>
+
+                    <!-- Split Layout -->
+                    <div class="ops-split-layout" style="display: flex; gap: 24px; height: 65vh; min-height: 500px;">
+                        <!-- Left: Embedded Map -->
+                        <div class="ops-map-container"
+                            style="flex: 2; background: #1a1a1a; border-radius: 12px; overflow: hidden; position: relative;">
+                            <div id="ops-smart-map" style="width:100%; height:100%;"></div>
                         </div>
-                        <div class="panel detail-panel">
-                            <div class="detail-header flex-between"><span class="badge high">High Priority</span><span
-                                    class="text-sm text-gray">#RP-3881 • 2 min ago</span></div>
-                            <h3>Flooding near Main St.</h3>
-                            <p class="text-sm text-gray mb-3"><i data-lucide="map-pin"></i> MG Road, Central Mall,
-                                Bengaluru, Karnataka</p>
-                            <div class="photo-gallery mb-4">
-                                <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=200&q=80"
-                                    alt="flood 1">
-                                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=200&q=80"
-                                    alt="map">
-                            </div>
-                            <div class="ai-analysis-box mb-4">
-                                <h4>✨ AI Analysis</h4>
-                                <div class="ai-scores row flex-between mt-2">
-                                    <div class="score-card"><span class="text-sm text-gray">Validity Score</span>
-                                        <div class="score-value text-green">92% <span
-                                                class="badge-sm bg-green">Valid</span></div>
-                                    </div>
-                                    <div class="score-card"><span class="text-sm text-gray">Severity Score</span>
-                                        <div class="score-value text-red">88/100 <span
-                                                class="badge-sm bg-red">High</span></div>
-                                    </div>
-                                </div>
-                                <div class="key-factors mt-3"><strong>Key Factors</strong>
-                                    <ul>
-                                        <li>Water accumulation</li>
-                                        <li>Traffic blocked</li>
-                                        <li>Heavy rain</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="action-panel">
-                                <h4>Take Action</h4>
-                                <div class="input-group"><label>Assign To</label>
-                                    <div class="assign-toggle"><button class="toggle-btn active"
-                                            onclick="app.toggleAssign(this)">Authorities</button><button
-                                            class="toggle-btn" onclick="app.toggleAssign(this)">Volunteers</button>
-                                    </div>
-                                </div>
-                                <div class="input-group"><label>Select Unit / Team</label><select class="form-select">
-                                        <option>BBMP - Drainage Team (Unit 12)</option>
-                                        <option>Fire Dept.</option>
-                                        <option>Police</option>
-                                    </select></div>
-                                <div class="row flex-between" style="gap: 16px;">
-                                    <div class="input-group" style="flex:1"><label>Change Priority</label><select
-                                            class="form-select">
-                                            <option>High</option>
-                                            <option>Medium</option>
-                                            <option>Low</option>
-                                        </select></div>
-                                    <div class="input-group" style="flex:1"><label>Change Region</label><select
-                                            class="form-select">
-                                            <option>Bengaluru Central</option>
-                                        </select></div>
-                                </div>
-                                <div class="action-buttons-row mt-4">
-                                    <button class="btn btn-outline" style="flex:1"
-                                        onclick="app.markReportInvalid()">Mark as Invalid</button>
-                                    <button class="btn btn-primary bg-purple" style="flex:2"
-                                        onclick="alert('Assigned & Notified!')">Assign & Notify</button>
+
+                        <!-- Right: Live Event Feed -->
+                        <div class="ops-feed-container"
+                            style="flex: 1; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+                            <h4 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="activity" class="text-purple"></i> Live Event Feed
+                            </h4>
+                            <div class="live-event-feed" id="live-event-feed"
+                                style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; padding-right: 8px;">
+                                <!-- Populated dynamically -->
+                                <div class="text-sm text-gray text-center" style="margin-top: 20px;">Loading feed...
                                 </div>
                             </div>
                         </div>
@@ -1307,9 +1234,31 @@
     </div>
     </div>
 
+    <!-- City Timeline Modal -->
+    <div id="timeline-modal" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: #fff; width: 90%; max-width: 500px; padding: 24px; border-radius: 16px; position: relative; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
+                    <i data-lucide="clock" class="text-purple"></i> City Timeline
+                </h3>
+                <button onclick="document.getElementById('timeline-modal').style.display='none'"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+            </div>
+            <div class="timeline-container" id="timeline-container"
+                style="position: relative; padding-left: 24px; border-left: 2px solid #e2e8f0; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
     <script src="js/map.js?v=2"></script>
-    <script src="js/app.js?v=4"></script>
+    <script src="js/app.js?v=6"></script>
     <script>lucide.createIcons();</script>
 </body>
+
+</html>
 
 </html>

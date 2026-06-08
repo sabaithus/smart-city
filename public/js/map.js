@@ -170,13 +170,14 @@ const SmartCityMap = {
     show: function() {
         if (!this.map) {
             this.init();
-        } else {
-            setTimeout(() => {
+        }
+        setTimeout(() => {
+            if (this.map) {
                 google.maps.event.trigger(this.map, 'resize');
                 this.map.setCenter({ lat: 43.3000, lng: 68.2500 });
                 this.map.setZoom(13);
-            }, 100);
-        }
+            }
+        }, 150);
     },
 
     loadAllMarkers: async function() {

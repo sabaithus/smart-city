@@ -28,13 +28,13 @@ const app = {
 
     togglePassword: function(inputId, btn) {
         const input = document.getElementById(inputId);
-        const icon = btn.querySelector('i');
+        const icon = btn.querySelector('i') || btn.querySelector('svg');
         if (input.type === 'password') {
             input.type = 'text';
-            icon.setAttribute('data-lucide', 'eye-off');
+            if (icon) btn.innerHTML = '<i data-lucide="eye-off"></i>';
         } else {
             input.type = 'password';
-            icon.setAttribute('data-lucide', 'eye');
+            if (icon) btn.innerHTML = '<i data-lucide="eye"></i>';
         }
         lucide.createIcons();
     },
@@ -323,7 +323,9 @@ const app = {
                 responder: 'Emergency Services',
                 admin: 'Administrator'
             };
-            const role = this.currentUser.role || 'user';
+            const role = this.currentUser.role || 'citizen';
+            
+            // Adjust navigation visibility
             const navUserRole = document.getElementById('nav-user-role');
             if (navUserRole) navUserRole.textContent = roleLabels[role] || 'Citizen';
 
@@ -441,7 +443,7 @@ const app = {
         const container = document.getElementById('incident-feed');
         if (!container) return;
 
-        const activeReports = this.feedReports.filter(r => r.status !== 'resolved' && r.status !== 'invalid').slice(0, 6);
+        const activeReports = this.feedReports.filter(r => r.status !== 'resolved' && r.status !== 'invalid').slice(0, 4);
 
         if (activeReports.length === 0) {
             container.innerHTML = `
@@ -782,6 +784,10 @@ const app = {
                 if (this.updateHomeStats) this.updateHomeStats();
                 this.loadFeed();
             } else if (subViewId === 'tasks-view') {
+                const h2 = document.querySelector('#tasks-view .header-nav h2');
+                if (h2) {
+                    h2.textContent = (this.currentUser && (this.currentUser.role === 'citizen' || this.currentUser.role === 'user')) ? 'Recent Incidents' : 'Tasks';
+                }
                 this.loadFeed();
             }
 
@@ -924,6 +930,7 @@ const app = {
     handlePhotoUpload: function(event) {
         const file = event.target.files[0];
         if (file) {
+            this.reportData.imageFile = file;
             const reader = new FileReader();
             reader.onload = (e) => {
                 this.reportData.image = e.target.result;
@@ -932,6 +939,86 @@ const app = {
                 preview.style.display = 'block';
             };
             reader.readAsDataURL(file);
+        }
+    },
+
+    handleFileUpload: function(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            // Create local URL for preview
+            const url = URL.createObjectURL(file);
+            
+            const mediaItem = {
+                file: file,
+                url: url,
+                type: file.type
+            };
+            
+            this.uploadedMedia.push(mediaItem);
+            
+            // Set as main image file if not already set (for backend compat)
+            if (!this.reportData.imageFile && file.type.startsWith('image/')) {
+                this.reportData.imageFile = file;
+                this.reportData.image = url;
+            }
+        }
+        
+        this.renderMediaGallery();
+        this.updateReviewStep();
+    },
+
+    renderMediaGallery: function() {
+        const gallery = document.getElementById('rs-media-gallery');
+        if (!gallery) return;
+        
+        if (this.uploadedMedia.length === 0) {
+            gallery.innerHTML = '';
+            return;
+        }
+        
+        gallery.innerHTML = this.uploadedMedia.map((m, index) => {
+            const isVideo = m.type.startsWith('video/');
+            return `
+                <div class="media-item">
+                    ${isVideo ? `<video src="${m.url}" muted></video>` : `<img src="${m.url}">`}
+                    <button type="button" class="remove-media" onclick="app.removeUploadedMedia(${index})">
+                        <i data-lucide="x"></i>
+                    </button>
+                    ${isVideo ? `<div class="video-badge"><i data-lucide="video"></i></div>` : ''}
+                </div>
+            `;
+        }).join('');
+        
+        lucide.createIcons();
+    },
+
+    removeUploadedMedia: function(index) {
+        if (index >= 0 && index < this.uploadedMedia.length) {
+            const item = this.uploadedMedia[index];
+            if (item.url && item.url.startsWith('blob:')) {
+                URL.revokeObjectURL(item.url);
+            }
+            
+            this.uploadedMedia.splice(index, 1);
+            
+            // Recalculate main image file if needed
+            if (this.reportData.imageFile === item.file) {
+                const nextImage = this.uploadedMedia.find(m => m.type.startsWith('image/'));
+                if (nextImage) {
+                    this.reportData.imageFile = nextImage.file;
+                    this.reportData.image = nextImage.url;
+                } else {
+                    this.reportData.imageFile = null;
+                    this.reportData.image = null;
+                }
+            }
+            
+            this.renderMediaGallery();
+            this.updateReviewStep();
         }
     },
     
@@ -952,19 +1039,28 @@ const app = {
         lucide.createIcons();
 
         try {
+            const formData = new FormData();
+            formData.append('category', this.reportData.category);
+            formData.append('title', this.reportData.title);
+            formData.append('description', this.reportData.desc);
+            formData.append('severity', this.reportData.severity);
+            formData.append('location', this.reportData.address || '');
+            formData.append('latitude', this.reportData.location.lat);
+            formData.append('longitude', this.reportData.location.lng);
+
+            // If imageFile is not set, use the first file from uploadedMedia
+            if (!this.reportData.imageFile && this.uploadedMedia.length > 0) {
+                this.reportData.imageFile = this.uploadedMedia[0].file;
+            }
+
+            if (this.reportData.imageFile) {
+                formData.append('image', this.reportData.imageFile);
+            }
+
             // Save to backend
             const res = await fetch('/api/reports', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    category: this.reportData.category,
-                    title: this.reportData.title,
-                    description: this.reportData.desc,
-                    severity: this.reportData.severity,
-                    location: this.reportData.address || '',
-                    latitude: this.reportData.location.lat,
-                    longitude: this.reportData.location.lng
-                })
+                body: formData
             });
             const data = await res.json();
             if (!res.ok) {
@@ -1017,31 +1113,68 @@ const app = {
     },
     
     initReportMaps: function() {
-        if (!window.mapgl) return;
+        if (!window.google || !window.google.maps) return;
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         
         const desktopMapEl = document.getElementById('rs-map');
-        if (desktopMapEl && !this.reportDesktopMap) {
-            this.reportDesktopMap = new mapgl.Map('rs-map', {
-                center: [this.reportData.location.lng, this.reportData.location.lat],
-                zoom: 14,
-                key: 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7',
-                zoomControl: false,
-                style: isDark ? 'a112cbc8-fbd3-4f93-b816-e5dfbb93026a' : 'c080bb6a-8134-4993-93a1-5b4d8c36a59b'
-            });
-            
-            this.reportMarker = new mapgl.HtmlMarker(this.reportDesktopMap, {
-                coordinates: [this.reportData.location.lng, this.reportData.location.lat],
-                html: '<div style="width:24px;height:24px;background:#10b981;border:3px solid white;border-radius:50%;box-shadow:0 0 10px rgba(16,185,129,0.8);transform:translate(-50%, -50%);"></div>'
-            });
+        if (desktopMapEl) {
+            const currentPos = {
+                lat: this.reportData.location.lat,
+                lng: this.reportData.location.lng
+            };
 
-            this.reportDesktopMap.on('click', (e) => {
+            if (!this.reportDesktopMap) {
+                this.reportDesktopMap = new google.maps.Map(desktopMapEl, {
+                    center: currentPos,
+                    zoom: 14,
+                    disableDefaultUI: true,
+                    styles: isDark ? (window.SmartCityMap ? window.SmartCityMap.darkTheme : []) : (window.SmartCityMap ? window.SmartCityMap.lightTheme : [])
+                });
+                
+                this.reportMarker = new google.maps.Marker({
+                    position: currentPos,
+                    map: this.reportDesktopMap,
+                    draggable: true,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: '#10b981',
+                        fillOpacity: 0.9,
+                        strokeWeight: 2,
+                        strokeColor: 'white',
+                        scale: 8
+                    }
+                });
+
+                // Allow placing a marker on click
+                this.reportDesktopMap.addListener('click', (e) => {
+                    const latLng = e.latLng;
+                    const pos = { lat: latLng.lat(), lng: latLng.lng() };
+                    
+                    this.reportMarker.setPosition(latLng);
+                    this.reportData.location = pos;
+                    
+                    // Lookup address
+                    this.reverseGeocode(pos.lat, pos.lng);
+                });
+
+                // Allow dragging the marker to select location
+                this.reportMarker.addListener('dragend', (e) => {
+                    const latLng = e.latLng;
+                    const pos = { lat: latLng.lat(), lng: latLng.lng() };
+                    
+                    this.reportData.location = pos;
+                    
+                    // Lookup address
+                    this.reverseGeocode(pos.lat, pos.lng);
+                });
+            } else {
+                // If map already initialized, just update the center and marker position
+                this.reportDesktopMap.setCenter(currentPos);
+                this.reportDesktopMap.setZoom(14);
                 if (this.reportMarker) {
-                    const coords = e.lngLat;
-                    this.reportMarker.setCoordinates(coords);
-                    this.reportData.location = { lat: coords[1], lng: coords[0] };
+                    this.reportMarker.setPosition(currentPos);
                 }
-            });
+            }
         }
     },
 
@@ -1072,8 +1205,9 @@ const app = {
             return;
         }
 
-        // Store selected task ID
+        // Store selected task ID and previous layout
         this.selectedTaskId = reportId;
+        this.previousLayout = this.currentLayout;
 
         document.getElementById('td-title').textContent = report.title || report.category.toUpperCase();
         document.getElementById('td-location').textContent = report.location || 'Reported location';
@@ -1099,21 +1233,28 @@ const app = {
         // Update the buttons based on status
         const actionRow = document.querySelector('#task-detail-view .action-buttons-row');
         if (actionRow) {
-            if (report.status === 'pending') {
+            const role = this.currentUser ? (this.currentUser.role || 'citizen') : 'citizen';
+            if (role === 'citizen' || role === 'user') {
                 actionRow.innerHTML = `
-                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Back</button>
-                    <button class="btn btn-primary" style="flex:1" onclick="app.acceptReportTask(${reportId})">Accept Task</button>
-                `;
-            } else if (report.status === 'in_progress') {
-                actionRow.innerHTML = `
-                    <button class="btn btn-outline" style="flex:1" onclick="app.releaseReportTask(${reportId})">Abandon</button>
-                    <button class="btn btn-primary" style="flex:1" onclick="app.resolveReportTask(${reportId})">Resolve Task</button>
+                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout(app.previousLayout || 'user-home-view')">Back</button>
                 `;
             } else {
-                // resolved
-                actionRow.innerHTML = `
-                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Back to Tasks</button>
-                `;
+                if (report.status === 'pending') {
+                    actionRow.innerHTML = `
+                        <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout(app.previousLayout || 'tasks-view')">Back</button>
+                        <button class="btn btn-primary" style="flex:1" onclick="app.acceptReportTask(${reportId})">Accept Task</button>
+                    `;
+                } else if (report.status === 'in_progress') {
+                    actionRow.innerHTML = `
+                        <button class="btn btn-outline" style="flex:1" onclick="app.releaseReportTask(${reportId})">Abandon</button>
+                        <button class="btn btn-primary" style="flex:1" onclick="app.resolveReportTask(${reportId})">Resolve Task</button>
+                    `;
+                } else {
+                    // resolved
+                    actionRow.innerHTML = `
+                        <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout(app.previousLayout || 'tasks-view')">Back to Tasks</button>
+                    `;
+                }
             }
         }
 
@@ -1147,10 +1288,17 @@ const app = {
         // Demo action buttons (default behavior)
         const actionRow = document.querySelector('#task-detail-view .action-buttons-row');
         if (actionRow) {
-            actionRow.innerHTML = `
-                <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout('tasks-view')">Reject</button>
-                <button class="btn btn-primary" style="flex:1" onclick="app.acceptTask()">Accept</button>
-            `;
+            const role = this.currentUser ? (this.currentUser.role || 'citizen') : 'citizen';
+            if (role === 'citizen' || role === 'user') {
+                actionRow.innerHTML = `
+                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout(app.previousLayout || 'user-home-view')">Back</button>
+                `;
+            } else {
+                actionRow.innerHTML = `
+                    <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout(app.previousLayout || 'tasks-view')">Reject</button>
+                    <button class="btn btn-primary" style="flex:1" onclick="app.acceptTask()">Accept</button>
+                `;
+            }
         }
 
         this.navigateLayout('task-detail-view');
@@ -1207,15 +1355,16 @@ const app = {
         }
 
         // Show/hide content sections
-        const adminContent = document.querySelector('.admin-content');
+        const adminContent = document.getElementById('ops-center-content') || document.querySelector('.admin-content');
         if (tabName === 'dashboard') {
             // Show everything (default state)
-            adminContent.querySelectorAll('.stats-row, .admin-grid').forEach(el => el.style.display = '');
+            adminContent.querySelectorAll('.stats-row, .ops-split-layout').forEach(el => el.style.display = 'flex');
             const placeholder = document.getElementById('admin-placeholder');
             if (placeholder) placeholder.remove();
+            app.loadOperationsCenter(); // Load fresh data
         } else {
             // Hide dashboard content, show placeholder
-            adminContent.querySelectorAll('.stats-row, .admin-grid').forEach(el => el.style.display = 'none');
+            adminContent.querySelectorAll('.stats-row, .ops-split-layout').forEach(el => el.style.display = 'none');
             let placeholder = document.getElementById('admin-placeholder');
             if (!placeholder) {
                 placeholder = document.createElement('div');
@@ -1241,6 +1390,99 @@ const app = {
     },
 
     // ==================== NEW: ADMIN ACTIONS ====================
+
+    loadOperationsCenter: async function() {
+        try {
+            // Load KPIs
+            const kpiRes = await fetch('/api/dashboard/kpis');
+            if(kpiRes.ok) {
+                const kpis = await kpiRes.json();
+                const crisisEl = document.getElementById('ops-active-crises');
+                if(crisisEl) crisisEl.textContent = kpis.activeCrises || 0;
+                
+                const critEl = document.getElementById('ops-critical-incidents');
+                if(critEl) critEl.textContent = kpis.criticalIncidents || 0;
+                
+                const avgEl = document.getElementById('ops-avg-response');
+                if(avgEl) avgEl.textContent = kpis.avgResponse || '0h 0m';
+            }
+
+            // Load Feed
+            const feedRes = await fetch('/api/dashboard/feed');
+            if(feedRes.ok) {
+                const feed = await feedRes.json();
+                const feedEl = document.getElementById('live-event-feed');
+                if(feedEl) {
+                    feedEl.innerHTML = '';
+                    if(feed.length === 0) {
+                        feedEl.innerHTML = '<div class="text-sm text-gray text-center" style="margin-top: 20px;">No events recorded.</div>';
+                    } else {
+                        feed.forEach(item => {
+                            const date = new Date(item.timestamp);
+                            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            let icon = 'activity';
+                            if(item.action.toLowerCase().includes('crisis')) icon = 'alert-triangle';
+                            else if(item.action.toLowerCase().includes('resolved') || item.action.toLowerCase().includes('closed')) icon = 'check-circle';
+                            else if(item.action.toLowerCase().includes('classified')) icon = 'bot';
+                            
+                            feedEl.innerHTML += `
+                                <div style="display:flex; gap: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; cursor: pointer; transition: background 0.2s; padding: 8px; border-radius: 8px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'" onclick="app.showTimeline('${item.entity_type}', ${item.entity_id})">
+                                    <div style="color: var(--admin-primary); margin-top:2px;"><i data-lucide="${icon}" style="width:18px;height:18px;"></i></div>
+                                    <div>
+                                        <div style="font-weight: 500; font-size: 0.95rem; color: #1e293b; line-height: 1.3;">${item.action}</div>
+                                        <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">${timeStr} • ${item.entity_type.toUpperCase()} #${item.entity_id}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            }
+        } catch(err) {
+            console.error('Failed to load operations center', err);
+        }
+    },
+
+    showTimeline: async function(type, id) {
+        try {
+            const res = await fetch(`/api/dashboard/timeline/${type}/${id}`);
+            if(res.ok) {
+                const timeline = await res.json();
+                const container = document.getElementById('timeline-container');
+                if(container) {
+                    container.innerHTML = '';
+                    
+                    if(timeline.length === 0) {
+                        container.innerHTML = '<div class="text-sm text-gray">No timeline available.</div>';
+                    } else {
+                        timeline.forEach(t => {
+                            const date = new Date(t.timestamp);
+                            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            
+                            let color = 'var(--admin-primary)'; // purple
+                            if(t.action.toLowerCase().includes('crisis')) color = 'var(--red)';
+                            else if(t.action.toLowerCase().includes('resolved') || t.action.toLowerCase().includes('closed')) color = 'var(--green)';
+                            else if(t.action.toLowerCase().includes('classified')) color = 'var(--blue)';
+                            
+                            container.innerHTML += `
+                                <div style="position: relative; margin-bottom: 8px;">
+                                    <div style="position: absolute; left: -31px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: ${color}; border: 2px solid #fff; box-shadow: 0 0 0 1px #e2e8f0;"></div>
+                                    <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 2px;">${timeStr}</div>
+                                    <div style="font-weight: 500; color: #1e293b; font-size: 0.95rem; line-height: 1.4;">${t.action}</div>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    const modal = document.getElementById('timeline-modal');
+                    if(modal) modal.style.display = 'flex';
+                }
+            }
+        } catch(err) {
+            console.error('Failed to load timeline', err);
+        }
+    },
 
     toggleAssign: function(btn) {
         document.querySelectorAll('.assign-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
@@ -1305,9 +1547,9 @@ const app = {
 
                     // Update map marker if map is initialized
                     if (this.reportDesktopMap) {
-                        this.reportDesktopMap.setCenter([lng, lat]);
+                        this.reportDesktopMap.setCenter({ lat, lng });
                         this.reportDesktopMap.setZoom(16);
-                        if (this.reportMarker) this.reportMarker.setCoordinates([lng, lat]);
+                        if (this.reportMarker) this.reportMarker.setPosition({ lat, lng });
                     }
 
                     // Reverse geocode to get address
@@ -1468,7 +1710,7 @@ const app = {
                 if (vids > 0) label.push(`${vids} video${vids > 1 ? 's' : ''}`);
                 mediaBody.innerHTML = `<p class="r-label mb-2">${label.join(', ')}</p>
                     <div class="media-gallery small">${this.uploadedMedia.map(m =>
-                        `<div class="media-item"><img src="${m.url}"></div>`
+                        `<div class="media-item">${m.type.startsWith('video/') ? `<video src="${m.url}" muted></video>` : `<img src="${m.url}">`}</div>`
                     ).join('')}</div>`;
             }
         }
@@ -1503,4 +1745,266 @@ document.addEventListener('DOMContentLoaded', () => {
             bgContainer.appendChild(particle);
         }
     }
+    // Init Drag and Drop for report uploader
+    const dropzone = document.querySelector('.upload-dropzone');
+    if (dropzone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                app.handleFileUpload({ target: { files: files } });
+            }
+        }, false);
+    }
+});
+
+// ==================== EDITORIAL DARK MAP LOGIC ====================
+app.editorialData = {
+    marker: null,
+    files: []
+};
+
+app.initEditorialMap = function() {
+    const canvas = document.getElementById('ed-map-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    const redraw = () => {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            app.drawEditorialMap();
+        }
+    };
+    
+    const resizeObserver = new ResizeObserver(() => {
+        redraw();
+    });
+    resizeObserver.observe(canvas.parentElement);
+    
+    // Also observe the step container for class changes (display: none to display: flex)
+    const stepContainer = document.getElementById('rs-step-2');
+    if (stepContainer) {
+        const mutObserver = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                if (m.attributeName === 'class' && stepContainer.classList.contains('active')) {
+                    setTimeout(redraw, 50);
+                }
+            });
+        });
+        mutObserver.observe(stepContainer, { attributes: true });
+    }
+    
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        app.setEditorialPin(x, y);
+    });
+};
+
+app.drawEditorialMap = function() {
+    const canvas = document.getElementById('ed-map-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const gridSize = 100;
+    
+    // Draw Blocks
+    for (let x = 0; x < canvas.width; x += gridSize) {
+        for (let y = 0; y < canvas.height; y += gridSize) {
+            const seed = ((x * 17) + (y * 31)) % 100;
+            // 70% chance of block
+            if (seed < 70) { 
+                ctx.fillStyle = seed < 15 ? 'rgba(18, 212, 114, 0.08)' : 'rgba(255, 255, 255, 0.02)';
+                
+                // padding for streets
+                const padding = 6;
+                let w = gridSize - padding*2;
+                let h = gridSize - padding*2;
+                
+                // sometimes blocks span 2 wide
+                if (seed > 60 && x + gridSize*2 <= canvas.width) {
+                    w = (gridSize * 2) - padding*2;
+                }
+                
+                ctx.beginPath();
+                // Safe rounded rect using standard arcTo
+                const radius = 8;
+                const rx = x + padding;
+                const ry = y + padding;
+                ctx.moveTo(rx + radius, ry);
+                ctx.lineTo(rx + w - radius, ry);
+                ctx.quadraticCurveTo(rx + w, ry, rx + w, ry + radius);
+                ctx.lineTo(rx + w, ry + h - radius);
+                ctx.quadraticCurveTo(rx + w, ry + h, rx + w - radius, ry + h);
+                ctx.lineTo(rx + radius, ry + h);
+                ctx.quadraticCurveTo(rx, ry + h, rx, ry + h - radius);
+                ctx.lineTo(rx, ry + radius);
+                ctx.quadraticCurveTo(rx, ry, rx + radius, ry);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Labels
+                if (seed === 5 || seed === 35) {
+                    ctx.fillStyle = 'rgba(18, 212, 114, 0.4)';
+                    ctx.font = '10px JetBrains Mono';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const text = seed === 5 ? 'Park' : 'Block C';
+                    ctx.fillText(text, x + padding + w/2, y + padding + h/2);
+                }
+            }
+        }
+    }
+
+    // Draw Grid Lines (Streets)
+    ctx.strokeStyle = 'rgba(18, 212, 114, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+    }
+    for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+    }
+    ctx.stroke();
+    
+    // Draw marker if exists
+    if (app.editorialData.marker) {
+        const { x, y } = app.editorialData.marker;
+        
+        // Concentric rings
+        ctx.strokeStyle = 'rgba(18, 212, 114, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x, y, 16, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        ctx.strokeStyle = 'rgba(18, 212, 114, 0.8)';
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Dot
+        ctx.fillStyle = '#12d472';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Tick lines
+        ctx.strokeStyle = '#12d472';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x - 24, y); ctx.lineTo(x - 12, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 12, y); ctx.lineTo(x + 24, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y - 24); ctx.lineTo(x, y - 12); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y + 12); ctx.lineTo(x, y + 24); ctx.stroke();
+    }
+};
+
+const fakeAddresses = [
+    "742 Evergreen Terrace",
+    "221B Baker Street",
+    "1600 Pennsylvania Ave",
+    "350 Fifth Avenue",
+    "10 Downing Street",
+    "11 Wall Street",
+    "405 Lexington Ave",
+    "1 Infinite Loop"
+];
+
+app.setEditorialPin = function(x, y) {
+    app.editorialData.marker = { x, y };
+    app.drawEditorialMap();
+    
+    const hint = document.getElementById('ed-map-hint');
+    if (hint) hint.style.opacity = '0';
+    
+    // Compute fake lat/lng
+    const fakeLat = (34.0522 + (y / 1000)).toFixed(6);
+    const fakeLng = (-118.2437 + (x / 1000)).toFixed(6);
+    
+    // Pick address from hash
+    const hash = Math.floor(x + y) % fakeAddresses.length;
+    const address = fakeAddresses[hash];
+    
+    // Resolve into left panel
+    document.getElementById('ed-loc-placeholder').style.display = 'none';
+    const activeLoc = document.getElementById('ed-loc-active');
+    activeLoc.style.display = 'flex';
+    
+    document.getElementById('ed-address-text').innerText = address;
+    document.getElementById('ed-coords-text').innerText = `${fakeLat}, ${fakeLng}`;
+    
+    // Update search bar
+    document.getElementById('ed-search-input').value = address;
+};
+
+app.clearEditorialPin = function() {
+    app.editorialData.marker = null;
+    app.drawEditorialMap();
+    
+    document.getElementById('ed-loc-placeholder').style.display = 'flex';
+    document.getElementById('ed-loc-active').style.display = 'none';
+    document.getElementById('ed-search-input').value = '';
+    
+    const hint = document.getElementById('ed-map-hint');
+    if (hint) hint.style.opacity = '1';
+};
+
+app.handleEditorialFileUpload = function(event) {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+    
+    const gallery = document.getElementById('ed-media-gallery');
+    
+    files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            const id = 'media-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+            
+            const thumb = document.createElement('div');
+            thumb.className = 'ed-media-thumb';
+            thumb.id = id;
+            
+            thumb.innerHTML = `
+                <img src="${dataUrl}" alt="upload">
+                <button onclick="document.getElementById('${id}').remove()"><i data-lucide="x"></i></button>
+            `;
+            
+            gallery.appendChild(thumb);
+            if (window.lucide) lucide.createIcons();
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    event.target.value = ''; // reset
+};
+
+// Initialize the map once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        app.initEditorialMap();
+    }, 500);
 });

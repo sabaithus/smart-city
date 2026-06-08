@@ -5,6 +5,13 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // limit each IP to 10 requests per windowMs
+    message: { error: 'Too many requests, please try again later.' }
+});
 
 // Diagnostic route
 router.get('/db-test', async (req, res) => {
@@ -35,7 +42,7 @@ router.get('/db-test', async (req, res) => {
 });
 
 // ==================== REGISTER ====================
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     try {
         const { fullName, countryCode, phone, password, role } = req.body;
 
@@ -88,7 +95,7 @@ router.post('/register', async (req, res) => {
 });
 
 // ==================== LOGIN ====================
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     try {
         const { countryCode, phone, password } = req.body;
 

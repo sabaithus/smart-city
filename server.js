@@ -17,13 +17,20 @@ const PORT = process.env.SERVER_PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const pgSession = require('connect-pg-simple')(session);
+const db = require('./config/database');
+
 // Session management (keeps users logged in)
 app.use(session({
+    store: new pgSession({
+        pool: db,
+        tableName: 'session'
+    }),
     secret: process.env.SESSION_SECRET || 'smart-city-secret-key-2026',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         httpOnly: true
     }
 }));
@@ -42,9 +49,26 @@ app.use('/api/reports', require('./routes/reportRoutes'));
 // Map routes: /api/map/markers, /api/map/stats
 app.use('/api/map', require('./routes/mapRoutes'));
 
+// Dashboard routes: /api/dashboard/kpis, /api/dashboard/feed, /api/dashboard/crises
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+
 // Fallback: serve index.html for any unknown route (SPA behavior)
 app.get('/{*path}', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+});
+
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
 });
 
 // ==================== START SERVER ====================
