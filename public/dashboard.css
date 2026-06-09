@@ -1916,3 +1916,22 @@
     }
 }
 
+/* ===== FIX: Remove navbar border/shadow line on map view ===== */
+body:has(#map-view.active) .top-navbar,
+html:has(#map-view.active) .top-navbar {
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* ===== FIX: Hide scrollbar track on map incident panel ===== */
+.map-incident-panel {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE/Edge */
+}
+
+.map-incident-panel::-webkit-scrollbar {
+    display: none !important; /* Chrome/Safari/Edge */
+    width: 0 !important;
+    height: 0 !important;
+}
+

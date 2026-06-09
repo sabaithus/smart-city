@@ -12,10 +12,11 @@ const db = require('../config/database');
 router.get('/markers', async (req, res) => {
     try {
         const result = await db.query(
-            `SELECT id, category, title, description, severity, location,
+            `SELECT id, user_id, category, title, description, severity, location,
                     latitude, longitude, status, image_url, created_at
              FROM reports
              WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+             AND status NOT IN ('rejected', 'pending_admin_review', 'REQUIRES_REVIEW', 'awaiting_admin_review')
              ORDER BY created_at DESC`
         );
 

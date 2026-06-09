@@ -104,16 +104,22 @@
 [data-theme="dark"] ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
-    background-color: var(--bg-main);
+    background-color: transparent;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track,
+[data-theme="dark"] ::-webkit-scrollbar-track-piece {
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background-color: var(--border);
+    background-color: #3f3f46;
     border-radius: 4px;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background-color: #3f3f46;
+    background-color: #52525b;
 }
 
 [data-theme="dark"] .map-topbar {
@@ -130,6 +136,14 @@
 
 [data-theme="dark"] .map-search {
     background: var(--bg-main);
+    border: 1px solid #27272a;
+    box-shadow: none;
+}
+
+[data-theme="dark"] .map-filters {
+    background: var(--bg-main);
+    border: 1px solid #27272a;
+    box-shadow: none;
 }
 
 [data-theme="dark"] .map-search input {
@@ -1607,24 +1621,27 @@ select:focus {
 /* Map Top Bar */
 .map-topbar {
     position: absolute;
-    top: 64px;
-    left: 0;
-    right: 0;
+    top: 80px;
+    left: 20px;
+    right: 20px;
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 80%, rgba(255, 255, 255, 0) 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: transparent;
+    pointer-events: none; /* Let clicks pass through */
     transition: top 0.3s ease;
+}
+
+.map-topbar > * {
+    pointer-events: auto;
 }
 
 @media (max-width: 768px) {
     .map-topbar {
-        top: 56px;
-        padding: 12px 14px;
+        top: 68px;
+        left: 12px;
+        right: 12px;
     }
 }
 
@@ -1716,34 +1733,51 @@ select:focus {
 /* Filter pills */
 .map-filters {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    background: var(--bg-card);
+    padding: 4px;
+    border-radius: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border);
+    gap: 4px;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+/* Hide scrollbar for filters */
+.map-filters::-webkit-scrollbar {
+    display: none;
+}
+.map-filters {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .map-filter {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 14px;
-    border-radius: 20px;
+    padding: 6px 14px;
+    border-radius: 24px;
     font-size: 0.8rem;
     font-weight: 600;
-    background: var(--bg-card);
+    background: transparent;
     color: var(--text-gray);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--border);
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
     transition: all 0.2s;
 }
 
 .map-filter.active {
     background: var(--primary);
     color: white;
-    border-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.25);
 }
 
 .map-filter:hover:not(.active) {
-    border-color: var(--primary);
-    color: var(--primary);
+    background: var(--bg-main);
+    color: var(--text-main);
 }
 
 .filter-dot {
@@ -1834,9 +1868,11 @@ select:focus {
     border-top: 1px solid var(--border);
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
     max-height: 40%;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 8px 20px 16px;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
 }
 
 .map-incident-panel.collapsed {
@@ -1873,6 +1909,15 @@ select:focus {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.map-panel-list::-webkit-scrollbar {
+    display: none;
 }
 
 .map-panel-item {
@@ -2259,19 +2304,26 @@ select:focus {
     margin-bottom: 0;
 }
 
-/* Bottom Nav (Mobile) */
+/* Bottom Nav (Mobile) - 2026 Floating Dock Style */
 .bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    background-color: var(--bg-card);
-    border-top: 1px solid var(--border);
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 400px;
+    height: 64px;
+    background-color: rgba(24, 24, 27, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
     display: flex;
     justify-content: space-around;
     align-items: center;
     z-index: 100;
+    padding: 0 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .nav-item {
@@ -2279,27 +2331,38 @@ select:focus {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    color: var(--text-gray);
-    font-size: 0.75rem;
-    font-weight: 500;
+    color: #a1a1aa;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.nav-item:hover {
+    color: #e4e4e7;
 }
 
 .nav-item.active {
     color: var(--primary);
+    transform: translateY(-2px);
 }
 
 .report-fab {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     background-color: var(--red);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: -24px;
-    box-shadow: var(--shadow-md);
-    border: 4px solid var(--bg-card);
+    margin-top: -32px;
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    border: 4px solid #18181b;
+    transition: transform 0.2s;
+}
+
+.report-fab:active {
+    transform: scale(0.95);
 }
 
 /* ==================== ADMIN PORTAL ==================== */
@@ -3604,6 +3667,7 @@ select:focus {
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         transform: translateX(0);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
     }
 
     .map-incident-panel.collapsed {
@@ -3699,7 +3763,13 @@ select:focus {
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
-    background-color: #f1f5f9;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece {
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -6048,6 +6118,11 @@ input:-webkit-autofill:active {
     margin: 0;
     overflow: hidden;
     border-top: none !important;
+}
+
+body:has(#map-view.active) .top-navbar {
+    border-bottom-color: transparent !important;
+    box-shadow: none !important;
 }
 
 #map-view.active {

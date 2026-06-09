@@ -9,6 +9,8 @@ const path = require('path');
 const { analyzeIncident, detectCrisis } = require('../services/aiService');
 const { getDistrictId } = require('../services/districtService');
 const { logTimelineEvent } = require('../services/timelineService');
+const RateLimitService = require('../services/RateLimitService');
+const DuplicateDetectionService = require('../services/DuplicateDetectionService');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -28,66 +30,225 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(401).json({ error: 'You must be logged in to submit a report.' });
         }
 
-        let { category, title, description, severity, location, latitude, longitude } = req.body;
+        const allowed = await RateLimitService.canCreateReport(req.ip, req.session.userId, req.session.userRole);
+        if (!allowed) {
+            return res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+        }
+
+        let { category, title, description, location, latitude, longitude } = req.body;
         let image_url = req.body.image_url || null;
+        let severity = 'medium'; // default
+        let status = 'pending';
+        let severityScore = 0;
+        let confidence = 100;
+        let routingDecision = 'VOLUNTEER_WITH_ADMIN_MONITORING';
+        let aiReasoning = '';
+        let humanSafetyRisk = 0;
+        let infrastructureDamage = 0;
+        let publicImpact = 0;
+        let urgencyIndicators = 0;
+        let evidenceScore = 0;
+        let spamProbability = 0;
+        let aiResult = null;
+
         if (req.file) {
             image_url = '/uploads/' + req.file.filename;
+            evidenceScore += 4; // Basic evidence score for having an image
         }
 
         // Get District
         const districtId = await getDistrictId(latitude, longitude);
 
         let aiClassified = false;
+        let isValid = true;
+        let isEmergencyOverride = false;
+
         // Call AI Service if description exists
         if (description) {
-            const aiResult = await analyzeIncident(description);
+            aiResult = await analyzeIncident(description);
             if (aiResult) {
+                isValid = aiResult.isValid !== false;
+                spamProbability = aiResult.spamProbability || 0;
+
+                if (!isValid) {
+                    return res.status(400).json({ error: 'Your report does not describe a valid city problem or incident.' });
+                }
+
                 category = aiResult.category || category;
-                severity = aiResult.severity || severity;
+                humanSafetyRisk = aiResult.humanSafetyRisk || 0;
+                infrastructureDamage = aiResult.infrastructureDamage || 0;
+                publicImpact = aiResult.publicImpact || 0;
+                urgencyIndicators = aiResult.urgencyIndicators || 0;
+                evidenceScore = Math.max(evidenceScore, aiResult.evidenceScore || 0);
+                aiReasoning = aiResult.reasoning || '';
+                confidence = aiResult.confidence !== undefined ? aiResult.confidence : 100;
+
                 if (aiResult.reasoning && aiResult.department) {
                     description += `\n\n[AI Assessment]: Routed to ${aiResult.department}. ${aiResult.reasoning}`;
                 }
                 aiClassified = true;
             }
+
+            // Emergency Keyword Override
+            const criticalKeywords = ["fire", "explosion", "building collapse", "gas leak", "electrocution", "serious accident"];
+            const descLower = description.toLowerCase();
+            for (const kw of criticalKeywords) {
+                if (descLower.includes(kw)) {
+                    if (!aiClassified || aiResult.is_emergency_context === true) {
+                        isEmergencyOverride = true;
+                        break;
+                    }
+                }
+            }
         }
 
         // Fallbacks
         if (!category) category = 'other';
-        if (!severity) severity = 'medium';
+
+        // Backend Scoring Engine
+        severityScore = humanSafetyRisk + infrastructureDamage + publicImpact + urgencyIndicators + evidenceScore;
+        
+        if (isEmergencyOverride) {
+            severityScore = Math.max(85, severityScore);
+        }
+
+        // Duplicate Detection Step
+        let duplicateOf = null;
+        let duplicateConfidence = null;
+        const dupResult = await DuplicateDetectionService.detectDuplicate({
+            title, description, category, latitude, longitude
+        });
+        
+        if (dupResult && dupResult.confidence >= 60) {
+            duplicateConfidence = dupResult.confidence;
+            if (dupResult.confidence >= 85) {
+                duplicateOf = dupResult.duplicate_of;
+                publicImpact += 5; // Increase severity via public impact
+            }
+        }
+
+        // Spam Check
+        let assignedTeam = null;
+        let slaTargetHours = null;
+
+        if (aiAnalysis && aiAnalysis.isValid === false) {
+            status = 'rejected';
+            routingDecision = 'SYSTEM_REJECTED';
+            severity = 'low';
+        } else if (spamProbability > 70) {
+            status = 'pending_admin_review';
+            routingDecision = 'ADMIN_REVIEW_REQUIRED';
+        } else {
+            // Determine Routing and Status based on Score
+            if (severityScore <= 30) {
+                severity = 'low';
+                routingDecision = 'VOLUNTEER_AUTO_ASSIGN';
+                assignedTeam = 'Volunteers';
+                slaTargetHours = 72;
+            } else if (severityScore <= 60) {
+                severity = 'medium';
+                routingDecision = 'VOLUNTEER_WITH_ADMIN_MONITORING';
+                assignedTeam = 'Public Works / General';
+                slaTargetHours = 24;
+            } else if (severityScore <= 80) {
+                severity = 'high';
+                routingDecision = 'ADMIN_REVIEW_REQUIRED';
+                status = 'awaiting_admin_review';
+                assignedTeam = 'Specialized Responders';
+                slaTargetHours = 4;
+            } else {
+                severity = 'critical';
+                assignedTeam = 'Emergency Services';
+                slaTargetHours = 1;
+                if (confidence < 50) {
+                    routingDecision = 'ADMIN_REVIEW_REQUIRED';
+                    status = 'REQUIRES_REVIEW';
+                } else {
+                    routingDecision = 'EMERGENCY_ESCALATION';
+                }
+            }
+        }
 
         const result = await db.query(
-            `INSERT INTO reports (user_id, category, title, description, severity, location, latitude, longitude, status, image_url, district_id)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9, $10)
+            `INSERT INTO reports (user_id, category, title, description, severity, location, latitude, longitude, status, image_url, district_id, severity_score, confidence, routing_decision, ai_reasoning, human_safety_risk, infrastructure_damage, public_impact, urgency_indicators, evidence_score, spam_probability, duplicate_of, severity_engine_version, sla_target_hours, assigned_team)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, 'v2.1', $23, $24)
              RETURNING id, category, title, severity, status, image_url, created_at, district_id`,
             [
                 req.session.userId,
                 category,
                 title || '',
                 description || '',
-                severity || 'medium',
+                severity,
                 location || '',
                 latitude || null,
                 longitude || null,
+                status,
                 image_url || null,
-                districtId
+                districtId,
+                severityScore,
+                confidence,
+                routingDecision,
+                aiReasoning,
+                humanSafetyRisk,
+                infrastructureDamage,
+                publicImpact,
+                urgencyIndicators,
+                evidenceScore,
+                spamProbability,
+                duplicateOf,
+                slaTargetHours,
+                assignedTeam
             ]
         );
 
         const report = result.rows[0];
 
+        // Audit Trail Logging
+        await db.query(
+            `INSERT INTO incident_audit_trail (report_id, raw_ai_output, confidence, score_components, overrides_applied, duplicate_detection_results, routing_decisions)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [
+                report.id, 
+                aiResult || {}, 
+                confidence, 
+                { humanSafetyRisk, infrastructureDamage, publicImpact, urgencyIndicators, evidenceScore, spamProbability }, 
+                { isEmergencyOverride }, 
+                dupResult || null, 
+                { severityScore, routingDecision, severity, slaTargetHours, assignedTeam }
+            ]
+        );
+
+        if (duplicateOf) {
+            await db.query(`UPDATE reports SET engagement_count = engagement_count + 1, citizen_concern_score = citizen_concern_score + 5 WHERE id = $1`, [duplicateOf]);
+            await logTimelineEvent('report', duplicateOf, `Linked to new duplicate report #${report.id}`);
+            await logTimelineEvent('report', report.id, `Identified as duplicate of incident #${duplicateOf}`);
+        }
+
         // 1. Timeline: Reported
         await logTimelineEvent('report', report.id, 'Citizen reported incident');
         
-        // 2. Timeline: AI Classified
+        // 2. Timeline: AI Actions
         if (aiClassified) {
-            await logTimelineEvent('report', report.id, 'AI classified incident and assigned priority');
+            await logTimelineEvent('report', report.id, 'AI_ANALYSIS_COMPLETED');
+            if (routingDecision === 'VOLUNTEER_AUTO_ASSIGN') {
+                await logTimelineEvent('report', report.id, 'AUTO_ASSIGNED_TO_VOLUNTEER');
+            } else if (status === 'awaiting_admin_review') {
+                await logTimelineEvent('report', report.id, 'AWAITING_ADMIN_REVIEW');
+                await logTimelineEvent('report', report.id, 'ADMIN_ALERT_CREATED');
+            } else if (routingDecision === 'EMERGENCY_ESCALATION') {
+                await logTimelineEvent('report', report.id, 'EMERGENCY_ESCALATION_TRIGGERED');
+                await logTimelineEvent('report', report.id, 'ADMIN_ALERT_CREATED');
+            } else if (status === 'REQUIRES_REVIEW') {
+                await logTimelineEvent('report', report.id, 'FLAGGED FOR MANUAL REVIEW (High Severity / Low Confidence)');
+                await logTimelineEvent('report', report.id, 'ADMIN_ALERT_CREATED');
+            }
         }
 
         // 3. Check for Crisis
-        if (districtId) {
+        if (districtId && status !== 'invalid' && status !== 'pending_admin_review') {
             const recentReports = await db.query(`
                 SELECT id, title, description, category, severity FROM reports 
-                WHERE district_id = $1 AND crisis_event_id IS NULL AND created_at > NOW() - INTERVAL '1 hour'
+                WHERE district_id = $1 AND crisis_event_id IS NULL AND created_at > NOW() - INTERVAL '1 hour' AND status != 'invalid'
             `, [districtId]);
 
             if (recentReports.rows.length >= 3) {

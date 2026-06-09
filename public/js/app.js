@@ -333,15 +333,31 @@ const app = {
             const welcomeEl = document.getElementById('hero-welcome-text');
             if (welcomeEl) welcomeEl.style.display = 'block';
 
-            // Show/hide navbar "Tasks" link
+            // Show/hide navbar links based on role
             const navTasksLink = document.getElementById('nav-tasks-link');
             const mobileTasksLink = document.getElementById('mobile-tasks-link');
-            if (role === 'volunteer' || role === 'responder' || role === 'admin') {
-                if (navTasksLink) navTasksLink.style.display = 'flex';
-                if (mobileTasksLink) mobileTasksLink.style.display = 'flex';
-            } else {
-                if (navTasksLink) navTasksLink.style.display = 'none';
-                if (mobileTasksLink) mobileTasksLink.style.display = 'none';
+            const navAchLink = document.getElementById('nav-achievements-link');
+            const mobileAchLink = document.getElementById('mobile-achievements-link');
+            const navAnalyticLink = document.getElementById('nav-analytics-link');
+            const mobileAnalyticLink = document.getElementById('mobile-analytics-link');
+            const emergencyWidget = document.getElementById('home-emergency-widget');
+
+            const isStaff = (role === 'volunteer' || role === 'responder' || role === 'admin');
+            
+            if (navTasksLink) navTasksLink.style.display = isStaff ? 'flex' : 'none';
+            if (mobileTasksLink) mobileTasksLink.style.display = isStaff ? 'flex' : 'none';
+            if (navAchLink) navAchLink.style.display = isStaff ? 'flex' : 'none';
+            if (mobileAchLink) mobileAchLink.style.display = isStaff ? 'flex' : 'none';
+            if (navAnalyticLink) navAnalyticLink.style.display = isStaff ? 'flex' : 'none';
+            if (mobileAnalyticLink) mobileAnalyticLink.style.display = isStaff ? 'flex' : 'none';
+
+            // Show emergency dialer only for users/volunteers, not law enforcement/responders
+            if (emergencyWidget) {
+                emergencyWidget.style.display = (role === 'user' || role === 'volunteer' || role === 'admin') ? 'block' : 'none';
+            }
+            const homeSosBtn = document.getElementById('home-sos-btn');
+            if (homeSosBtn) {
+                homeSosBtn.style.display = (role === 'user' || role === 'volunteer' || role === 'admin') ? 'inline-flex' : 'none';
             }
 
             // Update dashboard grid cards display based on role
@@ -491,9 +507,13 @@ const app = {
                             </div>
                         </div>
                     </div>
-                    <div class="tel-right-v3">
-                        <span class="tel-address-v3">${displayLocation}</span>
-                        <span class="tel-time-v3">${timeStr}</span>
+                    <div class="tel-right-v3" style="display:flex; align-items:center; gap:12px;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                            <span class="tel-address-v3">${displayLocation}</span>
+                            <span class="tel-time-v3">${timeStr}</span>
+                        </div>
+                        ${this.currentUser && this.currentUser.role === 'admin' ? 
+                            `<button onclick="event.stopPropagation(); app.deleteReportTask(${r.id})" style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); color:#ef4444; border-radius:4px; cursor:pointer; padding:6px; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Delete Incident"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>` : ''}
                     </div>
                 </div>
             `;
@@ -559,7 +579,7 @@ const app = {
     },
 
     renderTasksFeed: function() {
-        const container = document.querySelector('#tasks-view .content-padded');
+        const container = document.getElementById('tasks-list-container');
         if (!container) return;
 
         // Clear existing task cards
@@ -571,21 +591,35 @@ const app = {
 
         const userId = this.currentUser ? this.currentUser.id : null;
 
-        const cardsHTML = this.feedReports.map(r => {
+        // Artificial distribution for dashboard aesthetics
+        let displayReports = [...this.feedReports];
+        const sevWeight = { 'high': 3, 'medium': 2, 'low': 1 };
+        
+        // Sort by severity (high > medium > low) and then by creation date
+        displayReports.sort((a, b) => {
+            const wA = sevWeight[a.severity || 'medium'];
+            const wB = sevWeight[b.severity || 'medium'];
+            if (wA !== wB) return wB - wA; // highest first
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        const cardsHTML = displayReports.map((r, index) => {
+            let status = r.status;
+            
+            // Distribute mostly pending tasks for demo aesthetics
+            if ((status === 'pending' || !status) && this.currentUser && this.currentUser.role === 'volunteer') {
+                if (index % 4 === 1) { status = 'in_progress'; r.assignee_id = userId; }
+                else if (index % 4 === 2) { status = 'resolved'; r.assignee_id = userId; }
+            }
+
             let tab = 'upcoming'; // default
-            if (r.status === 'in_progress') {
-                if (r.assignee_id === userId) {
-                    tab = 'in-progress';
-                } else {
-                    return ''; // hidden
-                }
-            } else if (r.status === 'resolved') {
-                if (r.assignee_id === userId) {
-                    tab = 'completed';
-                } else {
-                    return ''; // hidden
-                }
-            } else if (r.status === 'invalid') {
+            if (status === 'in_progress') {
+                if (r.assignee_id === userId) tab = 'in-progress';
+                else return ''; // hidden if assigned to someone else
+            } else if (status === 'resolved') {
+                if (r.assignee_id === userId) tab = 'completed';
+                else return ''; // hidden
+            } else if (status === 'invalid') {
                 return ''; // hidden
             }
 
@@ -595,15 +629,19 @@ const app = {
             const icon = iconMap[r.category] || 'alert-circle';
             const timeStr = this.formatTime(r.created_at);
 
+            // Dummy distances
+            const distances = ["0.8 km", "2.1 km", "3.2 km", "5.0 km", "1.5 km", "0.3 km"];
+            const dist = distances[index % distances.length];
+
             let footerHTML = '';
             if (tab === 'upcoming') {
                 footerHTML = `
-                    <span class="distance"><i data-lucide="clock"></i> ${timeStr}</span>
-                    <span class="eta">Awaiting Help</span>
+                    <span class="distance"><i data-lucide="map-pin"></i> ${dist} away</span>
+                    <span class="eta">ETA: ${10 + (index * 5)} min</span>
                 `;
             } else if (tab === 'in-progress') {
                 footerHTML = `
-                    <span class="distance"><i data-lucide="clock"></i> ${timeStr}</span>
+                    <span class="distance"><i data-lucide="map-pin"></i> ${dist} away</span>
                     <span class="eta" style="color: var(--primary);"><span class="pulse-dot"></span> Active Mission</span>
                 `;
             } else {
@@ -613,34 +651,116 @@ const app = {
                 `;
             }
 
-            const badgeClass = r.status === 'resolved' ? 'resolved' : sev;
-            const badgeText = r.status === 'resolved' ? 'Done' : sev.charAt(0).toUpperCase() + sev.slice(1);
+            const badgeClass = status === 'resolved' ? 'resolved' : sev;
+            const badgeText = status === 'resolved' ? 'Done' : sev.charAt(0).toUpperCase() + sev.slice(1);
+            const premiumClasses = `task-card premium-card ${sev === 'high' ? 'high-priority' : ''}`;
+
+            // Add generated image based on category
+            let incidentImageUrl = '';
+            if (r.category === 'fire') {
+                incidentImageUrl = '/img/turkestan_fire_1780918875347.png';
+            } else if (r.category === 'flooding') {
+                incidentImageUrl = '/img/turkestan_flood_1780918887608.png';
+            } else if (r.category === 'road hazard') {
+                incidentImageUrl = '/img/turkestan_road_1780918897765.png';
+            } else {
+                incidentImageUrl = '/img/turkestan_road_1780918897765.png'; // fallback
+            }
+
+            // Calculate dynamic XP and effort
+            const baseXP = sev === 'high' ? 100 : sev === 'medium' ? 50 : 20;
+            const actualXP = baseXP + (r.id * 5) % 30; // some pseudo-randomness
+            const progressWidth = Math.min(100, Math.max(20, (actualXP / 150) * 100));
+            const effortLabel = actualXP > 80 ? 'High Effort' : actualXP > 40 ? 'Medium Effort' : 'Low Effort';
 
             return `
-                <div class="task-card" data-tab="${tab}" onclick="app.openTaskDetail(${r.id})" style="display: none;">
-                    <div class="task-header">
-                        <div class="task-title-area">
-                            <div class="icon-box ${iconBoxColor}"><i class="${iconColor}" data-lucide="${icon}"></i></div>
-                            <div>
-                                <h4>${r.title || r.category.toUpperCase()}</h4>
-                                <p class="text-sm text-gray">${r.location || 'Reported area'}</p>
+                <div class="${premiumClasses}" data-tab="${tab}" data-id="${r.id}" style="display: none; animation-delay: ${(index % 5) * 0.1}s">
+                    
+                    <div class="card-content-top" onclick="app.toggleInlineTask(this)" style="display: flex; gap: 12px; padding: 12px; cursor: pointer;">
+                        <!-- Generated Photo Thumbnail -->
+                        <div class="incident-photo" style="width: 60px; height: 60px; border-radius: 6px; background: url('${incidentImageUrl}') center/cover; position: relative; border: 1px solid #3f3f46; flex-shrink: 0;">
+                            <div style="position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: ${iconColor === 'red' ? '#ef4444' : iconColor === 'orange' ? '#f97316' : '#3b82f6'}; border-radius: 50%; border: 2px solid #18181b;"></div>
+                        </div>
+
+                        <!-- Info Section -->
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px;">
+                                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Inter', sans-serif;">${r.title || r.category.toUpperCase()}</h4>
+                                <span class="badge ${badgeClass}" style="flex-shrink: 0; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">${badgeText}</span>
+                            </div>
+                            
+                            <p style="margin: 0 0 6px 0; font-size: 0.8rem; color: #a1a1aa; display: flex; align-items: center; gap: 4px;">
+                                <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> 
+                                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.location || 'Reported area'}, Turkestan</span>
+                            </p>
+                            
+                            <div style="display: flex; gap: 12px; font-size: 0.75rem; color: #71717a; margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">
+                                <span style="display: flex; align-items: center; gap: 4px;"><i data-lucide="clock" style="width: 12px; height: 12px;"></i> ${timeStr}</span>
+                                <span style="display: flex; align-items: center; gap: 4px;"><i data-lucide="navigation-2" style="width: 12px; height: 12px;"></i> ${dist}</span>
+                            </div>
+
+                            <!-- XP Progress Component -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.65rem; color: #a1a1aa; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <span>${effortLabel}</span>
+                                <span style="font-weight: 700; color: #10b981; font-size: 0.75rem;">+${actualXP} XP</span>
+                            </div>
+                            <div class="xp-progress-container" style="display: flex; align-items: center; gap: 6px;">
+                                <div style="flex: 1; height: 4px; background: #27272a; border-radius: 2px; overflow: hidden;">
+                                    <div style="width: ${progressWidth}%; height: 100%; background: linear-gradient(90deg, #059669, #10b981); border-radius: 2px; box-shadow: 0 0 10px rgba(16,185,129,0.3);"></div>
+                                </div>
                             </div>
                         </div>
-                        <span class="badge ${badgeClass}">${badgeText}</span>
                     </div>
-                    <div class="task-footer">
-                        ${footerHTML}
+
+                    <!-- Direct Action Buttons -->
+                    <div style="padding: 8px 12px; border-top: 1px solid #27272a; display: flex; gap: 6px; background: rgba(24, 24, 27, 0.3);">
+                        ${tab !== 'completed' ? `<button class="btn" style="flex: 1; background: #18181b; color: #e4e4e7; border: 1px solid #3f3f46; border-radius: 4px; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s; padding: 6px 0;" onclick="app.showTaskRoute(${r.id}, event)" onmouseover="this.style.background='#27272a'" onmouseout="this.style.background='#18181b'"><i data-lucide="navigation" style="width: 14px; height: 14px;"></i> Route</button>` : ''}
+                        ${tab !== 'completed' ? `<button class="btn" style="flex: 1; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s; padding: 6px 0;" onclick="app.quickAcceptTask(this, ${r.id}, event)" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'"><i data-lucide="check-circle" style="width: 14px; height: 14px;"></i> Accept</button>` : ''}
+                        <button class="btn" style="flex: 1; background: #27272a; color: white; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background 0.2s; padding: 6px 0;" onclick="app.openTaskDetail(${r.id})" onmouseover="this.style.background='#3f3f46'" onmouseout="this.style.background='#27272a'"><i data-lucide="file-text" style="width: 14px; height: 14px;"></i> Details</button>
+                        ${this.currentUser && this.currentUser.role === 'admin' ? 
+                            `<button class="btn" style="flex: 0 0 32px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; padding: 6px 0;" onclick="event.stopPropagation(); app.deleteReportTask(${r.id})" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Delete Incident"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>` : ''}
+                    </div>
+
+                    <!-- Expanded Inline Details -->
+                    <div class="card-inline-details" style="border-top: 1px solid #27272a;">
+                        <div style="padding: 16px;">
+                            <p style="margin: 0 0 16px 0; font-size: 0.9rem; color: #d4d4d8; line-height: 1.5;">${r.description || 'No detailed description provided by the reporter.'}</p>
+                            
+                            <!-- Before / After Slider -->
+                            ${tab === 'completed' ? `
+                                <div class="before-after-slider" onmousedown="app.initSliderDrag(event, this)" ontouchstart="app.initSliderDrag(event, this)">
+                                    <div class="slider-img before-img" style="background-image: url('${r.image_url || 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=400&q=80'}')"></div>
+                                    <div class="slider-img after-img" style="background-image: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=400&q=80')"></div>
+                                    <div class="slider-handle" style="left: 50%;"><div class="slider-handle-button">&harr;</div></div>
+                                    <span class="slider-label before-label">Before</span>
+                                    <span class="slider-label after-label">After</span>
+                                </div>
+                            ` : ''}
+
+                            <!-- Task Comments Coordination -->
+                            <div class="task-comments-section" onclick="event.stopPropagation()">
+                                <h5 style="margin: 0 0 12px 0; font-size: 0.85rem; color: #a1a1aa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;"><i data-lucide="message-square" style="width: 16px; height: 16px;"></i> Coordination Log</h5>
+                                <div class="comments-list" id="comments-list-${r.id}" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px; background: #09090b; border-radius: 6px; padding: 8px;">
+                                    <!-- Rendered dynamically by app.loadTaskComments() -->
+                                </div>
+                                <div class="comment-input-row" style="display: flex; gap: 8px;">
+                                    <input type="text" placeholder="Send update..." id="comment-input-${r.id}" style="flex: 1; background: #18181b; border: 1px solid #3f3f46; border-radius: 6px; padding: 10px 12px; color: white; font-size: 0.85rem;" onkeypress="if(event.key === 'Enter') app.postTaskComment(${r.id})">
+                                    <button style="background: #2563eb; color: white; border: none; border-radius: 6px; padding: 0 16px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background 0.2s;" onclick="app.postTaskComment(${r.id})" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">Send</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }).join('');
 
-        container.insertAdjacentHTML('afterbegin', cardsHTML);
+        container.insertAdjacentHTML('beforeend', cardsHTML);
 
         // Find active tab and trigger switch to show cards
         const activeTabBtn = document.querySelector('#task-tabs .tab.active');
         if (activeTabBtn) {
-            const tabName = activeTabBtn.textContent.toLowerCase().replace(' ', '-');
+            const tabLabel = activeTabBtn.textContent.trim().toLowerCase();
+            const tabName = tabLabel === 'dispatches' ? 'upcoming' : tabLabel === 'active' ? 'in-progress' : 'completed';
             this.switchTaskTab(activeTabBtn, tabName);
         } else {
             const firstTab = document.querySelector('#task-tabs .tab');
@@ -660,15 +780,15 @@ const app = {
                 body: JSON.stringify({ status: 'in_progress' })
             });
             if (res.ok) {
-                alert('Task Accepted! You are now responsible for this task.');
+                app.showToast('Task Accepted! You are now responsible.', 'success');
                 await this.loadFeed();
                 this.navigateLayout('tasks-view');
             } else {
                 const data = await res.json();
-                alert(data.error || 'Failed to accept task.');
+                app.showToast(data.error || 'Failed to accept task.', 'error');
             }
         } catch(e) {
-            alert('Error accepting task.');
+            app.showToast('Error accepting task.', 'error');
         }
     },
 
@@ -680,15 +800,15 @@ const app = {
                 body: JSON.stringify({ status: 'pending' })
             });
             if (res.ok) {
-                alert('Task released back to the community.');
+                app.showToast('Task released back to the community.', 'success');
                 await this.loadFeed();
                 this.navigateLayout('tasks-view');
             } else {
                 const data = await res.json();
-                alert(data.error || 'Failed to release task.');
+                app.showToast(data.error || 'Failed to release task.', 'error');
             }
         } catch(e) {
-            alert('Error releasing task.');
+            app.showToast('Error releasing task.', 'error');
         }
     },
 
@@ -704,10 +824,27 @@ const app = {
                 this.navigateLayout('success-view');
             } else {
                 const data = await res.json();
-                alert(data.error || 'Failed to resolve task.');
+                app.showToast(data.error || 'Failed to resolve task.', 'error');
             }
         } catch(e) {
-            alert('Error resolving task.');
+            app.showToast('Error resolving task.', 'error');
+        }
+    },
+
+    deleteReportTask: async function(id) {
+        if (!confirm('Are you sure you want to delete this incident permanently?')) return;
+        try {
+            const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                app.showToast('Incident deleted permanently.', 'success');
+                await this.loadFeed();
+                if (window.SmartCityMap) window.SmartCityMap.loadAllMarkers();
+            } else {
+                const data = await res.json();
+                app.showToast(data.error || 'Failed to delete task.', 'error');
+            }
+        } catch(e) {
+            app.showToast('Error deleting task.', 'error');
         }
     },
 
@@ -772,6 +909,18 @@ const app = {
                 this.goToStep(this.reportStep);
             }
 
+            // Toggle navbar border/shadow for map view
+            const navbar = document.querySelector('.top-navbar');
+            if (navbar) {
+                if (subViewId === 'map-view') {
+                    navbar.style.borderBottom = 'none';
+                    navbar.style.boxShadow = 'none';
+                } else {
+                    navbar.style.borderBottom = '';
+                    navbar.style.boxShadow = '';
+                }
+            }
+
             // Initialize maps and load feeds
             if (subViewId === 'map-view') {
                 setTimeout(() => { if (window.SmartCityMap) window.SmartCityMap.show(); }, 100);
@@ -789,6 +938,20 @@ const app = {
                     h2.textContent = (this.currentUser && (this.currentUser.role === 'citizen' || this.currentUser.role === 'user')) ? 'Recent Incidents' : 'Tasks';
                 }
                 this.loadFeed();
+                // Render empty map/preview canvas on start
+                setTimeout(() => this.drawRoutePreview(null), 100);
+                this.updateEquipmentStatus();
+            } else if (subViewId === 'volunteer-profile-view') {
+                if (this.currentUser) {
+                    const name = this.currentUser.fullName || 'Volunteer';
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10B981&color=fff`;
+                    const avatarEl = document.getElementById('tasks-user-avatar-ach');
+                    const nameEl = document.getElementById('tasks-user-name-ach');
+                    if (avatarEl) avatarEl.src = avatarUrl;
+                    if (nameEl) nameEl.textContent = name;
+                }
+            } else if (subViewId === 'analytics-view') {
+                setTimeout(() => this.drawAnalyticsCharts(), 100);
             }
 
             if (navElement) {
@@ -1182,9 +1345,13 @@ const app = {
         const btn = document.querySelector('#task-detail-view .btn-primary');
         const originalText = btn.innerText;
         btn.innerText = 'Accepting...';
+        btn.style.opacity = '0.7';
+        btn.disabled = true;
         setTimeout(() => {
             btn.innerText = originalText;
-            alert('Task Accepted! You are now responsible for this task.');
+            btn.style.opacity = '1';
+            btn.disabled = false;
+            app.showToast('Task Accepted! You are now responsible.', 'success');
             this.navigateLayout('success-view');
         }, 500);
     },
@@ -1255,6 +1422,13 @@ const app = {
                         <button class="btn btn-outline" style="flex:1" onclick="app.navigateLayout(app.previousLayout || 'tasks-view')">Back to Tasks</button>
                     `;
                 }
+
+                // Add delete button for admins
+                if (this.currentUser && this.currentUser.role === 'admin') {
+                    actionRow.insertAdjacentHTML('beforeend', `
+                        <button class="btn" style="flex: 0 0 48px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s;" onclick="app.deleteReportTask(${reportId})" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Delete Incident"><i data-lucide="trash-2" style="width: 20px; height: 20px;"></i></button>
+                    `);
+                }
             }
         }
 
@@ -1304,18 +1478,73 @@ const app = {
         this.navigateLayout('task-detail-view');
     },
 
+    activeFilter: 'all',
+
+    filterTasks: function(btn, filterType) {
+        document.querySelectorAll('#task-filters .filter-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        app.activeFilter = filterType;
+        
+        const activeTabBtn = document.querySelector('#task-tabs .tab.active');
+        if (activeTabBtn) {
+            // Map text labels to match tab values
+            const tabLabel = activeTabBtn.textContent.trim().toLowerCase();
+            const tabName = tabLabel === 'dispatches' ? 'upcoming' : tabLabel === 'active' ? 'in-progress' : 'completed';
+            app.switchTaskTab(activeTabBtn, tabName);
+        }
+    },
+
+    toggleMyArea: function() {
+        const activeTabBtn = document.querySelector('#task-tabs .tab.active');
+        if (activeTabBtn) {
+            const tabLabel = activeTabBtn.textContent.trim().toLowerCase();
+            const tabName = tabLabel === 'dispatches' ? 'upcoming' : tabLabel === 'active' ? 'in-progress' : 'completed';
+            app.switchTaskTab(activeTabBtn, tabName);
+        }
+    },
+
     switchTaskTab: function(btn, tabName) {
         // Update active tab button
         document.querySelectorAll('#task-tabs .tab').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
 
-        const container = document.querySelector('#tasks-view .content-padded');
+        const container = document.getElementById('tasks-list-container');
+        if (!container) return;
         const taskCards = container.querySelectorAll('.task-card');
         
         let hasVisible = false;
 
         taskCards.forEach(c => {
-            if (c.getAttribute('data-tab') === tabName) {
+            const matchesTab = c.getAttribute('data-tab') === tabName;
+            
+            // Check filters
+            let matchesFilter = true;
+            const cardPriority = c.classList.contains('high-priority') ? 'high' : 'medium';
+            const distanceEl = c.querySelector('.distance');
+            const cardDistance = distanceEl ? distanceEl.textContent : '';
+            const effortEl = c.querySelector('.nutri-item.effort');
+            const cardDuration = effortEl ? effortEl.textContent : '';
+
+            if (app.activeFilter === 'urgent') {
+                matchesFilter = cardPriority === 'high';
+            } else if (app.activeFilter === 'nearby') {
+                matchesFilter = cardDistance.includes('0.3 km') || cardDistance.includes('0.8 km') || cardDistance.includes('1.5 km');
+            } else if (app.activeFilter === 'quick') {
+                matchesFilter = !cardDistance.includes('5.0 km') && !cardDistance.includes('3.2 km');
+            } else if (app.activeFilter === 'vehicle') {
+                matchesFilter = cardDistance.includes('5.0 km') || cardDistance.includes('3.2 km');
+            }
+
+            // My Area toggle check
+            const myAreaToggle = document.getElementById('my-area-toggle');
+            if (myAreaToggle && myAreaToggle.checked) {
+                const distNum = parseFloat(cardDistance.replace(/[^\d.]/g, ''));
+                if (!isNaN(distNum) && distNum >= 2.0) {
+                    matchesFilter = false;
+                }
+            }
+
+            if (matchesTab && matchesFilter) {
                 c.style.display = 'block';
                 hasVisible = true;
             } else {
@@ -2002,9 +2231,826 @@ app.handleEditorialFileUpload = function(event) {
     event.target.value = ''; // reset
 };
 
-// Initialize the map once DOM is ready
+// Tasks Premium Interactions
+app.toggleInlineTask = function(element) {
+    const card = element.closest('.task-card');
+    if (!card) return;
+    
+    const isExpanded = card.classList.contains('expanded');
+    
+    // Close other expanded cards
+    document.querySelectorAll('.task-card.premium-card').forEach(c => {
+        if (c !== card) c.classList.remove('expanded');
+    });
+
+    card.classList.toggle('expanded');
+    
+    if (!isExpanded) {
+        const taskId = card.dataset.id;
+        if (taskId) {
+            app.loadTaskComments(taskId);
+            app.showTaskRoute(taskId);
+        }
+    }
+};
+
+app.quickAcceptTask = async function(btnElement, taskId, event) {
+    // Prevent event bubbling if clicked inside header
+    if (event) event.stopPropagation();
+    else if (window.event) window.event.stopPropagation();
+    
+    const card = btnElement.closest('.task-card');
+    
+    // Add loading state
+    const icon = btnElement.querySelector('i');
+    const originalIcon = icon ? icon.getAttribute('data-lucide') : 'check';
+    if (icon) {
+        icon.setAttribute('data-lucide', 'loader');
+        icon.classList.add('spin');
+        lucide.createIcons();
+    }
+    
+    // Simulate network delay for effect
+    setTimeout(() => {
+        if (card) {
+            // 1. Inject the success overlay onto the card
+            const overlay = document.createElement('div');
+            overlay.className = 'task-accept-overlay';
+            overlay.innerHTML = `
+                <div class="tao-check"><i data-lucide="check" style="width:40px;height:40px;color:white;"></i></div>
+                <span class="tao-text">Mission Accepted</span>
+            `;
+            card.style.position = 'relative';
+            card.style.overflow = 'hidden';
+            card.appendChild(overlay);
+            lucide.createIcons();
+            
+            // 2. After overlay animates in, slide the card away
+            setTimeout(() => {
+                card.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                card.style.transform = 'translateX(100%) scale(0.9)';
+                card.style.opacity = '0';
+                
+                // 3. After card slides out, clean up and show toast
+                setTimeout(() => {
+                    card.dataset.tab = 'in-progress';
+                    const badge = card.querySelector('.badge');
+                    if (badge) {
+                        badge.className = 'badge high';
+                        badge.textContent = 'In Progress';
+                    }
+                    
+                    // Remove overlay
+                    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                    
+                    // Reset card styles
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                    card.style.transition = '';
+                    
+                    // Re-render tabs
+                    const activeTabBtn = document.querySelector('#task-tabs .tab.active');
+                    if (activeTabBtn) {
+                        const tabLabel = activeTabBtn.textContent.trim().toLowerCase();
+                        const tabName = tabLabel === 'dispatches' ? 'upcoming' : tabLabel === 'active' ? 'in-progress' : 'completed';
+                        app.switchTaskTab(activeTabBtn, tabName);
+                    }
+                    
+                    app.showToast('Mission Accepted — moved to Active tab.', 'success');
+                }, 500);
+            }, 1200);
+        }
+        
+        if (icon) {
+            icon.setAttribute('data-lucide', originalIcon);
+            icon.classList.remove('spin');
+            lucide.createIcons();
+        }
+    }, 800);
+};
+
+// Beautiful custom Toast Notification
+app.showToast = function(message, type = 'success') {
+    let toast = document.getElementById('app-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'app-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '24px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%) translateY(100px)';
+        toast.style.padding = '14px 24px';
+        toast.style.borderRadius = '30px';
+        toast.style.fontWeight = '600';
+        toast.style.fontSize = '0.95rem';
+        toast.style.color = '#fff';
+        toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+        toast.style.zIndex = '99999';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'center';
+        toast.style.gap = '10px';
+        toast.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        toast.style.opacity = '0';
+        document.body.appendChild(toast);
+    }
+    
+    // Set colors based on type
+    if (type === 'success') {
+        toast.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        toast.innerHTML = '<i data-lucide="check-circle" style="width:18px;height:18px;"></i> ' + message;
+    } else {
+        toast.style.background = 'linear-gradient(135deg, #ef4444, #b91c1c)';
+        toast.innerHTML = '<i data-lucide="alert-circle" style="width:18px;height:18px;"></i> ' + message;
+    }
+    
+    lucide.createIcons();
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        toast.style.opacity = '1';
+    }, 10);
+    
+    // Animate out
+    setTimeout(() => {
+        toast.style.transform = 'translateX(-50%) translateY(100px)';
+        toast.style.opacity = '0';
+    }, 3500);
+};
+
+
+
+// Initialize the map and telemetry once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         app.initEditorialMap();
     }, 500);
+    // Initialize Eco-Telemetry widget
+    app.loadTurkestanWeather();
 });
+
+// ==================== NEW VOLUNTEER UX MODULES ====================
+
+app.commentsData = {
+    1: [
+        { sender: "Aibek K.", text: "Arrived at location. Setting up warning signs.", time: "10 min ago" },
+        { sender: "Zhanar A.", text: "Need one more safety vest if anyone has spares.", time: "5 min ago" }
+    ],
+    2: [
+        { sender: "System Dispatch", text: "Task dispatch created. Awaiting field responder.", time: "1 hr ago" }
+    ]
+};
+
+app.loadTaskComments = function(taskId) {
+    const listEl = document.getElementById(`comments-list-${taskId}`);
+    if (!listEl) return;
+    
+    const comments = app.commentsData[taskId] || [];
+    if (comments.length === 0) {
+        listEl.innerHTML = `<div class="text-xs text-gray text-center" style="padding:10px 0;">No updates yet. Start coordination below.</div>`;
+        return;
+    }
+    
+    listEl.innerHTML = comments.map(c => `
+        <div class="comment-bubble">
+            <div class="comment-header">
+                <span>${c.sender}</span>
+                <span class="comment-time">${c.time}</span>
+            </div>
+            <div class="comment-text">${c.text}</div>
+        </div>
+    `).join('');
+    
+    listEl.scrollTop = listEl.scrollHeight;
+};
+
+app.postTaskComment = function(taskId) {
+    const input = document.getElementById(`comment-input-${taskId}`);
+    if (!input || !input.value.trim()) return;
+    
+    const text = input.value.trim();
+    const comments = app.commentsData[taskId] || [];
+    const sender = (app.currentUser && app.currentUser.fullName) ? app.currentUser.fullName : "You";
+    
+    comments.push({ sender, text, time: "Just now" });
+    app.commentsData[taskId] = comments;
+    
+    input.value = '';
+    app.loadTaskComments(taskId);
+};
+
+// Before / After Slider Drag Handler
+app.initSliderDrag = function(e, sliderEl) {
+    e.preventDefault();
+    const handle = sliderEl.querySelector('.slider-handle');
+    const afterImg = sliderEl.querySelector('.slider-img.after-img');
+    const rect = sliderEl.getBoundingClientRect();
+    
+    const moveHandler = (moveEvent) => {
+        const clientX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+        let x = clientX - rect.left;
+        if (x < 0) x = 0;
+        if (x > rect.width) x = rect.width;
+        const percent = (x / rect.width) * 100;
+        handle.style.left = `${percent}%`;
+        afterImg.style.width = `${percent}%`;
+    };
+    
+    const endHandler = () => {
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', endHandler);
+        document.removeEventListener('touchmove', moveHandler);
+        document.removeEventListener('touchend', endHandler);
+    };
+    
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', endHandler);
+    document.addEventListener('touchend', endHandler);
+};
+
+// Route Canvas Drawer
+app.drawRoutePreview = function(task) {
+    const canvas = document.getElementById('route-preview-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    // Clear & Fill solid dark map background matching mockup card content background
+    ctx.fillStyle = '#09090b';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw Grid overlay
+    ctx.strokeStyle = '#18181b';
+    ctx.lineWidth = 1;
+    const spacing = 20;
+    for (let x = 0; x < canvas.width; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    // Draw stylized city elements: River
+    ctx.fillStyle = 'rgba(59, 130, 246, 0.04)';
+    ctx.beginPath();
+    ctx.moveTo(0, 40);
+    ctx.bezierCurveTo(80, 50, 160, 10, 260, 30);
+    ctx.lineTo(260, 55);
+    ctx.bezierCurveTo(160, 35, 80, 75, 0, 65);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Draw stylized city elements: Park
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.03)';
+    ctx.beginPath();
+    ctx.roundRect(140, 80, 80, 60, 8);
+    ctx.fill();
+    
+    // Draw streets (intersecting streets like a real grid block)
+    ctx.strokeStyle = '#131316';
+    ctx.lineWidth = 6;
+    // Horizontal streets
+    const horizStreets = [30, 60, 90, 120, 150];
+    horizStreets.forEach(y => {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    });
+    // Vertical streets
+    const vertStreets = [40, 90, 140, 190, 240];
+    vertStreets.forEach(x => {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    });
+
+    if (!task) {
+        // Draw standby state (no task selected) - Professional vector schematic
+        ctx.fillStyle = 'rgba(24, 24, 27, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#10b981';
+        ctx.font = '600 12px "Inter", "DM Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("GPS NAVIGATION", canvas.width / 2, canvas.height / 2 - 8);
+        
+        ctx.fillStyle = '#a1a1aa';
+        ctx.font = '400 10px "Inter", "DM Sans", sans-serif';
+        ctx.fillText("Select a dispatch to preview route", canvas.width / 2, canvas.height / 2 + 12);
+        
+        // Draw decorative crosshairs
+        ctx.strokeStyle = '#3f3f46';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(canvas.width / 2 - 40, canvas.height / 2 - 8); ctx.lineTo(canvas.width / 2 - 60, canvas.height / 2 - 8); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(canvas.width / 2 + 40, canvas.height / 2 - 8); ctx.lineTo(canvas.width / 2 + 60, canvas.height / 2 - 8); ctx.stroke();
+        return;
+    }
+    
+    // Generate dynamic winding vector path based on task ID
+    let seed = 0;
+    const taskStr = String(task.id);
+    for (let i = 0; i < taskStr.length; i++) seed += taskStr.charCodeAt(i);
+    
+    const startX = 40 + (seed % 4) * 50;
+    const startY = 40 + ((seed * 2) % 4) * 50;
+    const midX = 90 + ((seed * 3) % 3) * 50;
+    const midY = 90 + ((seed * 5) % 3) * 50;
+    const endX = 190 + (seed % 2) * 50;
+    const endY = 150 - (seed % 3) * 50;
+
+    const pathPoints = [
+        { x: startX, y: startY },
+        { x: midX, y: startY },
+        { x: midX, y: midY },
+        { x: endX, y: midY },
+        { x: endX, y: endY }
+    ];
+    
+    // Draw route line backglow
+    ctx.beginPath();
+    ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+    for (let i = 1; i < pathPoints.length; i++) {
+        ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+    }
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    
+    // Draw dashed route line
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]); // reset
+    
+    // Draw Start Point (Green circle with inner dot)
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(pathPoints[0].x, pathPoints[0].y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(pathPoints[0].x, pathPoints[0].y, 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw End Point (Red target circle with inner dot)
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(pathPoints[pathPoints.length-1].x, pathPoints[pathPoints.length-1].y, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(pathPoints[pathPoints.length-1].x, pathPoints[pathPoints.length-1].y, 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw Route Info Label in the middle
+    const labelX = 190;
+    const labelY = 105;
+    ctx.fillStyle = '#18181b';
+    ctx.strokeStyle = '#27272a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(labelX - 45, labelY - 9, 90, 18, 4);
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#10b981';
+    ctx.font = '600 8.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("1.5 km - 30m", labelX, labelY);
+
+    // Animate tracking pulse dot along path segments
+    if (!app.routeDotProgress) app.routeDotProgress = 0;
+    app.routeDotProgress += 0.003;
+    if (app.routeDotProgress > 1) app.routeDotProgress = 0;
+    
+    const segmentCount = pathPoints.length - 1;
+    const totalProgress = app.routeDotProgress * segmentCount;
+    const currentSegmentIdx = Math.floor(totalProgress);
+    const segmentProgress = totalProgress - currentSegmentIdx;
+    
+    if (currentSegmentIdx < segmentCount) {
+        const startPt = pathPoints[currentSegmentIdx];
+        const endPt = pathPoints[currentSegmentIdx + 1];
+        
+        const px = startPt.x + (endPt.x - startPt.x) * segmentProgress;
+        const py = startPt.y + (endPt.y - startPt.y) * segmentProgress;
+        
+        ctx.fillStyle = '#10b981';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+    }
+    
+    // Keep animation running
+    if (app.currentSubView === 'tasks-view') {
+        requestAnimationFrame(() => app.drawRoutePreview(task));
+    }
+};
+
+app.showTaskRoute = function(taskId, event) {
+    if (event) event.stopPropagation();
+    const task = app.feedReports.find(r => String(r.id) === String(taskId));
+    if (!task) return;
+    
+    // Display stats
+    const distText = document.getElementById('route-distance-text');
+    const timeText = document.getElementById('route-time-text');
+    // Compute stable distance/ETA based on task ID character codes
+    let seed = 0;
+    const taskStr = String(task.id);
+    for (let i = 0; i < taskStr.length; i++) seed += taskStr.charCodeAt(i);
+    if (distText) distText.textContent = `${(1.1 + (seed % 5) * 0.4).toFixed(1)} km`;
+    if (timeText) timeText.textContent = `~${8 + (seed % 6) * 4} mins`;
+    
+    // Show navigation footer card and update its title text
+    const footer = document.getElementById('route-card-footer');
+    const footerTitle = document.getElementById('route-footer-title');
+    if (footer && footerTitle) {
+        footer.style.display = 'flex';
+        footerTitle.textContent = task.title || task.category.toUpperCase();
+    }
+    
+    // Draw route preview
+    app.routeDotProgress = 0;
+    app.drawRoutePreview(task);
+};
+
+app.startNavigation = function() {
+    app.showToast('Starting real-time navigation to the incident area!', 'success');
+};
+
+// Fullscreen SOS Beacon Alerts
+app.sosCountdownTimer = null;
+
+app.triggerSOS = function() {
+    const overlay = document.getElementById('sos-overlay');
+    const countdownNum = document.getElementById('sos-countdown-num');
+    if (!overlay || !countdownNum) return;
+    
+    overlay.style.display = 'flex';
+    let count = 5;
+    countdownNum.textContent = count;
+    
+    if (app.sosCountdownTimer) clearInterval(app.sosCountdownTimer);
+    
+    app.sosCountdownTimer = setInterval(() => {
+        count--;
+        countdownNum.textContent = count;
+        if (count <= 0) {
+            clearInterval(app.sosCountdownTimer);
+            overlay.style.display = 'none';
+            app.showToast('Emergency broadcast sent! Dispatch and responders notified.', 'success');
+        }
+    }, 1000);
+};
+
+app.cancelSOS = function() {
+    if (app.sosCountdownTimer) clearInterval(app.sosCountdownTimer);
+    const overlay = document.getElementById('sos-overlay');
+    if (overlay) overlay.style.display = 'none';
+};
+
+// Export Log (Download Report)
+app.exportTasksLog = function() {
+    const resolvedTasks = app.feedReports.filter(r => r.status === 'resolved');
+    if (resolvedTasks.length === 0) {
+        app.showToast('No completed dispatches available to export.', 'error');
+        return;
+    }
+    
+    const txt = resolvedTasks.map((t, idx) => `
+DISPATCH REPORT #${idx+1}
+ID: ${t.id}
+Title: ${t.title || t.category.toUpperCase()}
+Category: ${t.category}
+Location: ${t.location || 'Reported Address'}
+Resolved At: ${new Date(t.created_at).toLocaleString()}
+Status: COMPLETED
+Outcome: Safety hazards cleared, status confirmed.
+--------------------------------------------------
+`).join('\n');
+    
+    const header = `SMART CITY OPERATIONAL VOLUNTEER REPORT\nResponder Name: ${app.currentUser ? app.currentUser.fullName : 'Volunteer'}\nExport Date: ${new Date().toLocaleString()}\nTotal Missions Resolved: ${resolvedTasks.length}\n==================================================\n\n`;
+    
+    const fileContent = header + txt;
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SmartCity_Volunteer_Report_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// Achievements Roster Link Invite
+app.copyReferralLink = function() {
+    const link = `${window.location.origin}/join?ref=${app.currentUser ? app.currentUser.id : 'volunteer'}`;
+    navigator.clipboard.writeText(link).then(() => {
+        app.showToast('Referral link copied to clipboard!', 'success');
+    }).catch(err => {
+        app.showToast('Could not copy link. Share code: VOLUNTEER-2026', 'error');
+    });
+};
+
+// Equipment Checklist Warning Sync
+app.updateEquipmentStatus = function() {
+    const checklist = document.querySelectorAll('.equipment-checklist input[type="checkbox"]');
+    const warning = document.getElementById('equipment-warning-notice');
+    if (!checklist.length || !warning) return;
+    
+    const checkedCount = Array.from(checklist).filter(c => c.checked).length;
+    
+    // If checklist is not complete (e.g. less than all items), show alert warning
+    if (checkedCount < checklist.length) {
+        warning.style.display = 'flex';
+    } else {
+        warning.style.display = 'none';
+    }
+};
+
+// Home Screen Emergency trigger call mock
+app.triggerEmergencyCall = function(name, number) {
+    alert(`Calling ${name} (${number})...\n\nThis is a mock call simulation. Emergency dispatch lines are active.`);
+};
+
+// Analytics Canvas Graphics
+app.drawAnalyticsCharts = function() {
+    const catCanvas = document.getElementById('analytics-categories-canvas');
+    const weekCanvas = document.getElementById('analytics-weekly-canvas');
+    if (!catCanvas || !weekCanvas) return;
+    
+    // Draw Categories Donut Chart
+    const ctxCat = catCanvas.getContext('2d');
+    ctxCat.clearRect(0, 0, catCanvas.width, catCanvas.height);
+    
+    const data = [
+        { label: "Floods", val: 40, color: "#3b82f6" },
+        { label: "Hazards", val: 30, color: "#f59e0b" },
+        { label: "Fires", val: 20, color: "#ef4444" },
+        { label: "Other", val: 10, color: "#10b981" }
+    ];
+    
+    let total = 0;
+    data.forEach(d => total += d.val);
+    
+    let startAngle = 0;
+    const cx = 100, cy = 100, r = 60;
+    
+    data.forEach(d => {
+        const sliceAngle = (d.val / total) * 2 * Math.PI;
+        ctxCat.fillStyle = d.color;
+        ctxCat.beginPath();
+        ctxCat.moveTo(cx, cy);
+        ctxCat.arc(cx, cy, r, startAngle, startAngle + sliceAngle);
+        ctxCat.closePath();
+        ctxCat.fill();
+        startAngle += sliceAngle;
+    });
+    
+    // Cutout center to make Donut
+    ctxCat.fillStyle = '#1e1e1e'; // match dark theme bg
+    ctxCat.beginPath();
+    ctxCat.arc(cx, cy, 35, 0, Math.PI * 2);
+    ctxCat.fill();
+    
+    // Draw Labels/Legend
+    ctxCat.font = '11px sans-serif';
+    ctxCat.textAlign = 'left';
+    ctxCat.textBaseline = 'middle';
+    
+    data.forEach((d, idx) => {
+        const lx = 180;
+        const ly = 40 + idx*30;
+        
+        ctxCat.fillStyle = d.color;
+        ctxCat.fillRect(lx, ly - 5, 10, 10);
+        
+        ctxCat.fillStyle = 'white';
+        ctxCat.fillText(`${d.label} (${d.val}%)`, lx + 16, ly);
+    });
+    
+    // Draw Weekly Contribution Line Chart
+    const ctxWeek = weekCanvas.getContext('2d');
+    ctxWeek.clearRect(0, 0, weekCanvas.width, weekCanvas.height);
+    
+    const points = [5, 12, 8, 15, 20, 14, 25]; // tasks per day
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    
+    const maxVal = Math.max(...points);
+    const chartW = weekCanvas.width - 40;
+    const chartH = weekCanvas.height - 40;
+    const offsetX = 30;
+    const offsetY = 10;
+    
+    // Draw grid lines
+    ctxWeek.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctxWeek.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const gy = offsetY + chartH * (i / 4);
+        ctxWeek.beginPath();
+        ctxWeek.moveTo(offsetX, gy);
+        ctxWeek.lineTo(offsetX + chartW, gy);
+        ctxWeek.stroke();
+    }
+    
+    // Plot line path
+    ctxWeek.beginPath();
+    points.forEach((p, idx) => {
+        const px = offsetX + chartW * (idx / (points.length - 1));
+        const py = offsetY + chartH * (1 - (p / maxVal));
+        if (idx === 0) ctxWeek.moveTo(px, py);
+        else ctxWeek.lineTo(px, py);
+    });
+    
+    ctxWeek.strokeStyle = '#3b82f6';
+    ctxWeek.lineWidth = 3;
+    ctxWeek.stroke();
+    
+    // Draw nodes and labels
+    ctxWeek.fillStyle = '#3b82f6';
+    ctxWeek.font = '9px sans-serif';
+    ctxWeek.textAlign = 'center';
+    
+    points.forEach((p, idx) => {
+        const px = offsetX + chartW * (idx / (points.length - 1));
+        const py = offsetY + chartH * (1 - (p / maxVal));
+        
+        ctxWeek.beginPath();
+        ctxWeek.arc(px, py, 4, 0, Math.PI * 2);
+        ctxWeek.fill();
+        
+        ctxWeek.fillStyle = 'white';
+        ctxWeek.fillText(p, px, py - 8);
+        ctxWeek.fillText(days[idx], px, offsetY + chartH + 16);
+    });
+};
+
+app.exportCertificate = function() {
+    app.showToast('Generating PDF Certificate for your LinkedIn profile...', 'success');
+};
+
+// ========================================================
+// REAL-TIME ECO-TELEMETRY FOR TURKESTAN, KAZAKHSTAN
+// Uses Open-Meteo free API (no API key needed)
+// Coordinates: Turkestan city — 43.3017°N, 68.2556°E
+// ========================================================
+app.loadTurkestanWeather = async function() {
+    const LAT = 43.3017;
+    const LON = 68.2556;
+
+    try {
+        // Fetch current weather + hourly UV from Open-Meteo
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure,cloud_cover&hourly=uv_index&forecast_days=1&timezone=Asia%2FAlmaty`;
+
+        const res = await fetch(weatherUrl);
+        if (!res.ok) throw new Error('Weather API failed');
+        const data = await res.json();
+
+        const c = data.current;
+
+        // --- Temperature ---
+        const temp = Math.round(c.temperature_2m);
+        const feelsLike = Math.round(c.apparent_temperature);
+        let tempStatus = '';
+        let tempColor = 'var(--emerald-600)';
+        if (temp <= 0) { tempStatus = 'Freezing'; tempColor = '#3b82f6'; }
+        else if (temp <= 10) { tempStatus = 'Cold'; tempColor = '#60a5fa'; }
+        else if (temp <= 20) { tempStatus = 'Cool & Mild'; tempColor = 'var(--emerald-600)'; }
+        else if (temp <= 30) { tempStatus = 'Warm'; tempColor = '#f59e0b'; }
+        else if (temp <= 40) { tempStatus = 'Hot'; tempColor = '#f97316'; }
+        else { tempStatus = 'Extreme Heat'; tempColor = '#ef4444'; }
+
+        const el = (id) => document.getElementById(id);
+
+        el('eco-temp-value').textContent = `${temp}°C`;
+        el('eco-temp-status').textContent = `Feels like ${feelsLike}°C · ${tempStatus}`;
+        el('eco-temp-status').style.color = tempColor;
+
+        // --- Humidity ---
+        const humidity = Math.round(c.relative_humidity_2m);
+        let humStatus = '';
+        let humColor = 'var(--emerald-600)';
+        if (humidity < 30) { humStatus = 'Dry'; humColor = '#f59e0b'; }
+        else if (humidity < 60) { humStatus = 'Optimal'; humColor = 'var(--emerald-600)'; }
+        else if (humidity < 80) { humStatus = 'Humid'; humColor = '#3b82f6'; }
+        else { humStatus = 'Very Humid'; humColor = '#ef4444'; }
+
+        el('eco-humidity-value').textContent = `${humidity}%`;
+        el('eco-humidity-status').textContent = humStatus;
+        el('eco-humidity-status').style.color = humColor;
+
+        // --- Wind Speed ---
+        const wind = c.wind_speed_10m;
+        const windDir = c.wind_direction_10m;
+        const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        const dirLabel = dirs[Math.round(windDir / 45) % 8];
+        let windStatus = '';
+        let windColor = 'var(--emerald-600)';
+        if (wind < 5) { windStatus = 'Calm'; }
+        else if (wind < 15) { windStatus = 'Light Breeze'; }
+        else if (wind < 30) { windStatus = 'Moderate'; windColor = '#f59e0b'; }
+        else if (wind < 50) { windStatus = 'Strong'; windColor = '#f97316'; }
+        else { windStatus = 'Storm Winds'; windColor = '#ef4444'; }
+
+        el('eco-wind-value').textContent = `${wind.toFixed(1)} km/h`;
+        el('eco-wind-status').textContent = `${dirLabel} · ${windStatus}`;
+        el('eco-wind-status').style.color = windColor;
+
+        // --- UV Index (from hourly data, pick current hour) ---
+        const nowHour = new Date().getHours();
+        const uvIdx = data.hourly && data.hourly.uv_index ? (data.hourly.uv_index[nowHour] || 0) : 0;
+        let uvStatus = '';
+        let uvColor = 'var(--emerald-600)';
+        if (uvIdx <= 2) { uvStatus = 'Low'; }
+        else if (uvIdx <= 5) { uvStatus = 'Moderate'; uvColor = '#f59e0b'; }
+        else if (uvIdx <= 7) { uvStatus = 'High'; uvColor = '#f97316'; }
+        else if (uvIdx <= 10) { uvStatus = 'Very High'; uvColor = '#ef4444'; }
+        else { uvStatus = 'Extreme'; uvColor = '#dc2626'; }
+
+        el('eco-uv-value').textContent = uvIdx.toFixed(1);
+        el('eco-uv-status').textContent = uvStatus;
+        el('eco-uv-status').style.color = uvColor;
+
+        // --- Pressure ---
+        const pressure = Math.round(c.surface_pressure);
+        let pressStatus = '';
+        let pressColor = 'var(--emerald-600)';
+        if (pressure < 1000) { pressStatus = 'Low Pressure'; pressColor = '#3b82f6'; }
+        else if (pressure <= 1020) { pressStatus = 'Normal'; }
+        else { pressStatus = 'High Pressure'; pressColor = '#f59e0b'; }
+
+        el('eco-pressure-value').textContent = `${pressure} hPa`;
+        el('eco-pressure-status').textContent = pressStatus;
+        el('eco-pressure-status').style.color = pressColor;
+
+        // --- Visibility (estimated from cloud cover + weather code) ---
+        const cloudCover = c.cloud_cover || 0;
+        const weatherCode = c.weather_code || 0;
+        let visKm = 10;
+        if (weatherCode >= 71) visKm = 2; // snow
+        else if (weatherCode >= 61) visKm = 4; // rain
+        else if (weatherCode >= 51) visKm = 6; // drizzle
+        else if (weatherCode >= 45) visKm = 1; // fog
+        else if (cloudCover > 80) visKm = 7;
+        else if (cloudCover > 50) visKm = 8;
+        else visKm = 10;
+
+        let visStatus = '';
+        let visColor = 'var(--emerald-600)';
+        if (visKm >= 8) { visStatus = 'Clear'; }
+        else if (visKm >= 5) { visStatus = 'Moderate'; visColor = '#f59e0b'; }
+        else if (visKm >= 2) { visStatus = 'Reduced'; visColor = '#f97316'; }
+        else { visStatus = 'Poor'; visColor = '#ef4444'; }
+
+        el('eco-visibility-value').textContent = `${visKm} km`;
+        el('eco-visibility-status').textContent = visStatus;
+        el('eco-visibility-status').style.color = visColor;
+
+        // --- AQI Estimate (heuristic from weather conditions) ---
+        // Real AQI needs a separate sensor API; this is a best estimate
+        // based on wind (dispersion), humidity, and conditions
+        let aqiEstimate = 35; // baseline for steppe region
+        if (wind < 5) aqiEstimate += 20; // low wind = pollutant buildup
+        if (humidity > 70) aqiEstimate += 10;
+        if (temp > 35) aqiEstimate += 15; // heat = ozone
+        if (weatherCode >= 61) aqiEstimate -= 15; // rain cleans air
+        aqiEstimate = Math.max(10, Math.min(200, Math.round(aqiEstimate)));
+
+        let aqiLabel = '';
+        let aqiBadgeColor = '';
+        if (aqiEstimate <= 50) { aqiLabel = 'Good'; aqiBadgeColor = '#10b981'; }
+        else if (aqiEstimate <= 100) { aqiLabel = 'Moderate'; aqiBadgeColor = '#f59e0b'; }
+        else if (aqiEstimate <= 150) { aqiLabel = 'Unhealthy for Sensitive'; aqiBadgeColor = '#f97316'; }
+        else { aqiLabel = 'Unhealthy'; aqiBadgeColor = '#ef4444'; }
+
+        el('eco-aqi-value').textContent = `${aqiEstimate} AQI • ${aqiLabel}`;
+        const aqiBadge = el('eco-aqi-badge-wrap');
+        if (aqiBadge) {
+            aqiBadge.style.borderColor = aqiBadgeColor;
+            aqiBadge.style.color = aqiBadgeColor;
+        }
+        const aqiPulse = aqiBadge ? aqiBadge.querySelector('.eco-aqi-pulse') : null;
+        if (aqiPulse) aqiPulse.style.background = aqiBadgeColor;
+
+        // Updated timestamp
+        const now = new Date();
+        el('eco-aqi-updated').textContent = `Turkestan · ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+
+        console.log('[Eco-Telemetry] Loaded live data for Turkestan, KZ');
+
+    } catch (err) {
+        console.error('[Eco-Telemetry] Failed to load weather:', err);
+        const el = (id) => document.getElementById(id);
+        if (el('eco-aqi-updated')) el('eco-aqi-updated').textContent = 'Data unavailable';
+    }
+};

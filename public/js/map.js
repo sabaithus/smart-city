@@ -193,6 +193,7 @@ const SmartCityMap = {
                 };
                 reports.forEach(r => {
                     this.markerData.push({
+                        id: r.id, userId: r.user_id,
                         type: 'incidents', lat: r.latitude, lng: r.longitude,
                         title: r.title || r.category, location: r.location || 'Reported location',
                         severity: r.severity === 'high' ? 'HIGH' : r.severity === 'medium' ? 'MED' : 'LOW',
@@ -355,6 +356,18 @@ const SmartCityMap = {
             ratingItem.style.display = 'none';
         }
 
+        // Show delete button if user is admin or creator
+        const actionsEl = document.getElementById('mdc-actions');
+        if (actionsEl) {
+            if (d.id && window.app && window.app.currentUser && (window.app.currentUser.role === 'admin' || window.app.currentUser.id === d.userId)) {
+                actionsEl.style.display = 'block';
+                this.currentDetailId = d.id;
+            } else {
+                actionsEl.style.display = 'none';
+                this.currentDetailId = null;
+            }
+        }
+
         // Show card with animation
         card.style.display = 'flex';
         requestAnimationFrame(() => {
@@ -374,6 +387,25 @@ const SmartCityMap = {
             card.style.display = 'none';
         }, 350);
         this.detailCardOpen = false;
+        this.currentDetailId = null;
+    },
+
+    deleteCurrentMarker: async function() {
+        if (!this.currentDetailId) return;
+        if (!confirm('Are you sure you want to delete this incident permanently?')) return;
+        
+        try {
+            const res = await fetch(`/api/reports/${this.currentDetailId}`, { method: 'DELETE' });
+            if (res.ok) {
+                this.closeDetailCard();
+                this.loadAllMarkers();
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Failed to delete report.');
+            }
+        } catch(e) {
+            alert('Server error.');
+        }
     },
 
     showLocationTooltip: function(title, subtitle) {

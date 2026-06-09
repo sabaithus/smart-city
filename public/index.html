@@ -14,8 +14,19 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQ4qk1r-GZoostyDi0Kj11uHzkC0Ty6kk&libraries=places"></script>
-    <link rel="stylesheet" href="styles.css?v=23">
-    <link rel="stylesheet" href="dashboard.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=26">
+    <link rel="stylesheet" href="dashboard.css?v=4">
+    <link rel="stylesheet" href="tasks-premium.css">
+    <link rel="stylesheet" href="impact-dashboard.css">
+    <style>
+        /* INLINE FIX: Hide scrollbar on map incident panel — cannot be cached */
+        #map-incident-panel { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        #map-incident-panel::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; background: transparent !important; }
+        #map-incident-panel::-webkit-scrollbar-track { background: transparent !important; }
+        #map-incident-panel::-webkit-scrollbar-thumb { background: transparent !important; }
+        /* INLINE FIX: Remove navbar bottom line on map view */
+        .top-navbar.map-active { border-bottom: none !important; box-shadow: none !important; }
+    </style>
 </head>
 
 <body>
@@ -284,6 +295,14 @@
                             onclick="app.navigateLayout('tasks-view', this); return false;">
                             <i data-lucide="clipboard-list"></i><span>Tasks</span>
                         </a>
+                        <a href="#" class="nav-link" data-view="volunteer-profile-view" id="nav-achievements-link"
+                            onclick="app.navigateLayout('volunteer-profile-view', this); return false;">
+                            <i data-lucide="award"></i><span>Impact</span>
+                        </a>
+                        <a href="#" class="nav-link" data-view="analytics-view" id="nav-analytics-link"
+                            onclick="app.navigateLayout('analytics-view', this); return false;">
+                            <i data-lucide="bar-chart-2"></i><span>Analytics</span>
+                        </a>
                         <a href="#" class="nav-link" data-view="alerts-view"
                             onclick="app.navigateLayout('alerts-view', this); return false;">
                             <i data-lucide="bell"></i><span>Alerts</span>
@@ -328,6 +347,22 @@
                                 <i data-lucide="file-text"></i> My Reports
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Emergency SOS Standalone Card -->
+                    <div class="emergency-action-card" style="background: #18181b; border: 1px solid #3f3f46; border-radius: 8px; padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 48px; height: 48px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i data-lucide="shield-alert" style="color: #ef4444; width: 24px; height: 24px;"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: white; margin: 0 0 4px 0; font-size: 1.05rem; font-weight: 600;">Emergency SOS Beacon</h4>
+                                <p style="color: #a1a1aa; margin: 0; font-size: 0.85rem;">Instantly alert dispatch and nearby volunteers to your exact location.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-red" style="background: #ef4444; color: white; border: none; font-weight: 600; padding: 12px 28px; border-radius: 6px; font-size: 0.95rem; cursor: pointer; transition: background 0.2s;" onclick="app.triggerSOS()" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
+                            ACTIVATE SOS
+                        </button>
                     </div>
 
                     <!-- Section 2: Personal Impact/Contribution Stats -->
@@ -390,12 +425,12 @@
                                         </div>
                                         <div class="eco-aqi-details">
                                             <h4>Air Quality Index (AQI)</h4>
-                                            <p>Updated just now</p>
+                                            <p id="eco-aqi-updated">Updating...</p>
                                         </div>
                                     </div>
-                                    <div class="eco-aqi-badge">
+                                    <div class="eco-aqi-badge" id="eco-aqi-badge-wrap">
                                         <span class="eco-aqi-pulse"></span>
-                                        <span>38 AQI • Good</span>
+                                        <span id="eco-aqi-value">-- AQI</span>
                                     </div>
                                 </div>
 
@@ -407,9 +442,8 @@
                                             <i data-lucide="thermometer"></i>
                                             <span>Temperature</span>
                                         </div>
-                                        <span class="eco-metric-value">28°C</span>
-                                        <span class="eco-metric-status" style="color:var(--emerald-600);">Warm &
-                                            Sunny</span>
+                                        <span class="eco-metric-value" id="eco-temp-value">--°C</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);" id="eco-temp-status">Loading...</span>
                                     </div>
 
                                     <!-- Humidity -->
@@ -418,29 +452,52 @@
                                             <i data-lucide="droplet"></i>
                                             <span>Humidity</span>
                                         </div>
-                                        <span class="eco-metric-value">42%</span>
-                                        <span class="eco-metric-status" style="color:var(--emerald-600);">Optimal</span>
+                                        <span class="eco-metric-value" id="eco-humidity-value">--%</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);" id="eco-humidity-status">Loading...</span>
                                     </div>
 
-                                    <!-- Water Safety -->
-                                    <div class="eco-metric-item" style="grid-column: span 2;">
+                                    <!-- Wind Speed -->
+                                    <div class="eco-metric-item">
                                         <div class="eco-metric-top">
-                                            <i data-lucide="waves"></i>
-                                            <span>Water Quality Safety</span>
+                                            <i data-lucide="wind"></i>
+                                            <span>Wind Speed</span>
                                         </div>
-                                        <div class="flex-between">
-                                            <span class="eco-metric-value">98.4%</span>
-                                            <span class="eco-metric-status" style="color:var(--emerald-600);">Safe /
-                                                Clean</span>
+                                        <span class="eco-metric-value" id="eco-wind-value">-- m/s</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);" id="eco-wind-status">Loading...</span>
+                                    </div>
+
+                                    <!-- UV Index -->
+                                    <div class="eco-metric-item">
+                                        <div class="eco-metric-top">
+                                            <i data-lucide="sun"></i>
+                                            <span>UV Index</span>
                                         </div>
-                                        <div class="eco-progress-container">
-                                            <div class="eco-progress-bg">
-                                                <div class="eco-progress-fill green" style="width: 98.4%;"></div>
-                                            </div>
+                                        <span class="eco-metric-value" id="eco-uv-value">--</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);" id="eco-uv-status">Loading...</span>
+                                    </div>
+
+                                    <!-- Pressure -->
+                                    <div class="eco-metric-item">
+                                        <div class="eco-metric-top">
+                                            <i data-lucide="gauge"></i>
+                                            <span>Pressure</span>
                                         </div>
+                                        <span class="eco-metric-value" id="eco-pressure-value">-- hPa</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);" id="eco-pressure-status">Loading...</span>
+                                    </div>
+
+                                    <!-- Visibility -->
+                                    <div class="eco-metric-item">
+                                        <div class="eco-metric-top">
+                                            <i data-lucide="eye"></i>
+                                            <span>Visibility</span>
+                                        </div>
+                                        <span class="eco-metric-value" id="eco-visibility-value">-- km</span>
+                                        <span class="eco-metric-status" style="color:var(--emerald-600);" id="eco-visibility-status">Loading...</span>
                                     </div>
 
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -475,6 +532,9 @@
                                 <button class="map-filter" data-filter="incidents"
                                     onclick="SmartCityMap.filterMap('incidents', this)"><span
                                         class="filter-dot filter-dot-red"></span>Incidents</button>
+                                <button class="map-filter" data-filter="my-reports"
+                                    onclick="SmartCityMap.filterMap('my-reports', this)"><span
+                                        class="filter-dot" style="background:var(--orange)"></span>My Reports</button>
                                 <button class="map-filter" data-filter="volunteers"
                                     onclick="SmartCityMap.filterMap('volunteers', this)"><span
                                         class="filter-dot filter-dot-teal"></span>Volunteers</button>
@@ -496,7 +556,7 @@
                                 onclick="app.googleMap && app.googleMap.setZoom(app.googleMap.getZoom() - 1)">-</button>
                         </div>
                         <!-- Bottom Sheet / Side Panel for Events -->
-                        <div class="map-incident-panel" id="map-incident-panel">
+                        <div class="map-incident-panel" id="map-incident-panel" style="scrollbar-width: none; -ms-overflow-style: none;">
                             <div class="panel-drag-handle"></div>
                             <div class="map-panel-header">
                                 <h3>Nearby Activity</h3>
@@ -545,6 +605,11 @@
                                             <i data-lucide="star"></i>
                                             <span id="mdc-rating"></span>
                                         </div>
+                                    </div>
+                                    <div class="mdc-actions" id="mdc-actions" style="margin-top: 16px; display: none;">
+                                        <button class="btn btn-red btn-block" style="display:flex; justify-content:center; align-items:center; gap:8px;" onclick="SmartCityMap.deleteCurrentMarker()">
+                                            <i data-lucide="trash-2" style="width:18px;height:18px;"></i> Delete Incident (Admin)
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -845,130 +910,300 @@
                     </div>
                 </div>
 
-                <!-- Volunteer Tasks View -->
+                <!-- Volunteer Tasks Dashboard View -->
                 <div id="tasks-view" class="sub-view">
-                    <header class="header-nav">
-                        <h2>Tasks</h2>
-                    </header>
-                    <div class="tabs" id="task-tabs">
-                        <button class="tab active" onclick="app.switchTaskTab(this, 'upcoming')">Upcoming</button>
-                        <button class="tab" onclick="app.switchTaskTab(this, 'in-progress')">In Progress</button>
-                        <button class="tab" onclick="app.switchTaskTab(this, 'completed')">Completed</button>
+                    <!-- Emergency Fullscreen Radar Countdown Overlay -->
+                    <div id="sos-overlay" class="sos-overlay-fullscreen" style="display:none;">
+                        <div class="radar-scan"></div>
+                        <div class="sos-overlay-content">
+                            <div class="emergency-icon-wrap pulsate-red">
+                                <i data-lucide="shield-alert"></i>
+                            </div>
+                            <h2>SOS SIGNAL TRIGGERED</h2>
+                            <p>Transmitting emergency GPS flare to dispatch and nearby helpers in <span id="sos-countdown-num">5</span>s</p>
+                            <button class="btn btn-red btn-lg" onclick="app.cancelSOS()">CANCEL ALERT</button>
+                        </div>
                     </div>
-                    <div class="content-padded">
-                        <!-- 1. Flooding -->
-                        <div class="task-card" data-tab="in-progress" onclick="app.openTaskDetail(0)"
-                            style="display: none;">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box red-light"><i class="red" data-lucide="droplets"></i></div>
-                                    <div>
-                                        <h4>Flooding near Main St.</h4>
-                                        <p class="text-sm text-gray">MG Road, Central Mall</p>
+
+                    <div class="tasks-dashboard-layout">
+                        <!-- Main Column: Tasks List -->
+                        <main class="tasks-main-content">
+                            <header class="tasks-main-header">
+                                <div class="tmh-title">
+                                    <h2>Mission Feed</h2>
+                                </div>
+                                <div class="tmh-actions">
+                                    <label class="toggle-switch-container" title="Show only tasks in my area">
+                                        <input type="checkbox" id="my-area-toggle" onchange="app.toggleMyArea()">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label"><i data-lucide="map-pin"></i> My Area</span>
+                                    </label>
+                                    <button class="btn-icon-only glass-btn" title="Export Log" onclick="app.exportTasksLog()"><i data-lucide="download"></i></button>
+                                    <button class="btn-icon-only glass-btn" title="Refresh Feed" onclick="app.loadFeed()"><i data-lucide="refresh-cw"></i></button>
+                                    <button class="btn btn-primary btn-sm-mobile" onclick="app.navigateLayout('report-view')"><i data-lucide="plus"></i> <span class="hide-mobile">Report</span></button>
+                                </div>
+                            </header>
+
+                            <div class="tabs" id="task-tabs" style="margin-top: 0; margin-bottom: 15px;">
+                                <button class="tab active" onclick="app.switchTaskTab(this, 'upcoming')">Dispatches</button>
+                                <button class="tab" onclick="app.switchTaskTab(this, 'in-progress')">Active</button>
+                                <button class="tab" onclick="app.switchTaskTab(this, 'completed')">History</button>
+                            </div>
+
+                            <div class="filter-chips-container" id="task-filters">
+                                <button class="filter-chip active" onclick="app.filterTasks(this, 'all')"><i data-lucide="layout-grid"></i> All</button>
+                                <button class="filter-chip" onclick="app.filterTasks(this, 'urgent')"><i data-lucide="zap"></i> Urgent</button>
+                                <button class="filter-chip" onclick="app.filterTasks(this, 'nearby')"><i data-lucide="map-pin"></i> Nearby</button>
+                                <button class="filter-chip" onclick="app.filterTasks(this, 'quick')"><i data-lucide="clock"></i> Quick</button>
+                                <button class="filter-chip" onclick="app.filterTasks(this, 'vehicle')"><i data-lucide="car"></i> Vehicle</button>
+                            </div>
+
+                            <div class="tasks-list-container" id="tasks-list-container">
+                                <!-- Cards injected by app.renderTasksFeed() -->
+                            </div>
+                        </main>
+
+                        <!-- Right Column: Route Builder and Notices -->
+                        <aside class="tasks-sidebar-redesigned">
+                            <div class="equipment-warning-notice" id="equipment-warning-notice" style="display:none; margin-bottom: 0;">
+                                <i data-lucide="alert-triangle"></i>
+                                <span>⚠️ Safety Alert: Complete your Checklist in Achievements before dispatch.</span>
+                            </div>
+
+                            <!-- Route Visualizer -->
+                            <div class="route-visualizer-card">
+                                <div class="card-header">
+                                    <i data-lucide="navigation" class="text-emerald"></i>
+                                    <h4>Mission Navigation</h4>
+                                </div>
+                                <div class="route-canvas-wrap">
+                                    <canvas id="route-preview-canvas" width="260" height="180"></canvas>
+                                    <div class="route-stats-overlay">
+                                        <span id="route-distance-text">Select a task</span>
+                                        <span id="route-time-text">to preview path</span>
                                     </div>
                                 </div>
-                                <span class="badge high">High</span>
+                                <div class="route-card-footer" id="route-card-footer" style="display: none; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid #27272a; background: #18181b; border-radius: 0 0 8px 8px;">
+                                    <span id="route-footer-title" style="font-size: 0.85rem; color: var(--text-gray); font-weight: 500;">Explosion sound and fire</span>
+                                    <button class="btn btn-emerald-primary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; background: #10b981; color: white; border: none; font-weight: 600; cursor: pointer;" onclick="app.startNavigation()">Navigate &rarr;</button>
+                                </div>
                             </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 0.8 km away</span>
-                                <span class="eta" style="color: var(--primary);"><span class="pulse-dot"></span> In
-                                    Progress</span>
+
+                            <!-- Session Card -->
+                            <div class="session-info-card">
+                                <div class="card-header">
+                                    <h5>SESSION</h5>
+                                </div>
+                                <div class="session-stats">
+                                    <div class="session-stat-item">
+                                        <span>Tasks today</span>
+                                        <span class="session-stat-value">0 / 3</span>
+                                    </div>
+                                    <div class="session-stat-item">
+                                        <span>XP earned</span>
+                                        <span class="session-stat-value text-emerald">+0 XP</span>
+                                    </div>
+                                    <div class="session-stat-item">
+                                        <span>Rank</span>
+                                        <span class="session-stat-value">Volunteer</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                <!-- Impact View -->
+                <div id="volunteer-profile-view" class="sub-view impact-dashboard">
+                    <header class="header-nav">
+                        <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i data-lucide="arrow-left"></i></button>
+                        <h2>My Impact</h2>
+                        <button class="icon-btn" onclick="app.exportCertificate()" title="Export PDF Certificate"><i data-lucide="download"></i></button>
+                    </header>
+                    <div class="content-padded impact-layout">
+                        <!-- Top Header: Rank & Progress -->
+                        <div class="impact-header-card">
+                            <div class="ihc-top">
+                                <div class="ihc-avatar-wrap">
+                                    <img src="https://ui-avatars.com/api/?name=V&background=09090b&color=10b981" alt="Avatar" id="tasks-user-avatar-ach">
+                                    <div class="ihc-rank-badge"><i data-lucide="shield"></i></div>
+                                </div>
+                                <div class="ihc-user-info">
+                                    <h3 id="tasks-user-name-ach">Volunteer</h3>
+                                    <span class="ihc-title">Defender of Turkestan</span>
+                                </div>
+                            </div>
+                            <div class="ihc-progress-section">
+                                <div class="ihc-progress-labels">
+                                    <span class="ihc-xp-text"><strong>1,250</strong> XP</span>
+                                    <span class="ihc-next-level">90 XP to Guardian</span>
+                                </div>
+                                <div class="ihc-progress-bar">
+                                    <div class="ihc-progress-fill" style="width: 78%;"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 2. Fallen Tree -->
-                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(1)">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box orange-light"><i class="orange" data-lucide="tree-pine"></i>
-                                    </div>
-                                    <div>
-                                        <h4>Fallen Tree Blocking Road</h4>
-                                        <p class="text-sm text-gray">Indiranagar Park</p>
-                                    </div>
-                                </div>
-                                <span class="badge medium">Medium</span>
+                        <!-- 3-Column Metrics -->
+                        <div class="impact-metrics-grid">
+                            <div class="impact-metric-box">
+                                <i data-lucide="users" class="metric-icon text-emerald"></i>
+                                <span class="metric-value" id="impact-citizens-helped">12</span>
+                                <span class="metric-label">Citizens Helped</span>
                             </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 2.1 km away</span>
-                                <span class="eta">ETA: 20 min</span>
+                            <div class="impact-metric-box">
+                                <i data-lucide="check-square" class="metric-icon text-blue"></i>
+                                <span class="metric-value" id="impact-tasks-completed">7</span>
+                                <span class="metric-label">Tasks Completed</span>
                             </div>
-                        </div>
-
-                        <!-- 3. Gas Leak -->
-                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(2)">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box red-light"><i class="red" data-lucide="alert-triangle"></i>
-                                    </div>
-                                    <div>
-                                        <h4>Gas Leak Reported</h4>
-                                        <p class="text-sm text-gray">Jayanagar 5th Block</p>
-                                    </div>
-                                </div>
-                                <span class="badge high">High</span>
-                            </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 3.2 km away</span>
-                                <span class="eta">ETA: 10 min</span>
+                            <div class="impact-metric-box">
+                                <i data-lucide="activity" class="metric-icon text-purple"></i>
+                                <span class="metric-value" id="impact-reliability">98%</span>
+                                <span class="metric-label">Reliability Score</span>
                             </div>
                         </div>
 
-                        <!-- 4. Pothole -->
-                        <div class="task-card" data-tab="completed" onclick="app.openTaskDetail(3)"
-                            style="display: none;">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box green-light"><i class="green" data-lucide="alert-circle"></i>
+                        <!-- Split Section: Badges & Daily Goals -->
+                        <div class="impact-split-section">
+                            <!-- Left: Trophy Room -->
+                            <div class="impact-trophy-room">
+                                <div class="section-header-v3">
+                                    <h3>Trophy Room</h3>
+                                </div>
+                                <div class="trophy-grid">
+                                    <div class="trophy-item earned">
+                                        <div class="trophy-icon-wrap"><i data-lucide="zap"></i></div>
+                                        <span>First Responder</span>
                                     </div>
-                                    <div>
-                                        <h4>Pothole on Highway</h4>
-                                        <p class="text-sm text-gray">Bellary Road</p>
+                                    <div class="trophy-item earned">
+                                        <div class="trophy-icon-wrap"><i data-lucide="waves"></i></div>
+                                        <span>Flood Hero</span>
+                                    </div>
+                                    <div class="trophy-item locked">
+                                        <div class="trophy-icon-wrap"><i data-lucide="flame"></i></div>
+                                        <span>Fire Warden</span>
+                                    </div>
+                                    <div class="trophy-item locked">
+                                        <div class="trophy-icon-wrap"><i data-lucide="star"></i></div>
+                                        <span>Top 5%</span>
                                     </div>
                                 </div>
-                                <span class="badge resolved">Done</span>
                             </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 5.0 km away</span>
-                                <span class="eta" style="color: var(--green);"><i data-lucide="check-circle"
-                                        style="width: 14px; height: 14px;"></i> Resolved</span>
+
+                            <!-- Right: Habit & Goals -->
+                            <div class="impact-daily-goals">
+                                <div class="section-header-v3">
+                                    <h3>Active Streak</h3>
+                                </div>
+                                <div class="streak-card">
+                                    <div class="streak-icon-wrap"><i data-lucide="flame" class="text-orange"></i></div>
+                                    <div class="streak-info">
+                                        <h4>3 Days Active</h4>
+                                        <p>Log in tomorrow to keep it going!</p>
+                                    </div>
+                                </div>
+
+                                <div class="section-header-v3 mt-3">
+                                    <h3>Today's Goal</h3>
+                                </div>
+                                <div class="daily-goal-card" onclick="app.navigateLayout('tasks-view')">
+                                    <div class="goal-info">
+                                        <h4>Verify 2 reports</h4>
+                                        <p>In your district</p>
+                                    </div>
+                                    <div class="goal-reward">
+                                        <span>+100 XP</span>
+                                        <i data-lucide="chevron-right"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 5. Stray Dogs (Turkestan) -->
-                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(4)">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box blue-light"><i class="blue" data-lucide="alert-circle"></i>
+                        <!-- Impact Gallery (Before/After) -->
+                        <div class="impact-gallery-section">
+                            <div class="section-header-v3">
+                                <h3>Impact Gallery</h3>
+                                <span class="section-subtitle-v3">Real changes you made</span>
+                            </div>
+                            <div class="gallery-scroll-container">
+                                <!-- Card 1 -->
+                                <div class="gallery-card">
+                                    <div class="gallery-images">
+                                        <div class="g-img-wrap before">
+                                            <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&q=80" alt="Before">
+                                            <span class="g-label">Before</span>
+                                        </div>
+                                        <div class="g-img-wrap after">
+                                            <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&q=80" alt="After">
+                                            <span class="g-label">After</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4>Stray Dogs near school</h4>
-                                        <p class="text-sm text-gray">Abay St, Turkestan</p>
+                                    <div class="gallery-info">
+                                        <h4>Main St. Pothole</h4>
+                                        <p>Fixed in 48h. 5,000+ drivers helped.</p>
                                     </div>
                                 </div>
-                                <span class="badge low">Low</span>
-                            </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 1.5 km away</span>
-                                <span class="eta">ETA: 45 min</span>
-                            </div>
-                        </div>
-
-                        <!-- 6. Broken Streetlight (Turkestan) -->
-                        <div class="task-card" data-tab="upcoming" onclick="app.openTaskDetail(5)">
-                            <div class="task-header">
-                                <div class="task-title-area">
-                                    <div class="icon-box blue-light"><i class="blue" data-lucide="zap-off"></i></div>
-                                    <div>
+                                <!-- Card 2 -->
+                                <div class="gallery-card">
+                                    <div class="gallery-images">
+                                        <div class="g-img-wrap before">
+                                            <img src="img/broken_streetlight.png" alt="Before">
+                                            <span class="g-label">Before</span>
+                                        </div>
+                                        <div class="g-img-wrap after">
+                                            <img src="img/working_streetlight.png" alt="After">
+                                            <span class="g-label">After</span>
+                                        </div>
+                                    </div>
+                                    <div class="gallery-info">
                                         <h4>Broken Streetlight</h4>
-                                        <p class="text-sm text-gray">Esim Khan Square, Turkestan</p>
+                                        <p>Restored. Neighborhood is safer at night.</p>
                                     </div>
                                 </div>
-                                <span class="badge low">Low</span>
                             </div>
-                            <div class="task-footer">
-                                <span class="distance"><i data-lucide="map-pin"></i> 0.5 km away</span>
-                                <span class="eta">Scheduled: Tomorrow</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics View -->
+                <div id="analytics-view" class="sub-view">
+                    <header class="header-nav">
+                        <button class="back-btn" onclick="app.navigateLayout('user-home-view')"><i data-lucide="arrow-left"></i></button>
+                        <h2>Analytics Hub</h2>
+                        <div style="width: 24px;"></div>
+                    </header>
+                    <div class="content-padded analytics-layout">
+                        <!-- Chart 1: Categories -->
+                        <div class="glass-card chart-container">
+                            <div class="chart-header">
+                                <i data-lucide="pie-chart" class="text-emerald"></i>
+                                <h3>Resolved Incidents Distribution</h3>
+                            </div>
+                            <canvas id="analytics-categories-canvas" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- Chart 2: Weekly Contributions -->
+                        <div class="glass-card chart-container mt-4">
+                            <div class="chart-header">
+                                <i data-lucide="trending-up" class="text-blue"></i>
+                                <h3>Weekly Contribution Graph</h3>
+                            </div>
+                            <canvas id="analytics-weekly-canvas" width="300" height="200"></canvas>
+                        </div>
+
+                        <!-- Statistics telemetry boxes -->
+                        <div class="telemetry-stats mt-4">
+                            <div class="tele-stat-box">
+                                <span class="tele-stat-num text-emerald" id="stats-total-hours">18h</span>
+                                <span class="tele-stat-label">Hours Active</span>
+                            </div>
+                            <div class="tele-stat-box">
+                                <span class="tele-stat-num text-blue" id="stats-weekly-avg">4.2</span>
+                                <span class="tele-stat-label">Weekly Tasks</span>
+                            </div>
+                            <div class="tele-stat-box">
+                                <span class="tele-stat-num text-yellow" id="stats-completion-rate">94%</span>
+                                <span class="tele-stat-label">Completion Rate</span>
                             </div>
                         </div>
                     </div>
@@ -1146,6 +1381,10 @@
                 </a>
                 <a href="#" class="nav-item" id="mobile-tasks-link" onclick="app.navigateLayout('tasks-view', this)"><i
                         data-lucide="users"></i><span>Tasks</span></a>
+                <a href="#" class="nav-item" id="mobile-achievements-link" onclick="app.navigateLayout('volunteer-profile-view', this)"><i
+                        data-lucide="award"></i><span>Impact</span></a>
+                <a href="#" class="nav-item" id="mobile-analytics-link" onclick="app.navigateLayout('analytics-view', this)"><i
+                        data-lucide="bar-chart-2"></i><span>Stats</span></a>
                 <a href="#" class="nav-item" onclick="app.logout()"><i data-lucide="log-out"></i><span>Logout</span></a>
             </nav>
         </div>
@@ -1255,8 +1494,35 @@
     </div>
 
     <script src="js/map.js?v=2"></script>
-    <script src="js/app.js?v=6"></script>
-    <script>lucide.createIcons();</script>
+    <script src="js/app.js?v=7"></script>
+    <script>
+        // Inline fix: ensure navbar border/shadow is removed when map is active
+        // This runs after app.js loads and cannot be cached separately
+        (function() {
+            var nb = document.querySelector('.top-navbar');
+            if (!nb) return;
+            // Watch for map-view becoming active via MutationObserver
+            var mv = document.getElementById('map-view');
+            if (mv) {
+                var obs = new MutationObserver(function() {
+                    if (mv.classList.contains('active')) {
+                        nb.style.setProperty('border-bottom', 'none', 'important');
+                        nb.style.setProperty('box-shadow', 'none', 'important');
+                    } else {
+                        nb.style.removeProperty('border-bottom');
+                        nb.style.removeProperty('box-shadow');
+                    }
+                });
+                obs.observe(mv, { attributes: true, attributeFilter: ['class'] });
+                // Also check initial state
+                if (mv.classList.contains('active')) {
+                    nb.style.setProperty('border-bottom', 'none', 'important');
+                    nb.style.setProperty('box-shadow', 'none', 'important');
+                }
+            }
+        })();
+        lucide.createIcons();
+    </script>
 </body>
 
 </html>
