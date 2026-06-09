@@ -3054,3 +3054,92 @@ app.loadTurkestanWeather = async function() {
         if (el('eco-aqi-updated')) el('eco-aqi-updated').textContent = 'Data unavailable';
     }
 };
+
+// ==================== MOBILE NAVIGATION ====================
+
+app.mobileNav = function(viewId, btnEl) {
+    // Navigate to the view
+    this.navigateLayout(viewId);
+
+    // Update mobile nav active states
+    this.updateMobileNav(viewId);
+
+    // Update mobile profile if navigating to it
+    if (viewId === 'mobile-profile-view') {
+        this.updateMobileProfile();
+    }
+};
+
+app.updateMobileNav = function(viewId) {
+    const mobileNav = document.getElementById('m-bottom-nav');
+    if (!mobileNav) return;
+
+    // Map sub-views to their parent nav items
+    const viewToNav = {
+        'user-home-view': 'user-home-view',
+        'map-view': 'map-view',
+        'report-view': 'report-view',
+        'report-success-view': 'report-view',
+        'mobile-profile-view': 'mobile-profile-view',
+        'my-reports-view': 'mobile-profile-view',
+        'tasks-view': 'mobile-profile-view',
+        'volunteer-profile-view': 'mobile-profile-view',
+        'analytics-view': 'mobile-profile-view',
+        'alerts-view': 'mobile-profile-view',
+        'task-detail-view': 'mobile-profile-view',
+        'success-view': 'user-home-view'
+    };
+
+    const targetNav = viewToNav[viewId] || viewId;
+
+    mobileNav.querySelectorAll('.m-nav-item, .m-nav-fab').forEach(function(item) {
+        item.classList.remove('active');
+        if (item.dataset.view === targetNav) {
+            item.classList.add('active');
+        }
+    });
+};
+
+app.updateMobileProfile = function() {
+    if (!this.currentUser) return;
+
+    const name = this.currentUser.fullName || 'User';
+    const role = this.currentUser.role || 'user';
+    const avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=10B981&color=fff';
+
+    const roleLabels = {
+        user: 'Citizen',
+        volunteer: 'Volunteer',
+        responder: 'Emergency Services',
+        admin: 'Administrator'
+    };
+
+    var nameEl = document.getElementById('m-profile-name');
+    var roleEl = document.getElementById('m-profile-role');
+    var avatarEl = document.getElementById('m-profile-avatar');
+
+    if (nameEl) nameEl.textContent = name;
+    if (roleEl) roleEl.textContent = roleLabels[role] || 'Citizen';
+    if (avatarEl) avatarEl.src = avatarUrl;
+
+    // Show/hide volunteer-only menu items
+    var isStaff = (role === 'volunteer' || role === 'responder' || role === 'admin');
+    var tasksLink = document.getElementById('m-profile-tasks-link');
+    var impactLink = document.getElementById('m-profile-impact-link');
+    var analyticsLink = document.getElementById('m-profile-analytics-link');
+
+    if (tasksLink) tasksLink.style.display = isStaff ? 'flex' : 'none';
+    if (impactLink) impactLink.style.display = isStaff ? 'flex' : 'none';
+    if (analyticsLink) analyticsLink.style.display = isStaff ? 'flex' : 'none';
+
+    if (window.lucide) lucide.createIcons();
+};
+
+// Hook into existing navigateLayout to sync mobile nav
+(function() {
+    var originalNavigateLayout = app.navigateLayout;
+    app.navigateLayout = function(subViewId, navElement) {
+        originalNavigateLayout.call(this, subViewId, navElement);
+        this.updateMobileNav(subViewId);
+    };
+})();

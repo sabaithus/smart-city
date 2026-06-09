@@ -1,0 +1,2076 @@
+/* =========================================================
+   SMART CITY — MOBILE REDESIGN
+   Premium minimal mobile experience
+   All rules scoped to max-width: 1023px
+   Desktop is completely untouched
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+/* =========================================================
+   1. DESIGN TOKENS (Mobile overrides)
+   ========================================================= */
+@media (max-width: 1023px) {
+  :root,
+  [data-theme="dark"] {
+    /* Surface colors */
+    --m-bg-base: #0a0a0a;
+    --m-bg-elevated: #141414;
+    --m-bg-card: #1a1a1a;
+    --m-bg-subtle: #111111;
+    --m-bg-hover: #1f1f1f;
+
+    /* Text */
+    --m-text-primary: #fafafa;
+    --m-text-secondary: #a1a1aa;
+    --m-text-tertiary: #71717a;
+    --m-text-muted: #52525b;
+
+    /* Borders */
+    --m-border: #27272a;
+    --m-border-subtle: #1f1f1f;
+
+    /* Accent — Emerald */
+    --m-accent: #10b981;
+    --m-accent-hover: #059669;
+    --m-accent-muted: rgba(16, 185, 129, 0.12);
+    --m-accent-text: #34d399;
+
+    /* Semantic */
+    --m-danger: #ef4444;
+    --m-danger-muted: rgba(239, 68, 68, 0.12);
+    --m-warning: #f59e0b;
+    --m-warning-muted: rgba(245, 158, 11, 0.12);
+    --m-info: #3b82f6;
+    --m-info-muted: rgba(59, 130, 246, 0.12);
+
+    /* Spacing */
+    --m-space-xs: 4px;
+    --m-space-sm: 8px;
+    --m-space-md: 16px;
+    --m-space-lg: 24px;
+    --m-space-xl: 32px;
+    --m-space-2xl: 48px;
+
+    /* Radii */
+    --m-radius-sm: 8px;
+    --m-radius-md: 12px;
+    --m-radius-lg: 16px;
+    --m-radius-xl: 24px;
+    --m-radius-full: 9999px;
+
+    /* Typography */
+    --m-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --m-font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --m-font-mono: 'JetBrains Mono', monospace;
+
+    /* Transitions */
+    --m-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --m-duration: 200ms;
+    --m-duration-slow: 350ms;
+  }
+}
+
+/* =========================================================
+   2. GLOBAL MOBILE OVERRIDES
+   ========================================================= */
+@media (max-width: 1023px) {
+
+  /* ---- Hide desktop-only elements ---- */
+  .top-navbar {
+    display: none !important;
+  }
+
+  .bottom-nav {
+    display: none !important;
+  }
+
+  /* ---- Hide admin portal on mobile ---- */
+  #admin-view {
+    display: none !important;
+  }
+
+  /* ---- Base body ---- */
+  body {
+    font-family: var(--m-font-body) !important;
+    background: var(--m-bg-base) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ---- Main content area ---- */
+  .main-content {
+    padding-bottom: 88px !important; /* space for bottom nav */
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .layout-container {
+    padding-top: 0 !important;
+  }
+
+  /* ---- Remove all old box shadows on cards in mobile ---- */
+  .glass-card,
+  .impact-stat-card,
+  .eco-widget-v3,
+  .eco-aqi-card {
+    box-shadow: none !important;
+  }
+
+  /* =========================================================
+     3. MOBILE BOTTOM NAVIGATION
+     ========================================================= */
+  .m-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    background: var(--m-bg-elevated);
+    border-top: 1px solid var(--m-border);
+    padding: 0 8px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    height: 64px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .m-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0 10px;
+    flex: 1;
+    text-decoration: none;
+    color: var(--m-text-tertiary);
+    transition: color var(--m-duration) var(--m-ease);
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: var(--m-font-body);
+  }
+
+  .m-nav-item svg,
+  .m-nav-item i {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.8;
+    transition: transform var(--m-duration) var(--m-ease);
+  }
+
+  .m-nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+  }
+
+  .m-nav-item.active {
+    color: var(--m-accent);
+  }
+
+  .m-nav-item.active svg,
+  .m-nav-item.active i {
+    transform: translateY(-1px);
+  }
+
+  /* FAB — Report button */
+  .m-nav-fab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    padding: 0;
+    padding-bottom: 10px;
+    text-decoration: none;
+    color: var(--m-text-tertiary);
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: var(--m-font-body);
+  }
+
+  .m-nav-fab-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--m-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -20px;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    transition: transform var(--m-duration) var(--m-ease),
+                box-shadow var(--m-duration) var(--m-ease);
+  }
+
+  .m-nav-fab-circle svg,
+  .m-nav-fab-circle i {
+    width: 24px;
+    height: 24px;
+    color: white;
+    stroke-width: 2.5;
+  }
+
+  .m-nav-fab:active .m-nav-fab-circle {
+    transform: scale(0.92);
+  }
+
+  .m-nav-fab span {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    color: var(--m-text-tertiary);
+  }
+
+  .m-nav-fab.active span {
+    color: var(--m-accent);
+  }
+
+
+  /* =========================================================
+     4. AUTH VIEW — Mobile
+     ========================================================= */
+  #auth-view .auth-layout {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--m-bg-base) !important;
+    padding: 0 !important;
+  }
+
+  #auth-view .auth-top-header {
+    padding: 16px 20px !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  #auth-view .auth-hero {
+    padding: 24px 24px 16px !important;
+    text-align: left !important;
+    background: none !important;
+  }
+
+  #auth-view .hero-content {
+    max-width: 100% !important;
+  }
+
+  #auth-view .hero-title {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    color: var(--m-text-primary) !important;
+    letter-spacing: -0.02em;
+  }
+
+  #auth-view .hero-subtitle {
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1em !important;
+    color: var(--m-accent) !important;
+    margin-bottom: 8px !important;
+  }
+
+  #auth-view .hero-desc {
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    color: var(--m-text-secondary) !important;
+    margin-top: 12px !important;
+  }
+
+  #auth-view .auth-center-box {
+    flex: 1;
+    padding: 0 20px 24px !important;
+  }
+
+  #auth-view .auth-container {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-lg) !important;
+    padding: 24px 20px !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  #auth-view .auth-header {
+    text-align: center;
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+  }
+
+  #auth-view .auth-header h1 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+  }
+
+  #auth-view .auth-header p {
+    font-size: 0.8rem !important;
+    color: var(--m-text-tertiary) !important;
+  }
+
+  #auth-view .auth-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--m-bg-base) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 3px !important;
+    margin-bottom: 20px !important;
+  }
+
+  #auth-view .auth-tab {
+    flex: 1;
+    padding: 10px 0 !important;
+    font-family: var(--m-font-body) !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    border: none !important;
+    background: transparent !important;
+    color: var(--m-text-tertiary) !important;
+    transition: all var(--m-duration) var(--m-ease);
+    cursor: pointer;
+  }
+
+  #auth-view .auth-tab.active {
+    background: var(--m-bg-card) !important;
+    color: var(--m-text-primary) !important;
+    font-weight: 600 !important;
+  }
+
+  #auth-view .input-group {
+    margin-bottom: 16px !important;
+  }
+
+  #auth-view .input-group label {
+    font-family: var(--m-font-body) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: var(--m-text-secondary) !important;
+    margin-bottom: 6px !important;
+    display: block;
+  }
+
+  #auth-view .input-group input,
+  #auth-view .input-group select {
+    height: 48px !important;
+    background: var(--m-bg-base) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-sm) !important;
+    color: var(--m-text-primary) !important;
+    font-family: var(--m-font-body) !important;
+    font-size: 0.9rem !important;
+    padding: 0 16px !important;
+    transition: border-color var(--m-duration) var(--m-ease);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  #auth-view .input-group input:focus {
+    border-color: var(--m-accent) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px var(--m-accent-muted) !important;
+  }
+
+  #auth-view .input-group input::placeholder {
+    color: var(--m-text-muted) !important;
+  }
+
+  #auth-view .btn-primary.btn-block {
+    height: 48px !important;
+    border-radius: var(--m-radius-sm) !important;
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    background: var(--m-accent) !important;
+    border: none !important;
+    color: white !important;
+    transition: background var(--m-duration) var(--m-ease),
+                transform var(--m-duration) var(--m-ease);
+    cursor: pointer;
+  }
+
+  #auth-view .btn-primary.btn-block:active {
+    transform: scale(0.98);
+    background: var(--m-accent-hover) !important;
+  }
+
+  #auth-view .role-selector {
+    display: flex;
+    gap: 8px !important;
+    flex-wrap: wrap;
+  }
+
+  #auth-view .role-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px !important;
+    font-size: 0.75rem !important;
+    font-family: var(--m-font-body) !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-base) !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+    transition: all var(--m-duration) var(--m-ease);
+  }
+
+  #auth-view .role-btn.active {
+    background: var(--m-accent-muted) !important;
+    border-color: var(--m-accent) !important;
+    color: var(--m-accent-text) !important;
+  }
+
+  #auth-view .role-btn i,
+  #auth-view .role-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  #auth-view .forgot-link {
+    font-size: 0.8rem !important;
+    color: var(--m-accent) !important;
+    text-decoration: none !important;
+  }
+
+  #auth-view .hero-footer {
+    padding: 16px 20px !important;
+    text-align: center;
+  }
+
+  #auth-view .hero-footer span,
+  #auth-view .hero-footer a {
+    font-size: 0.75rem !important;
+    color: var(--m-text-muted) !important;
+  }
+
+  /* Custom select overrides */
+  #auth-view .custom-select {
+    width: 100% !important;
+  }
+
+  #auth-view .phone-input {
+    display: flex;
+    gap: 8px;
+  }
+
+  #auth-view .phone-input .custom-select,
+  #auth-view .phone-input select {
+    width: 90px !important;
+    flex-shrink: 0;
+  }
+
+  #auth-view .password-wrapper {
+    position: relative;
+  }
+
+  #auth-view .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none !important;
+    border: none !important;
+    color: var(--m-text-muted) !important;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+
+  /* =========================================================
+     5. HOME VIEW — Mobile
+     ========================================================= */
+  #user-home-view.dashboard-v3 {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Mobile header */
+  .dash-header-v3 {
+    padding: 20px 20px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .header-main-v3 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  .dashboard-badge-v3 {
+    display: none !important;
+  }
+
+  .welcome-name {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: var(--m-text-primary) !important;
+    letter-spacing: -0.02em;
+  }
+
+  .header-actions-v3 {
+    display: flex !important;
+    gap: 8px !important;
+    flex-direction: row !important;
+  }
+
+  .header-actions-v3 .btn {
+    font-family: var(--m-font-body) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 10px 16px !important;
+    height: auto !important;
+    transition: all var(--m-duration) var(--m-ease);
+  }
+
+  .header-actions-v3 .btn-emerald-primary {
+    background: var(--m-accent) !important;
+    border: none !important;
+    color: white !important;
+    flex: 1;
+  }
+
+  .header-actions-v3 .btn-secondary-pill {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+    flex: 1;
+  }
+
+  /* Emergency SOS card */
+  .emergency-action-card {
+    margin: 16px 20px !important;
+    padding: 16px !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    border-radius: var(--m-radius-md) !important;
+  }
+
+  /* Impact/Stats section */
+  .impact-section-v3 {
+    padding: 0 20px !important;
+    margin: 8px 0 !important;
+  }
+
+  .impact-container-v3 {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 16px !important;
+  }
+
+  .impact-header-v3 h3 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+    margin-bottom: 4px !important;
+  }
+
+  .impact-desc-v3 {
+    font-size: 0.8rem !important;
+    color: var(--m-text-secondary) !important;
+    line-height: 1.4 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .impact-stats-row-v3 {
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  .impact-stat-card {
+    flex: 1;
+    background: var(--m-bg-base) !important;
+    border: 1px solid var(--m-border-subtle) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 8px !important;
+    text-align: center;
+    box-shadow: none !important;
+  }
+
+  .impact-stat-num {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .impact-stat-label {
+    font-size: 0.65rem !important;
+    font-weight: 500 !important;
+    color: var(--m-text-tertiary) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Incident feed & Eco sections */
+  .columns-grid-v3 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+
+  .grid-column-v3 {
+    padding: 16px 20px !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .section-header-v3 {
+    margin-bottom: 12px !important;
+  }
+
+  .section-header-v3 h3 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .section-subtitle-v3 {
+    font-size: 0.75rem !important;
+    color: var(--m-text-tertiary) !important;
+  }
+
+  .view-all-link-v3 {
+    font-size: 0.8rem !important;
+    color: var(--m-accent) !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+  }
+
+  /* Telemetry/incident rows */
+  .telemetry-row-v3 {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 14px !important;
+    margin-bottom: 8px !important;
+    transition: background var(--m-duration) var(--m-ease);
+    border-left: 3px solid transparent !important;
+  }
+
+  .telemetry-row-v3.border-left-sev-high {
+    border-left-color: var(--m-danger) !important;
+  }
+
+  .telemetry-row-v3.border-left-sev-medium {
+    border-left-color: var(--m-warning) !important;
+  }
+
+  .telemetry-row-v3.border-left-sev-low {
+    border-left-color: var(--m-info) !important;
+  }
+
+  .tel-icon-wrap-v3 {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--m-radius-sm) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tel-icon-wrap-v3 svg,
+  .tel-icon-wrap-v3 i {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .tel-title-v3 {
+    font-family: var(--m-font-body) !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .tel-badge-row-v3 {
+    gap: 6px !important;
+  }
+
+  .tel-badge-v3 {
+    font-size: 0.65rem !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-weight: 500 !important;
+  }
+
+  .tel-address-v3 {
+    font-size: 0.75rem !important;
+    color: var(--m-text-secondary) !important;
+  }
+
+  .tel-time-v3 {
+    font-size: 0.7rem !important;
+    color: var(--m-text-tertiary) !important;
+  }
+
+  /* Eco widget compact */
+  .eco-widget-v3 {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 16px !important;
+  }
+
+  .eco-aqi-card {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 0 12px !important;
+    margin-bottom: 12px !important;
+    border-bottom: 1px solid var(--m-border-subtle) !important;
+    border-radius: 0 !important;
+  }
+
+  .eco-metrics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .eco-metric-item {
+    background: var(--m-bg-base) !important;
+    border: 1px solid var(--m-border-subtle) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 10px 8px !important;
+    text-align: center;
+  }
+
+  .eco-metric-top {
+    margin-bottom: 4px !important;
+  }
+
+  .eco-metric-top span {
+    font-size: 0.6rem !important;
+    color: var(--m-text-tertiary) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .eco-metric-top svg,
+  .eco-metric-top i {
+    width: 14px !important;
+    height: 14px !important;
+    display: none !important;
+  }
+
+  .eco-metric-value {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--m-text-primary) !important;
+    display: block;
+  }
+
+  .eco-metric-status {
+    font-size: 0.6rem !important;
+  }
+
+
+  /* =========================================================
+     6. MAP VIEW — Mobile (Full Bleed)
+     ========================================================= */
+  #map-view {
+    position: relative;
+  }
+
+  #map-view .livemap-wrapper {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 64px !important; /* Above bottom nav */
+    height: auto !important;
+  }
+
+  /* Map topbar — compact */
+  .map-topbar {
+    top: env(safe-area-inset-top, 12px) !important;
+    left: 12px !important;
+    right: 12px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    background: transparent !important;
+  }
+
+  .map-topbar-left {
+    gap: 8px !important;
+  }
+
+  .map-topbar-left h2 {
+    display: none !important;
+  }
+
+  .map-back-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .map-search {
+    flex: 1;
+    min-width: 0;
+    height: 40px !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    padding: 0 12px !important;
+    box-shadow: none !important;
+    width: auto !important;
+  }
+
+  .map-search input {
+    font-size: 0.85rem !important;
+    font-family: var(--m-font-body) !important;
+  }
+
+  .map-filters {
+    display: flex !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .map-filters::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .map-filter {
+    padding: 6px 12px !important;
+    border-radius: var(--m-radius-full) !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    font-family: var(--m-font-body) !important;
+    white-space: nowrap;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+    transition: all var(--m-duration) var(--m-ease);
+    cursor: pointer;
+  }
+
+  .map-filter.active {
+    background: var(--m-accent-muted) !important;
+    border-color: var(--m-accent) !important;
+    color: var(--m-accent-text) !important;
+  }
+
+  .filter-dot {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  /* Map incident panel — bottom sheet */
+  .map-incident-panel {
+    position: fixed !important;
+    bottom: 64px !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: 45vh !important;
+    background: var(--m-bg-elevated) !important;
+    border-radius: var(--m-radius-lg) var(--m-radius-lg) 0 0 !important;
+    border: none !important;
+    border-top: 1px solid var(--m-border) !important;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3) !important;
+    padding: 0 !important;
+    z-index: 1001 !important;
+  }
+
+  .panel-drag-handle {
+    display: block !important;
+    width: 36px;
+    height: 4px;
+    background: var(--m-text-muted);
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+
+  .map-panel-header {
+    padding: 12px 20px !important;
+    border-bottom: 1px solid var(--m-border-subtle) !important;
+  }
+
+  .map-panel-header h3 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .map-panel-count {
+    font-size: 0.75rem !important;
+    color: var(--m-text-tertiary) !important;
+  }
+
+  .map-panel-list {
+    padding: 8px 16px 16px !important;
+  }
+
+  .map-panel-item {
+    background: var(--m-bg-card) !important;
+    border: 1px solid var(--m-border-subtle) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px !important;
+    margin-bottom: 6px !important;
+    transition: background var(--m-duration) var(--m-ease);
+  }
+
+  .map-panel-item:active {
+    background: var(--m-bg-hover) !important;
+  }
+
+
+  /* =========================================================
+     7. REPORT FLOW — Mobile (Single Column)
+     ========================================================= */
+  #report-view .report-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--m-bg-base) !important;
+  }
+
+  #report-view .report-main-area {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  /* Hide sidebar stepper on mobile */
+  #report-view .report-sidebar {
+    display: none !important;
+  }
+
+  #report-view .report-content {
+    padding: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  #report-view .report-content h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: var(--m-text-primary) !important;
+    margin-bottom: 4px !important;
+  }
+
+  #report-view .report-content .subtitle {
+    font-size: 0.85rem !important;
+    color: var(--m-text-secondary) !important;
+    margin-bottom: 20px !important;
+  }
+
+  #report-view .two-col-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  #report-view .left-col,
+  #report-view .right-col {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Category grid */
+  .new-category-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .cat-btn {
+    padding: 12px 8px !important;
+    border-radius: var(--m-radius-sm) !important;
+    font-size: 0.75rem !important;
+    font-family: var(--m-font-body) !important;
+    font-weight: 500 !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+    transition: all var(--m-duration) var(--m-ease);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .cat-btn.active {
+    background: var(--m-accent-muted) !important;
+    border-color: var(--m-accent) !important;
+    color: var(--m-accent-text) !important;
+  }
+
+  .cat-btn svg,
+  .cat-btn i {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Input fields in report */
+  #report-view .input-wrap {
+    margin-bottom: 12px !important;
+  }
+
+  #report-view .input-wrap label,
+  #report-view .right-col > label {
+    font-family: var(--m-font-body) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: var(--m-text-secondary) !important;
+  }
+
+  #report-view input[type="text"],
+  #report-view textarea {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-sm) !important;
+    color: var(--m-text-primary) !important;
+    font-family: var(--m-font-body) !important;
+    font-size: 0.9rem !important;
+    padding: 12px 16px !important;
+    transition: border-color var(--m-duration) var(--m-ease);
+  }
+
+  #report-view input[type="text"]:focus,
+  #report-view textarea:focus {
+    border-color: var(--m-accent) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px var(--m-accent-muted) !important;
+  }
+
+  /* Priority cards */
+  .priority-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .pri-card {
+    padding: 14px !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    transition: all var(--m-duration) var(--m-ease);
+    cursor: pointer;
+  }
+
+  .pri-card.active {
+    border-color: var(--m-accent) !important;
+    background: var(--m-accent-muted) !important;
+  }
+
+  /* Step footer buttons */
+  .step-footer {
+    margin-top: 24px !important;
+    padding: 0 !important;
+  }
+
+  .rs-btn-primary {
+    background: var(--m-accent) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 24px !important;
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: all var(--m-duration) var(--m-ease);
+  }
+
+  .rs-btn-primary:active {
+    transform: scale(0.98);
+    background: var(--m-accent-hover) !important;
+  }
+
+  .rs-btn-outline {
+    background: transparent !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 24px !important;
+    font-family: var(--m-font-body) !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+  }
+
+  /* Step 2 — Editorial layout on mobile */
+  #rs-step-2.ed-split-layout {
+    flex-direction: column-reverse !important;
+    height: auto !important;
+    max-width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .ed-left-panel {
+    width: 100% !important;
+    padding: 16px 0 !important;
+    background: transparent !important;
+  }
+
+  .ed-right-panel {
+    width: 100% !important;
+    height: 250px !important;
+    border-radius: var(--m-radius-md) !important;
+    overflow: hidden;
+    border: 1px solid var(--m-border) !important;
+  }
+
+  .ed-heading {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+  }
+
+  .ed-dropzone {
+    border-radius: var(--m-radius-md) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px dashed var(--m-border) !important;
+    padding: 24px !important;
+    text-align: center;
+  }
+
+  .ed-btn-solid {
+    background: var(--m-accent) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 20px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+  }
+
+  .ed-btn-ghost {
+    background: transparent !important;
+    color: var(--m-text-secondary) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 20px !important;
+    cursor: pointer;
+  }
+
+  /* Step 3 — Review */
+  .review-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .review-card {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+  }
+
+  .review-header h3 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+  }
+
+
+  /* =========================================================
+     8. TASKS VIEW — Mobile
+     ========================================================= */
+  .tasks-dashboard-layout {
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+
+  .tasks-main-content {
+    padding: 16px 20px !important;
+    width: 100% !important;
+  }
+
+  /* Hide the sidebar on mobile */
+  .tasks-sidebar-redesigned {
+    display: none !important;
+  }
+
+  .tasks-main-header {
+    margin-bottom: 12px !important;
+    padding: 0 !important;
+  }
+
+  .tasks-main-header h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .tmh-actions {
+    gap: 8px !important;
+  }
+
+  .tmh-actions .btn-icon-only {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+  }
+
+  .tmh-actions .btn-primary {
+    padding: 8px 16px !important;
+    font-size: 0.8rem !important;
+    border-radius: var(--m-radius-sm) !important;
+  }
+
+  /* Task tabs */
+  #task-tabs.tabs {
+    background: var(--m-bg-elevated) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 3px !important;
+    border: 1px solid var(--m-border) !important;
+    gap: 0 !important;
+    margin: 0 0 12px !important;
+  }
+
+  #task-tabs .tab {
+    font-family: var(--m-font-body) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    padding: 8px 0 !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    color: var(--m-text-tertiary) !important;
+    border: none !important;
+    cursor: pointer;
+    transition: all var(--m-duration) var(--m-ease);
+  }
+
+  #task-tabs .tab.active {
+    background: var(--m-bg-card) !important;
+    color: var(--m-text-primary) !important;
+    font-weight: 600 !important;
+  }
+
+  /* Filter chips */
+  .filter-chips-container {
+    display: flex !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    scrollbar-width: none !important;
+    margin-bottom: 12px !important;
+  }
+
+  .filter-chips-container::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .filter-chip {
+    padding: 6px 14px !important;
+    border-radius: var(--m-radius-full) !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    font-family: var(--m-font-body) !important;
+    white-space: nowrap;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+    transition: all var(--m-duration) var(--m-ease);
+    cursor: pointer;
+  }
+
+  .filter-chip.active {
+    background: var(--m-accent-muted) !important;
+    border-color: var(--m-accent) !important;
+    color: var(--m-accent-text) !important;
+  }
+
+  .filter-chip svg,
+  .filter-chip i {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Task cards */
+  .task-card {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    margin-bottom: 8px !important;
+    overflow: hidden;
+    box-shadow: none !important;
+    transition: all var(--m-duration) var(--m-ease);
+  }
+
+  .task-card.high-priority {
+    border-left: 3px solid var(--m-danger) !important;
+  }
+
+  /* Task card inner content */
+  .task-card .card-content-top {
+    padding: 14px !important;
+  }
+
+  .task-card .incident-photo {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: var(--m-radius-sm) !important;
+    border-color: var(--m-border) !important;
+  }
+
+  .task-card h4 {
+    font-family: var(--m-font-body) !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .task-card .badge {
+    font-size: 0.65rem !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    font-weight: 600 !important;
+  }
+
+  /* Task action buttons */
+  .task-card > div:nth-child(2) {
+    border-top-color: var(--m-border) !important;
+    background: var(--m-bg-subtle) !important;
+    padding: 8px 14px !important;
+  }
+
+
+  /* =========================================================
+     9. IMPACT VIEW — Mobile
+     ========================================================= */
+  #volunteer-profile-view .header-nav {
+    padding: 16px 20px !important;
+    background: var(--m-bg-base) !important;
+    border: none !important;
+  }
+
+  #volunteer-profile-view .header-nav h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .impact-layout {
+    padding: 0 20px 24px !important;
+  }
+
+  .impact-header-card {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+  }
+
+  .ihc-user-info h3 {
+    font-family: var(--m-font-heading) !important;
+    font-weight: 700 !important;
+  }
+
+  .ihc-progress-bar {
+    background: var(--m-bg-base) !important;
+    border-radius: 4px !important;
+    height: 6px !important;
+  }
+
+  .ihc-progress-fill {
+    background: var(--m-accent) !important;
+    border-radius: 4px !important;
+  }
+
+  .impact-metrics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    margin-top: 16px !important;
+  }
+
+  .impact-metric-box {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 14px 8px !important;
+    text-align: center;
+    box-shadow: none !important;
+  }
+
+  .impact-metric-box .metric-value {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+  }
+
+  .impact-metric-box .metric-label {
+    font-size: 0.65rem !important;
+    color: var(--m-text-tertiary) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .impact-split-section {
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin-top: 16px !important;
+  }
+
+  .impact-trophy-room,
+  .impact-daily-goals {
+    width: 100% !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 16px !important;
+  }
+
+  .trophy-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .trophy-item {
+    background: var(--m-bg-base) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 4px !important;
+    text-align: center;
+  }
+
+  .trophy-item span {
+    font-size: 0.65rem !important;
+  }
+
+  .streak-card {
+    background: var(--m-bg-base) !important;
+    border: 1px solid var(--m-border-subtle) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 14px !important;
+  }
+
+  .daily-goal-card {
+    background: var(--m-bg-base) !important;
+    border: 1px solid var(--m-border-subtle) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 14px !important;
+    cursor: pointer;
+  }
+
+
+  /* =========================================================
+     10. ANALYTICS VIEW — Mobile
+     ========================================================= */
+  #analytics-view .header-nav {
+    padding: 16px 20px !important;
+    background: var(--m-bg-base) !important;
+    border: none !important;
+  }
+
+  #analytics-view .header-nav h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+  }
+
+  #analytics-view .analytics-layout {
+    padding: 0 20px 24px !important;
+  }
+
+  #analytics-view .glass-card {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+  }
+
+  #analytics-view .chart-header h3 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+  }
+
+  .telemetry-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .tele-stat-box {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 14px 8px !important;
+    text-align: center;
+  }
+
+  .tele-stat-num {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+  }
+
+  .tele-stat-label {
+    font-size: 0.65rem !important;
+    color: var(--m-text-tertiary) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+
+  /* =========================================================
+     11. ALERTS VIEW — Mobile
+     ========================================================= */
+  #alerts-view .alerts-header {
+    padding: 16px 20px !important;
+    background: var(--m-bg-base) !important;
+    border: none !important;
+  }
+
+  #alerts-view .alerts-header h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+  }
+
+  .alerts-list {
+    padding: 0 !important;
+  }
+
+  .alert-card {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    margin-bottom: 8px !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+  }
+
+  .alert-card h4 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+  }
+
+  .alert-card p {
+    font-size: 0.82rem !important;
+    color: var(--m-text-secondary) !important;
+    line-height: 1.4 !important;
+  }
+
+  .alert-time {
+    font-size: 0.7rem !important;
+    color: var(--m-text-tertiary) !important;
+  }
+
+
+  /* =========================================================
+     12. TASK DETAIL VIEW — Mobile
+     ========================================================= */
+  .task-detail-grid-v3 {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  .task-detail-left-col {
+    width: 100% !important;
+  }
+
+  .task-detail-image-wrap-v3 {
+    border-radius: 0 !important;
+    height: 200px !important;
+    overflow: hidden;
+  }
+
+  .task-detail-img-v3 {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+  }
+
+  .task-detail-right-col {
+    padding: 20px !important;
+    width: 100% !important;
+  }
+
+  .task-detail-title-v3 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .task-detail-section-v3 h4 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: var(--m-text-primary) !important;
+  }
+
+  .task-detail-section-v3 p,
+  .task-detail-section-v3 li {
+    font-size: 0.85rem !important;
+    color: var(--m-text-secondary) !important;
+    line-height: 1.5 !important;
+  }
+
+  .action-buttons-row {
+    display: flex !important;
+    gap: 10px !important;
+    padding-top: 16px !important;
+  }
+
+  .action-buttons-row .btn {
+    height: 48px !important;
+    border-radius: var(--m-radius-sm) !important;
+    font-family: var(--m-font-heading) !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+  }
+
+  .action-buttons-row .btn-outline {
+    background: transparent !important;
+    border: 1px solid var(--m-border) !important;
+    color: var(--m-text-secondary) !important;
+  }
+
+  .action-buttons-row .btn-primary {
+    background: var(--m-accent) !important;
+    border: none !important;
+    color: white !important;
+  }
+
+
+  /* =========================================================
+     13. SUCCESS VIEW — Mobile
+     ========================================================= */
+  #success-view .fs-success-overlay {
+    background: var(--m-bg-base) !important;
+  }
+
+  .fs-title {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+  }
+
+  .fs-subtitle {
+    font-size: 0.9rem !important;
+    color: var(--m-text-secondary) !important;
+  }
+
+  .fs-xp-text {
+    font-family: var(--m-font-heading) !important;
+    font-weight: 700 !important;
+  }
+
+  .fs-btn {
+    border-radius: var(--m-radius-sm) !important;
+    font-family: var(--m-font-heading) !important;
+    font-weight: 600 !important;
+    background: var(--m-accent) !important;
+  }
+
+
+  /* =========================================================
+     14. REPORT SUCCESS VIEW — Mobile
+     ========================================================= */
+  .desktop-success-wrapper {
+    padding: 24px 20px !important;
+  }
+
+  .success-card {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-lg) !important;
+    padding: 32px 24px !important;
+    box-shadow: none !important;
+    text-align: center;
+  }
+
+  .success-card h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+  }
+
+  .success-desc {
+    font-size: 0.85rem !important;
+    color: var(--m-text-secondary) !important;
+  }
+
+  .success-details-grid {
+    display: flex !important;
+    gap: 8px !important;
+    margin: 20px 0 !important;
+  }
+
+  .success-details-grid .detail-item {
+    flex: 1;
+    background: var(--m-bg-base) !important;
+    border-radius: var(--m-radius-sm) !important;
+    padding: 12px 8px !important;
+    text-align: center;
+  }
+
+  .success-actions {
+    display: flex !important;
+    gap: 10px !important;
+    flex-direction: column !important;
+  }
+
+  .success-actions .btn {
+    height: 48px !important;
+    border-radius: var(--m-radius-sm) !important;
+    font-family: var(--m-font-heading) !important;
+    font-weight: 600 !important;
+  }
+
+
+  /* =========================================================
+     15. MY REPORTS VIEW — Mobile
+     ========================================================= */
+  #my-reports-view .header-nav {
+    padding: 16px 20px !important;
+    background: var(--m-bg-base) !important;
+    border: none !important;
+  }
+
+  #my-reports-view .header-nav h2 {
+    font-family: var(--m-font-heading) !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+  }
+
+
+  /* =========================================================
+     16. MOBILE PROFILE VIEW (NEW)
+     ========================================================= */
+  .m-profile-view {
+    padding: 0 20px 24px;
+  }
+
+  .m-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 16px;
+  }
+
+  .m-profile-header h2 {
+    font-family: var(--m-font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--m-text-primary);
+  }
+
+  .m-profile-card {
+    background: var(--m-bg-elevated);
+    border: 1px solid var(--m-border);
+    border-radius: var(--m-radius-md);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .m-profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+
+  .m-profile-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .m-profile-name {
+    font-family: var(--m-font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--m-text-primary);
+    display: block;
+  }
+
+  .m-profile-role {
+    font-size: 0.75rem;
+    color: var(--m-accent);
+    font-weight: 500;
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--m-accent-muted);
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+
+  .m-profile-section {
+    margin-bottom: 12px;
+  }
+
+  .m-profile-section-title {
+    font-family: var(--m-font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--m-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 0;
+  }
+
+  .m-profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--m-bg-elevated);
+    border: 1px solid var(--m-border);
+    border-radius: var(--m-radius-sm);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background var(--m-duration) var(--m-ease);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .m-profile-menu-item:active {
+    background: var(--m-bg-hover);
+  }
+
+  .m-profile-menu-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--m-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--m-bg-base);
+  }
+
+  .m-profile-menu-icon svg,
+  .m-profile-menu-icon i {
+    width: 18px;
+    height: 18px;
+    color: var(--m-text-secondary);
+  }
+
+  .m-profile-menu-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .m-profile-menu-label {
+    font-family: var(--m-font-body);
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--m-text-primary);
+    display: block;
+  }
+
+  .m-profile-menu-desc {
+    font-size: 0.75rem;
+    color: var(--m-text-tertiary);
+  }
+
+  .m-profile-menu-arrow {
+    width: 18px;
+    height: 18px;
+    color: var(--m-text-muted);
+    flex-shrink: 0;
+  }
+
+  .m-profile-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    background: var(--m-bg-elevated);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--m-radius-sm);
+    color: var(--m-danger);
+    font-family: var(--m-font-body);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--m-duration) var(--m-ease);
+    margin-top: 16px;
+  }
+
+  .m-profile-logout:active {
+    background: var(--m-danger-muted);
+  }
+
+  .m-profile-logout svg,
+  .m-profile-logout i {
+    width: 18px;
+    height: 18px;
+  }
+
+
+  /* =========================================================
+     17. SOS OVERLAY — Mobile
+     ========================================================= */
+  .sos-overlay-fullscreen {
+    z-index: 99999 !important;
+  }
+
+
+  /* =========================================================
+     18. UTILITIES & ANIMATIONS
+     ========================================================= */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Smooth view transitions */
+  .sub-view {
+    animation: m-fadeIn var(--m-duration-slow) var(--m-ease);
+  }
+
+  @keyframes m-fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Back button styling */
+  .back-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: var(--m-text-primary) !important;
+    cursor: pointer;
+  }
+
+  .back-btn svg,
+  .back-btn i {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Header nav (used by Impact, Analytics, My Reports, Alerts) */
+  .header-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    background: var(--m-bg-base) !important;
+  }
+
+  /* Icon buttons */
+  .icon-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: var(--m-radius-sm) !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: var(--m-text-secondary) !important;
+    cursor: pointer;
+  }
+
+  /* Toast notifications */
+  .toast {
+    border-radius: var(--m-radius-sm) !important;
+    font-family: var(--m-font-body) !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Modal overrides */
+  .modal-content {
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-lg) !important;
+  }
+
+  /* Scrollbar hiding globally on mobile */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  /* Map detail card overlay */
+  .map-detail-card .mdc-card {
+    border-radius: var(--m-radius-lg) var(--m-radius-lg) 0 0 !important;
+    background: var(--m-bg-elevated) !important;
+    max-height: 70vh !important;
+  }
+
+  /* Impact gallery scroll */
+  .gallery-scroll-container {
+    gap: 12px !important;
+    padding: 0 !important;
+  }
+
+  .gallery-card {
+    min-width: 280px !important;
+    background: var(--m-bg-elevated) !important;
+    border: 1px solid var(--m-border) !important;
+    border-radius: var(--m-radius-md) !important;
+    box-shadow: none !important;
+  }
+
+} /* End of @media (max-width: 1023px) */

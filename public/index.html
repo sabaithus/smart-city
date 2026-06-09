@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Smart City: Safer City, Better Tomorrow</title>
     <meta name="description" content="Report incidents, volunteer for your community, and make your city smarter.">
+    <meta name="theme-color" content="#0a0a0a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -18,14 +19,15 @@
     <link rel="stylesheet" href="dashboard.css?v=4">
     <link rel="stylesheet" href="tasks-premium.css">
     <link rel="stylesheet" href="impact-dashboard.css">
+    <link rel="stylesheet" href="mobile-redesign.css?v=1">
     <style>
         /* INLINE FIX: Hide scrollbar on map incident panel — cannot be cached */
-        #map-incident-panel { scrollbar-width: none !important; -ms-overflow-style: none !important; }
-        #map-incident-panel::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; background: transparent !important; }
-        #map-incident-panel::-webkit-scrollbar-track { background: transparent !important; }
-        #map-incident-panel::-webkit-scrollbar-thumb { background: transparent !important; }
-        /* INLINE FIX: Remove navbar bottom line on map view */
-        .top-navbar.map-active { border-bottom: none !important; box-shadow: none !important; }
+        #map-incident-panel, #map-panel-list { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        #map-incident-panel::-webkit-scrollbar, #map-panel-list::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; background: transparent !important; }
+        #map-incident-panel::-webkit-scrollbar-track, #map-panel-list::-webkit-scrollbar-track { display: none !important; background: transparent !important; }
+        #map-incident-panel::-webkit-scrollbar-thumb, #map-panel-list::-webkit-scrollbar-thumb { display: none !important; background: transparent !important; }
+        /* INLINE FIX: Remove navbar shadow on map view */
+        .top-navbar.map-active, body:has(#map-view.active) .top-navbar { box-shadow: none !important; }
     </style>
 </head>
 
@@ -1335,6 +1337,79 @@
                     </div>
                 </div>
 
+                <!-- Mobile Profile View -->
+                <div id="mobile-profile-view" class="sub-view">
+                    <div class="m-profile-view">
+                        <div class="m-profile-header">
+                            <h2>Profile</h2>
+                            <button class="icon-btn" onclick="app.toggleTheme()" title="Toggle theme">
+                                <i data-lucide="moon"></i>
+                            </button>
+                        </div>
+
+                        <div class="m-profile-card">
+                            <img id="m-profile-avatar" src="https://ui-avatars.com/api/?name=User&background=10B981&color=fff" alt="Profile" class="m-profile-avatar">
+                            <div class="m-profile-info">
+                                <span class="m-profile-name" id="m-profile-name">User</span>
+                                <span class="m-profile-role" id="m-profile-role">Citizen</span>
+                            </div>
+                        </div>
+
+                        <div class="m-profile-section">
+                            <div class="m-profile-section-title">Activity</div>
+                            <div class="m-profile-menu-item" onclick="app.navigateLayout('my-reports-view')">
+                                <div class="m-profile-menu-icon"><i data-lucide="file-text"></i></div>
+                                <div class="m-profile-menu-text">
+                                    <span class="m-profile-menu-label">My Reports</span>
+                                    <span class="m-profile-menu-desc">View your submitted incidents</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="m-profile-menu-arrow"></i>
+                            </div>
+                            <div class="m-profile-menu-item" id="m-profile-tasks-link" onclick="app.navigateLayout('tasks-view')">
+                                <div class="m-profile-menu-icon"><i data-lucide="clipboard-list"></i></div>
+                                <div class="m-profile-menu-text">
+                                    <span class="m-profile-menu-label">Tasks</span>
+                                    <span class="m-profile-menu-desc">Manage your volunteer missions</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="m-profile-menu-arrow"></i>
+                            </div>
+                            <div class="m-profile-menu-item" id="m-profile-impact-link" onclick="app.navigateLayout('volunteer-profile-view')">
+                                <div class="m-profile-menu-icon"><i data-lucide="award"></i></div>
+                                <div class="m-profile-menu-text">
+                                    <span class="m-profile-menu-label">Impact</span>
+                                    <span class="m-profile-menu-desc">Your contribution & achievements</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="m-profile-menu-arrow"></i>
+                            </div>
+                        </div>
+
+                        <div class="m-profile-section">
+                            <div class="m-profile-section-title">Insights</div>
+                            <div class="m-profile-menu-item" id="m-profile-analytics-link" onclick="app.navigateLayout('analytics-view')">
+                                <div class="m-profile-menu-icon"><i data-lucide="bar-chart-2"></i></div>
+                                <div class="m-profile-menu-text">
+                                    <span class="m-profile-menu-label">Analytics</span>
+                                    <span class="m-profile-menu-desc">Statistics & trends</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="m-profile-menu-arrow"></i>
+                            </div>
+                            <div class="m-profile-menu-item" onclick="app.navigateLayout('alerts-view')">
+                                <div class="m-profile-menu-icon"><i data-lucide="bell"></i></div>
+                                <div class="m-profile-menu-text">
+                                    <span class="m-profile-menu-label">Notifications</span>
+                                    <span class="m-profile-menu-desc">Alerts & updates</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="m-profile-menu-arrow"></i>
+                            </div>
+                        </div>
+
+                        <button class="m-profile-logout" onclick="app.logout()">
+                            <i data-lucide="log-out"></i>
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Success View -->
                 <div id="success-view" class="sub-view">
                     <div class="fs-success-overlay">
@@ -1386,6 +1461,28 @@
                 <a href="#" class="nav-item" id="mobile-analytics-link" onclick="app.navigateLayout('analytics-view', this)"><i
                         data-lucide="bar-chart-2"></i><span>Stats</span></a>
                 <a href="#" class="nav-item" onclick="app.logout()"><i data-lucide="log-out"></i><span>Logout</span></a>
+            </nav>
+
+            <!-- ===== NEW MOBILE BOTTOM NAV (4 items) ===== -->
+            <nav class="m-bottom-nav" id="m-bottom-nav">
+                <button class="m-nav-item active" data-view="user-home-view" onclick="app.mobileNav('user-home-view', this)">
+                    <i data-lucide="home"></i>
+                    <span>Home</span>
+                </button>
+                <button class="m-nav-item" data-view="map-view" onclick="app.mobileNav('map-view', this)">
+                    <i data-lucide="map"></i>
+                    <span>Map</span>
+                </button>
+                <button class="m-nav-fab" data-view="report-view" onclick="app.mobileNav('report-view', this)">
+                    <div class="m-nav-fab-circle">
+                        <i data-lucide="plus"></i>
+                    </div>
+                    <span>Report</span>
+                </button>
+                <button class="m-nav-item" data-view="mobile-profile-view" onclick="app.mobileNav('mobile-profile-view', this)">
+                    <i data-lucide="user"></i>
+                    <span>Profile</span>
+                </button>
             </nav>
         </div>
 

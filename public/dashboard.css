@@ -1919,7 +1919,6 @@
 /* ===== FIX: Remove navbar border/shadow line on map view ===== */
 body:has(#map-view.active) .top-navbar,
 html:has(#map-view.active) .top-navbar {
-    border-bottom: none !important;
     box-shadow: none !important;
 }
 
@@ -1929,9 +1928,24 @@ html:has(#map-view.active) .top-navbar {
     -ms-overflow-style: none !important; /* IE/Edge */
 }
 
-.map-incident-panel::-webkit-scrollbar {
+.map-incident-panel::-webkit-scrollbar,
+.map-panel-list::-webkit-scrollbar {
     display: none !important; /* Chrome/Safari/Edge */
     width: 0 !important;
     height: 0 !important;
+    background: transparent !important;
+}
+
+.map-incident-panel::-webkit-scrollbar-track,
+.map-panel-list::-webkit-scrollbar-track,
+.map-incident-panel::-webkit-scrollbar-thumb,
+.map-panel-list::-webkit-scrollbar-thumb {
+    display: none !important;
+    background: transparent !important;
+}
+
+.map-panel-list {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
